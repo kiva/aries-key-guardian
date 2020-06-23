@@ -1,3 +1,3 @@
 # aries-key-guardian
 
-Interoperable key guardian and recovery system for self sovereign identity wallets
+Aries Key Guardian is an interoperable key guardian and recovery system for self sovereign identity wallets.
