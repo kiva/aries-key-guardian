@@ -5,15 +5,15 @@
 replicaCount: 1
 
 image:
-  repository: kivaprotocol/auth-service
+  repository: aries-key-guardian
   tag: latest
   pullPolicy: Always
   imagePullSecrets:
     - name: "regcred"
 
-nameOverride: "protocol-auth-service"
-fullnameOverride: "protocol-auth-service"
-secrets: "protocol-auth-service-secrets"
+nameOverride: "aries-key-guardian"
+fullnameOverride: "aries-key-guardian"
+secrets: "aries-key-guardian-secrets"
 
 strategy:
   type: "RollingUpdate"

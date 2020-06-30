@@ -1,8 +1,8 @@
 {
-  "name": "auth_server",
+  "name": "aries-key-guardian",
   "version": "1.0.0",
   "private": true,
-  "description": "Auth Server for Kiva Protocol",
+  "description": "Aries Key Guardian for Kiva Protocol",
   "license": "none",
   "repository": {
     "type": "git",

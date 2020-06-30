@@ -21,7 +21,7 @@ export class AppService {
     public static async setup(app: INestApplication): Promise<void> {
         const logger = new Logger(DatadogLogger.getLogger());
         app.useLogger(logger);
-        app.use(traceware('auth'));
+        app.use(traceware('aries-key-guardian'));
 
         app.useGlobalInterceptors(new LoggingInterceptor());
         app.useGlobalFilters(new ProtocolExceptionFilter());
@@ -32,8 +32,8 @@ export class AppService {
         if (process.env.NODE_ENV === Constants.LOCAL) {
             // Set up internal documentation at /api
             const options = new DocumentBuilder()
-                .setTitle('Auth Service')
-                .setDescription('Internal Documentation for the Auth microservice')
+                .setTitle('Aries Key Guardian')
+                .setDescription('Internal Documentation for the Aries Key Guardian microservice')
                 .setVersion('1.0')
                 .build();
             const document = SwaggerModule.createDocument(app, options);
