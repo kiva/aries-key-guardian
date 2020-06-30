@@ -16,3 +16,6 @@ To run tests, you need to execute from inside the docker container (not you Mac)
 ```
 docker exec -it aries-key-guardian npm run test
 ```
+
+### Epic
+There is still a lot of work to do in this repo as described in the epic PRO-1892
