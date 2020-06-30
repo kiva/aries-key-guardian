@@ -1,27 +1,18 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProtocolExceptionFilter } from '@kiva/protocol-common/protocol.exception.filter';
-import { EscrowController } from '../src/escrow/escrow.controller';
-import { EscrowService } from '../src/escrow/escrow.service';
-import { WalletCredentials } from '../src/entity/wallet.credentials';
-import { SmsService } from '../src/sms/sms.service';
-import { SmsOtp } from '../src/entity/sms.otp';
-import { PluginFactory } from '../src/plugins/plugin.factory';
-import { PluginModule } from '../src/plugins/plugin.module';
-import { SmsModule } from '../src/sms/sms.module';
-import { OrmConfig } from '../src/ormconfig';
+import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
 import { AppModule } from '../src/app/app.module';
 import { AppService } from '../src/app/app.service';
 import { TwillioService } from '../src/sms/twillio.service';
 import { SmsErrorCode } from '../src/sms/sms.errorcode';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
 
 /**
  * This mocks out external dependencies (eg Twillio) but not internal ones (eg DB)
  * Note that it expects the tests to run in order so that the first test inserts data that is later tested by other tests
  * TODO at the end we should clean up DB data
+ * Note: This test needs to be run inside the docker container in order to connect to the DB
+ * TODO figure out a way to get this test passing when run from a Mac
  */
 describe('EscrowController (e2e) using SMS plugin', () => {
     let app: INestApplication;

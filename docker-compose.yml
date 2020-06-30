@@ -1,13 +1,13 @@
 # Spin up the Aries Key Guardian service locally with DB
 #
-version: '3'
+version: '3.5'
 
 networks:
-  kiva-network:
+  agency-network:
     external: true
 
 services:
-    aries-key-guardian:
+  aries-key-guardian:
     env_file:
       - ./.env
     build: ./
@@ -17,13 +17,12 @@ services:
     working_dir: /www
     ports:
       - "3003:3003"
-      - "9228:9228"
     expose:
       - "3003"
     volumes:
       - ./:/www
     networks:
-      - kiva-network
+      - agency-network
     tty: true
     depends_on: 
       - escrow-db
@@ -36,8 +35,6 @@ services:
       - ./logs/postgres:/logs:z
     env_file:
       - .env
-    expose:
-      - "5432"
     networks:
-      - kiva-network
+      - agency-network
     tty: true

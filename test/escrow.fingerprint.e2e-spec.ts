@@ -7,8 +7,6 @@ import { ProtocolExceptionFilter } from '@kiva/protocol-common/protocol.exceptio
 import { EscrowController } from '../src/escrow/escrow.controller';
 import { EscrowService } from '../src/escrow/escrow.service';
 import { WalletCredentials } from '../src/entity/wallet.credentials';
-import { SmsService } from '../src/sms/sms.service';
-import { SmsOtp } from '../src/entity/sms.otp';
 import { PluginFactory } from '../src/plugins/plugin.factory';
 
 /**
