@@ -1,0 +1,98 @@
+{
+  "name": "auth_server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Auth Server for Kiva Protocol",
+  "license": "none",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiva/protocol.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts",
+    "start:debug": "nodemon --legacy-watch",
+    "prestart:prod": "rimraf dist && tsc",
+    "start:prod": "node dist/main.js",
+    "start:hmr": "node dist/server",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
+    "test": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit"
+  },
+  "dependencies": {
+    "@kiva/protocol-common": "0.1.11",
+    "@nestjs/common": "^7.0.8",
+    "@nestjs/core": "^7.0.8",
+    "@nestjs/jwt": "^7.0.0",
+    "@nestjs/passport": "^7.0.0",
+    "@nestjs/platform-express": "^7.0.8",
+    "@nestjs/swagger": "^4.5.2",
+    "@nestjs/typeorm": "^7.0.0",
+    "@types/node": "^13.13.0",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.1",
+    "cls-hooked": "4.2.2",
+    "crypto-js": "^4.0.0",
+    "crypto-random-string": "^3.2.0",
+    "dd-trace": "^0.19.1",
+    "dotenv": "^8.2.0",
+    "express-opentracing": "^0.1.1",
+    "jaeger-client": "^3.17.2",
+    "jest-resolve": "^25.4.0",
+    "opentracing": "^0.14.4",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "pg": "^8.0.2",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.5.5",
+    "swagger-ui-express": "^4.1.4",
+    "twilio": "^3.46.0",
+    "typeorm": "^0.2.24",
+    "typescript": "^3.8.3",
+    "winston-loggly-bulk": "^3.1.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^7.0.8",
+    "@types/jest": "^25.2.1",
+    "@types/supertest": "^2.0.8",
+    "jest": "^25.4.0",
+    "kill-port": "^1.6.0",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.4.0",
+    "ts-loader": "^7.0.1",
+    "ts-node": "^8.8.2",
+    "tsconfig-paths": "^3.9.0",
+    "tslint": "6.1.1"
+  },
+  "jest": {
+    "globals": {
+      "factories": {}
+    },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "test",
+    "testRegex": ".e2e-spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts",
+    "ignore": [
+      "src/**/*.spec.ts"
+    ],
+    "exec": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts"
+  }
+}

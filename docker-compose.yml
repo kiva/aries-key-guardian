@@ -1,0 +1,53 @@
+#
+#
+version: '3'
+
+networks:
+  kiva-network:
+    external: true
+
+services:
+  protocol-auth-service:
+    env_file:
+      - ./.env
+    build: ./
+    command: npm run start:debug # @todo want an easy way to switch between prod and dev
+    image: protocol-auth-service
+    container_name: protocol-auth-service
+    working_dir: /www
+    ports:
+      - "3003:3003"
+      - "9228:9228"
+    expose:
+      - "3003"
+    # I still haven't found the best way to do this, the idea is we want to load our source files from the host to allow
+    # for rapid development but we need the node_modules build for the container
+    # For now, any changes to package.json requires running:
+    # docker exec -it auth-server npm install
+    volumes:
+      - ./:/www
+      - node_modules:/www/node_modules
+    networks:
+      - kiva-network
+    tty: true
+    depends_on: 
+      - protocol-auth-db
+  #This db is for storing dids, wallet ids & keys. May also store oauth2 data too.
+  protocol-auth-db:
+    image: postgres:11
+    container_name: protocol-auth-db
+    command: postgres -c logging_collector=on -c log_destination=stderr -c log_directory=/logs
+    volumes:
+      - db_data:/var/lib/postgres
+      - ./logs/postgres:/logs:z
+    env_file:
+      - .env
+    expose:
+      - "5432"
+    networks:
+      - kiva-network
+    tty: true
+
+volumes:
+  node_modules:
+  db_data: {}
