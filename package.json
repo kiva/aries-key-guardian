@@ -1,0 +1,93 @@
+{
+  "name": "aries-key-guardian",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aries Key Guardian for Kiva Protocol",
+  "license": "none",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiva/protocol.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts",
+    "start:debug": "nodemon --legacy-watch",
+    "prestart:prod": "rimraf dist && tsc",
+    "start:prod": "node dist/main.js",
+    "start:hmr": "node dist/server",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
+    "test": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit"
+  },
+  "dependencies": {
+    "@kiva/protocol-common": "0.1.12",
+    "@nestjs/common": "^7.2.0",
+    "@nestjs/core": "^7.2.0",
+    "@nestjs/platform-express": "^7.2.0",
+    "@nestjs/swagger": "^4.5.12",
+    "@nestjs/typeorm": "^7.1.0",
+    "@types/node": "^14.0.14",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.12.2",
+    "cls-hooked": "4.2.2",
+    "crypto-js": "^4.0.0",
+    "crypto-random-string": "^3.2.0",
+    "dd-trace": "^0.22.1",
+    "dotenv": "^8.2.0",
+    "express-opentracing": "^0.1.1",
+    "jaeger-client": "^3.18.0",
+    "jest-resolve": "^26.1.0",
+    "opentracing": "^0.14.4",
+    "pg": "^8.2.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.5.5",
+    "swagger-ui-express": "^4.1.4",
+    "twilio": "^3.47.0",
+    "typeorm": "^0.2.25",
+    "typescript": "^3.9.5"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^7.2.0",
+    "@types/jest": "^25.2.1",
+    "@types/supertest": "^2.0.10",
+    "jest": "^25.4.0",
+    "kill-port": "^1.6.0",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.4.0",
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "tsconfig-paths": "^3.9.0",
+    "tslint": "6.1.2"
+  },
+  "jest": {
+    "globals": {
+      "factories": {}
+    },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "test",
+    "testRegex": ".e2e-spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts",
+    "ignore": [
+      "src/**/*.spec.ts"
+    ],
+    "exec": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts"
+  }
+}

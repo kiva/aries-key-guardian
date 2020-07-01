@@ -1,0 +1,45 @@
+# Default values for helm-config.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: aries-key-guardian
+  tag: latest
+  pullPolicy: Always
+  imagePullSecrets:
+    - name: "regcred"
+
+nameOverride: "aries-key-guardian"
+fullnameOverride: "aries-key-guardian"
+secrets: "aries-key-guardian-secrets"
+
+strategy:
+  type: "RollingUpdate"
+
+service:
+  type: ClusterIP
+  port: 3003
+  containerPort: 3003
+  targetPort: 3003
+  portName: http
+
+resources:
+  limits:
+    cpu: 1100m
+    memory: 607164212
+  requests:
+    cpu: 1100m
+    memory: 607164212
+
+#tolerations:
+#  - effect: NoSchedule
+#    key: crypto
+#    operator: Equal
+#    value: "true"
+#
+#nodeSelector:
+#    dedicated: crypto
+#
+#affinity: {}

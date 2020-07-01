@@ -1,0 +1,40 @@
+# Spin up the Aries Key Guardian service locally with DB
+#
+version: '3.5'
+
+networks:
+  agency-network:
+    external: true
+
+services:
+  aries-key-guardian:
+    env_file:
+      - ./.env
+    build: ./
+    command: npm run start:debug
+    image: aries-key-guardian
+    container_name: aries-key-guardian
+    working_dir: /www
+    ports:
+      - "3003:3003"
+    expose:
+      - "3003"
+    volumes:
+      - ./:/www
+    networks:
+      - agency-network
+    tty: true
+    depends_on: 
+      - escrow-db
+
+  escrow-db:
+    image: postgres:11
+    container_name: escrow-db
+    command: postgres -c logging_collector=on -c log_destination=stderr -c log_directory=/logs
+    volumes:
+      - ./logs/postgres:/logs:z
+    env_file:
+      - .env
+    networks:
+      - agency-network
+    tty: true
