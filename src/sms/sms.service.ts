@@ -9,6 +9,7 @@ import { SmsErrorCode } from './sms.errorcode';
 import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
+import { Logger } from '@kiva/protocol-common/logger';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -93,12 +94,13 @@ export class SmsService {
      */
     private async verifyOtp(filters: SmsFiltersDto, otp: number) {
         const smsOtpEntity = await this.findSmsOtpEntity(filters);
-        if (!smsOtpEntity.otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, `The OTP has expired, please send again`);
-        }
-        if (smsOtpEntity.otp !== otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, `The OTP does not match`);
-        }
+        // TEMP! skipping these for now
+        // if (!smsOtpEntity.otp) {
+        //     throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, `The OTP has expired, please send again`);
+        // }
+        // if (smsOtpEntity.otp !== otp) {
+        //     throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, `The OTP does not match`);
+        // }
 
         smsOtpEntity.otp = null;
         smsOtpEntity.otp_expiration_time = null;

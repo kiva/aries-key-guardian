@@ -26,11 +26,16 @@ export class EscrowService {
      */
     public async verify(pluginType: string, filters: any, params: any) {
         const plugin = this.pluginFactory.create(pluginType);
-        const result = await plugin.verify(filters, params);
+        // TODO we may want to update the verify result to include the connectionData even if null
+        const result: any = await plugin.verify(filters, params);
         if (result.status === 'matched') {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
-            // TODO call agency to spin up agent with the given wallet credentials
-            // TODO we'll want to add some connection data to the result so the caller will know how to connect with the agent
+            
+            // TODO we need to save the admin api key and then we can pass it along here
+            const data = await this.spinUpAgent(walletCredentials.wallet_id, walletCredentials.wallet_key, walletCredentials.wallet_key, walletCredentials.seed, walletCredentials.did);
+            Logger.log(`Spun up agent for did ${walletCredentials.did}`, data);
+            // Append the connection data onto the result
+            result.connectionData = data.connectionData
         }
         return result;
     }
