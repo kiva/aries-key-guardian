@@ -4,6 +4,7 @@ import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
 import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
 import { SmsErrorCode } from './sms.errorcode';
 import { default as twilio } from 'twilio';
+import { Constants } from '@kiva/protocol-common/constants';
 
 /**
  * Putting Twillio in it's own service in case we want to support other SMS services
@@ -13,6 +14,7 @@ export class TwillioService {
 
     /**
      * send NIDP OTP SMS via Twilio
+     * In our test envs (local + dev) we also log the OTP to make testing easier
      * toNumber: phone number to send the SMS to (owned by the authenticating user), e.g. +14151234567
      * otp: the number code that the authenticating user will use to prove their ownership of the phone number.
      *
@@ -23,7 +25,11 @@ export class TwillioService {
      */
     public async sendOtp(toNumber: string, otp: number): Promise<void> {
         try {
-            await this.sendSms(toNumber, `Your NIDP one-time passcode is ${otp}`);
+            const message = `Your NIDP one-time passcode is ${otp}`;
+            await this.sendSms(toNumber, message);
+            if (process.env.NODE_ENV === Constants.LOCAL || process.env.NODE_ENV === Constants.DEV) {
+                Logger.log('Test Twilio Message:', message);
+            }
         } catch (e) {
             Logger.log('Error sending SMS', e);
             throw new ProtocolException(SmsErrorCode.SMS_SEND_FAILED, `SMS failed to send`);

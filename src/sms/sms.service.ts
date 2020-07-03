@@ -94,13 +94,12 @@ export class SmsService {
      */
     private async verifyOtp(filters: SmsFiltersDto, otp: number) {
         const smsOtpEntity = await this.findSmsOtpEntity(filters);
-        // TEMP! skipping these for now
-        // if (!smsOtpEntity.otp) {
-        //     throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, `The OTP has expired, please send again`);
-        // }
-        // if (smsOtpEntity.otp !== otp) {
-        //     throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, `The OTP does not match`);
-        // }
+        if (!smsOtpEntity.otp) {
+            throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, `The OTP has expired, please send again`);
+        }
+        if (smsOtpEntity.otp !== otp) {
+            throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, `The OTP does not match`);
+        }
 
         smsOtpEntity.otp = null;
         smsOtpEntity.otp_expiration_time = null;
