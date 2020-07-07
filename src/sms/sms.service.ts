@@ -9,6 +9,7 @@ import { SmsErrorCode } from './sms.errorcode';
 import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
+import { Logger } from '@kiva/protocol-common/logger';
 
 /**
  * Service to send an OTP via SMS and verify it
