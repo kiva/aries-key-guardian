@@ -57,7 +57,6 @@ export class TwillioService {
           from: fromNumber,
           to: toNumber,
         });
-        // TODO in LOCAL and DEV also log the OTP to help with testing
         Logger.log('Twilio message sent', {'messageSID': message.sid});
     }
 
