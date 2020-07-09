@@ -4,8 +4,7 @@ Interoperable key guardian and recovery system for self sovereign identity walle
 
 
 ### Setup
-Copy .env file (TODO need to figure out an automated way to do this)
-Copy .npmrc (TODO once npm is public we won't need this anymore)
+Copy .env file (TODO need to figure out an automated way to do this)  
 Start up the agency-network from aires-guardianship-agency repo
 ```
 npm install
