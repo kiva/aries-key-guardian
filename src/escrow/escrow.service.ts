@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException, HttpService } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
+import { Logger } from 'protocol-common/logger';
+import cryptoRandomString from 'crypto-random-string';
 import { WalletCredentials } from '../entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
-import cryptoRandomString from 'crypto-random-string';
-import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
-import { ProtocolHttpService } from '@kiva/protocol-common/protocol.http.service';
-import { Logger } from '@kiva/protocol-common/logger';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -30,8 +30,9 @@ export class EscrowService {
         const result: any = await plugin.verify(filters, params);
         if (result.status === 'matched') {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
-            
+
             // TODO we need to save the admin api key and then we can pass it along here
+            // tslint:disable-next-line:max-line-length
             const data = await this.spinUpAgent(walletCredentials.wallet_id, walletCredentials.wallet_key, walletCredentials.wallet_key, walletCredentials.seed, walletCredentials.did);
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, data);
             // Append the connection data onto the result

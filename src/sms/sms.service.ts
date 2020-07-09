@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
+import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { SecurityUtility } from 'protocol-common/security.utility';
 import { SmsOtp } from '../entity/sms.otp';
-import { SecurityUtility } from '@kiva/protocol-common/security.utility';
 import { SmsErrorCode } from './sms.errorcode';
 import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
-import { Logger } from '@kiva/protocol-common/logger';
 
 /**
  * Service to send an OTP via SMS and verify it

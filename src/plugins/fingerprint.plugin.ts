@@ -1,8 +1,8 @@
 import { IPlugin } from './plugin.interface';
 import { AxiosRequestConfig } from 'axios';
-import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
-import { ProtocolHttpService } from '@kiva/protocol-common/protocol.http.service';
+import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 
 /**
  * Right now the backend (ie which fingerprint template db to connect to) is defined by an environment variable, eventually we'll want this to

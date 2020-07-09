@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { AppService } from './app/app.service';
-import { Logger } from '@kiva/protocol-common/logger';
+import { Logger } from 'protocol-common/logger';
 
 async function bootstrap() {
   const port = process.env.PORT;

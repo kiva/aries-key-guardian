@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { AppModule } from '../src/app/app.module';
 import { AppService } from '../src/app/app.service';
 import { TwillioService } from '../src/sms/twillio.service';

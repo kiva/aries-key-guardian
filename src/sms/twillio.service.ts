@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Logger } from '@kiva/protocol-common/logger';
-import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
+import { Logger } from 'protocol-common/logger';
+import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from './sms.errorcode';
 import { default as twilio } from 'twilio';
-import { Constants } from '@kiva/protocol-common/constants';
 
 /**
  * Putting Twillio in it's own service in case we want to support other SMS services
