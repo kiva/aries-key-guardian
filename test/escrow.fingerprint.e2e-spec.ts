@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, HttpService } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import assert from 'assert';
-import { ProtocolExceptionFilter } from '@kiva/protocol-common/protocol.exception.filter';
+import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
 import { EscrowController } from '../src/escrow/escrow.controller';
 import { EscrowService } from '../src/escrow/escrow.service';
 import { WalletCredentials } from '../src/entity/wallet.credentials';

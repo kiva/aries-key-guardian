@@ -21,7 +21,7 @@
     "test": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit"
   },
   "dependencies": {
-    "@kiva/protocol-common": "0.1.12",
+    "protocol-common": "0.1.15",
     "@nestjs/common": "^7.2.0",
     "@nestjs/core": "^7.2.0",
     "@nestjs/platform-express": "^7.2.0",

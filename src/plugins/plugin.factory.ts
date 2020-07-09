@@ -1,11 +1,11 @@
 import { HttpService, Injectable, Optional } from '@nestjs/common';
-import { ProtocolException } from '@kiva/protocol-common/protocol.exception';
-import { ProtocolErrorCode } from '@kiva/protocol-common/protocol.errorcode';
+import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { IPlugin } from './plugin.interface';
 import { PluginTypeEnum } from './plugin.type.enum';
 import { FingerprintPlugin } from './fingerprint.plugin';
 import { SmsOtpPlugin } from './sms.otp.plugin';
-import { ProtocolHttpService } from '@kiva/protocol-common/protocol.http.service';
 import { SmsService } from '../sms/sms.service';
 
 /**

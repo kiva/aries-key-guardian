@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { EscrowService } from './escrow.service';
-import { ProtocolValidationPipe } from '@kiva/protocol-common/protocol.validation.pipe';
+import { ProtocolValidationPipe } from 'protocol-common/protocol.validation.pipe';
 import { VerifyDto } from './verify.dto';
 import { CreateDto } from './create.dto';
 import { AddDto } from './add.dto';
