@@ -50,17 +50,20 @@ export class FingerprintPlugin implements IPlugin {
     /**
      * Currently this isn't called because the wallet sync service calls the identity service directly
      * Eventually we want all calls to plugin services to be proxied through here
-     * TODO the identity service should update the templatizer endpoint to accept data in this format
+     * TODO the identity service should update the templatizer endpoint to accept data in the format { id, filters, params }
+     *   Until it does, we just forward the params as the data it's currently expecting
      */
     public async save(id: string, filters: any, params: any) {
+        // TEMP until the identity service is updated
+        const data = params;
+        for (const datum of data) {
+            datum.did = id;
+        }
+
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: process.env.IDENTITY_SERVICE_URL + '/api/v1/templatizer/bulk/' + this.backend,
-            data: {
-                id,
-                filters,
-                params,
-            },
+            data,
         };
         await this.http.requestWithRetry(request);
     }
