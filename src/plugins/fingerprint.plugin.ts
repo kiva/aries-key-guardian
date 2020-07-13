@@ -48,8 +48,6 @@ export class FingerprintPlugin implements IPlugin {
     }
 
     /**
-     * Currently this isn't called because the wallet sync service calls the identity service directly
-     * Eventually we want all calls to plugin services to be proxied through here
      * TODO the identity service should update the templatizer endpoint to accept data in the format { id, filters, params }
      *   Until it does, we just forward the params as the data it's currently expecting
      */
