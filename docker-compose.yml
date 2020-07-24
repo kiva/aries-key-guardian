@@ -30,9 +30,7 @@ services:
   escrow-db:
     image: postgres:11
     container_name: escrow-db
-    command: postgres -c logging_collector=on -c log_destination=stderr -c log_directory=/logs
-    volumes:
-      - ./logs/postgres:/logs:z
+    command: postgres
     env_file:
       - .env
     networks:
