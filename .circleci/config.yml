@@ -1,0 +1,38 @@
+# Required environment variables (set these in CircleCI):
+# DOCKER_LOGIN - Dockerhub service account username
+# DOCKER_PASSWORD - Dockerhub service account password
+
+version: 2.1
+
+jobs:
+  build-and-test:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run: npm run test
+
+workflows:
+  build-test-deploy:
+    jobs:
+      - build-and-test:
+          filters: # run for all branches AND tags
+              tags:
+                  only: /.*/
+      - docker/publish:
+          dockerfile: Dockerfile.production
+          requires:
+              - build-and-test
+          filters: # only run for semver tagged versions
+              tags:
+                  only: /^([0-9]+)\.([0-9]+)\.([0-9]+)/
+              branches:
+                  ignore: /.*/
+              image: kivaprotocol/aries-key-guardian
+          update-description: true
+          tag: << pipeline.git.tag >>
+
+orbs:
+  node: circleci/node@3.0.0
+  docker: circleci/docker@1.3.0
