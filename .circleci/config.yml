@@ -6,12 +6,13 @@ version: 2.1
 
 jobs:
   build-and-test:
-    executor:
-      name: node/default
+    machine:
+      docker_layer_caching: true
     steps:
       - checkout
-      - node/install-packages
-      - run: npm run test
+      - run: docker-compose up &
+      - run: sleep 10
+      - run: docker exec -it aries-key-guardian npm run test
 
 workflows:
   build-test-deploy:
