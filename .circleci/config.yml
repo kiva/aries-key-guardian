@@ -10,6 +10,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - run: npm install nodemon --save-dev
       - run: cp dummy.env .env
       - run: docker network create agency-network
       - run: docker-compose up &
