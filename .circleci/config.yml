@@ -10,8 +10,9 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - run: cp dummy.env .env
       - run: docker-compose up &
-      - run: sleep 300
+      - run: sleep 60
       - run: docker exec -it aries-key-guardian npm run test
 
 workflows:

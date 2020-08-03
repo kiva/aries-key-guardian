@@ -1,6 +1,6 @@
 # Spin up the Aries Key Guardian service locally with DB
 #
-version: '3.5'
+version: '3.2'
 
 networks:
   agency-network:
