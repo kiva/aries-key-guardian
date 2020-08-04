@@ -4,7 +4,7 @@ version: '3.2'
 
 networks:
   agency-network:
-    external: true
+    external: false
 
 services:
   aries-key-guardian:
