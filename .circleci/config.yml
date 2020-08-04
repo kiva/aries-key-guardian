@@ -45,7 +45,7 @@ workflows:
               branches:
                   ignore: /.*/
           update-description: true
-          dockerfile: Dockerfile.production
+          dockerfile: Dockerfile # TODO fix tsc issues in Dockerfile.production
           image: kivaprotocol/aries-key-guardian
           tag: << pipeline.git.tag >>
 
