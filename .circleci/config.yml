@@ -10,9 +10,10 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - run: npm install nodemon --save-dev
       - run: cp dummy.env .env
       - run: echo $TWILIOENV | base64 --decode >> .env
+      - run: npm install nodemon --save-dev
+      - run: npm install
       - run: docker-compose -f docker-compose.ci.yml build
       - run:
           name: Start docker compose and wait for readiness
