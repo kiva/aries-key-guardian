@@ -18,8 +18,8 @@ jobs:
           command: |
               set -x
               docker-compose -f docker-compose.ci.yml up -d
-              sleep 300
-      - run: docker exec -it aries-key-guardian npm run test
+              sleep 150
+              docker exec -it aries-key-guardian npm run test
 
 workflows:
   build-test-deploy:
