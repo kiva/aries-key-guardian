@@ -12,7 +12,6 @@ jobs:
       - checkout
       - run: npm install nodemon --save-dev
       - run: cp dummy.env .env
-      - run: docker network create agency-network
       - run: docker-compose build
       - run:
           name: Start docker compose and wait for readiness
