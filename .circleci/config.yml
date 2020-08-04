@@ -13,8 +13,13 @@ jobs:
       - run: npm install nodemon --save-dev
       - run: cp dummy.env .env
       - run: docker network create agency-network
-      - run: docker-compose up &
-      - run: sleep 300
+      - run: docker-compose build
+      - run:
+          name: Start docker compose and wait for readiness
+          command: |
+              set -x
+              docker-compose up -d
+              sleep 300
       - run: docker exec -it aries-key-guardian npm run test
 
 workflows:
