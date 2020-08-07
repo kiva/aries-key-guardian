@@ -32,8 +32,13 @@ export class EscrowService {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
             // TODO we need to save the admin api key and then we can pass it along here
-            // tslint:disable-next-line:max-line-length
-            const data = await this.spinUpAgent(walletCredentials.wallet_id, walletCredentials.wallet_key, walletCredentials.wallet_key, walletCredentials.seed, walletCredentials.did);
+            const data = await this.spinUpAgent(
+                walletCredentials.wallet_id,
+                walletCredentials.wallet_key,
+                walletCredentials.wallet_key,
+                walletCredentials.seed,
+                walletCredentials.did
+            );
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, data);
             // Append the connection data onto the result
             result.connectionData = data.connectionData;
@@ -67,7 +72,13 @@ export class EscrowService {
         Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
 
         // TODO we need to save the admin api key and then we can pass it along here
-        const data = await this.spinUpAgent(walletCredentials.wallet_id, walletCredentials.wallet_key, walletCredentials.wallet_key, walletCredentials.seed, walletCredentials.did);
+        const data = await this.spinUpAgent(
+            walletCredentials.wallet_id,
+            walletCredentials.wallet_key,
+            walletCredentials.wallet_key,
+            walletCredentials.seed,
+            walletCredentials.did
+        );
         Logger.log(`Spun up agent for did ${walletCredentials.did}`);
 
         return { id: walletCredentials.did, connectionData: data.connectionData };

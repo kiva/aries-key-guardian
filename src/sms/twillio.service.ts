@@ -5,7 +5,7 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from './sms.errorcode';
 import { default as twilio } from 'twilio';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 /**
  * Putting Twillio in it's own service in case we want to support other SMS services
