@@ -5,6 +5,7 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from './sms.errorcode';
 import { default as twilio } from 'twilio';
+import crypto from "crypto";
 
 /**
  * Putting Twillio in it's own service in case we want to support other SMS services
@@ -65,6 +66,19 @@ export class TwillioService {
      * Generate exactly 6 digits so can't start with 0
      */
     public generateRandomOtp(): number {
-        return Math.floor(100000 + Math.random() * 900000);
+        // tslint:disable:no-bitwise
+        const max = 999999;
+        const min = 100000;
+        const diff = max - min + 1;
+        const numBits = Math.ceil(Math.log2(diff)); // min number of bits required to represent the diff
+        const numBytes = Math.ceil(numBits / 4); // Must use bytes... min number of bytes required
+        const mask = (1 << numBits) - 1; // If we get more bits than required, look only at what we need and discard the rest
+
+        let randNum;
+        do {
+            randNum = crypto.randomBytes(numBytes).readUIntBE(0, numBytes);
+            randNum = randNum & mask;
+        } while (randNum >= diff);
+        return randNum + min;
     }
 }

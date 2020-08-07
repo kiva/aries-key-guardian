@@ -36,7 +36,7 @@ export class EscrowService {
             const data = await this.spinUpAgent(walletCredentials.wallet_id, walletCredentials.wallet_key, walletCredentials.wallet_key, walletCredentials.seed, walletCredentials.did);
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, data);
             // Append the connection data onto the result
-            result.connectionData = data.connectionData
+            result.connectionData = data.connectionData;
         }
         return result;
     }

@@ -65,7 +65,7 @@ export class SmsService {
         if (filters.govId1) {
             search = { gov_id_1_hash: SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER) };
         } else {
-            search = { gov_id_2_hash: SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER) }
+            search = { gov_id_2_hash: SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER) };
         }
         const results = await this.smsOtpRepository.find(search);
         if (results.length < 1) {
@@ -81,7 +81,7 @@ export class SmsService {
     private async generateOtp(smsOtpEntity: SmsOtp): Promise<number> {
         const otp = this.twillioService.generateRandomOtp();
         const otpExpireTime = new Date(Date.now() + 15000); // 15 min
-        smsOtpEntity.otp = otp
+        smsOtpEntity.otp = otp;
         smsOtpEntity.otp_expiration_time = otpExpireTime;
         await this.smsOtpRepository.save(smsOtpEntity);
         this.scheduleOtpExpiration(smsOtpEntity);
@@ -117,7 +117,7 @@ export class SmsService {
     public scheduleOtpExpiration(smsOtpEntity: SmsOtp): void {
         setTimeout(
             async () => {
-                smsOtpEntity.otp = null
+                smsOtpEntity.otp = null;
                 smsOtpEntity.otp_expiration_time = null;
                 await this.smsOtpRepository.save(smsOtpEntity);
             },
