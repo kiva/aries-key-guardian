@@ -33,7 +33,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                             },
                         });
                     }
-                }
+                };
             }
         };
         const mockRepository = {
@@ -98,7 +98,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     });
 
     it('Create endpoint', () => {
-        data.id = 'agentIdxyz'
+        data.id = 'agentIdxyz';
         return request(app.getHttpServer())
             .post('/v1/escrow/create')
             .send(data)

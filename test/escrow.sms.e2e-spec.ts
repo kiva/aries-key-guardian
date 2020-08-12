@@ -19,12 +19,12 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     let data: any;
     let agentId: string;
     let otp: number;
-    let nationalId: string
+    let nationalId: string;
 
     beforeAll(async () => {
         const voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
         nationalId = 'N' + voterId;
-        otp = 123456
+        otp = 123456;
         data = {
             pluginType: 'SMS_OTP',
             filters: {
