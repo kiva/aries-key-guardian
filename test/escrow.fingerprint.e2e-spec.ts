@@ -95,7 +95,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                 assert.equal(res.body.status, 'matched');
                 assert.equal(res.body.id, 'agentId123');
             });
-    });
+    }, 10000);
 
     it('Create endpoint', () => {
         data.id = 'agentIdxyz';
@@ -107,7 +107,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                 // We can't predict the exact value since it will be random
                 expect(res.body.id).toBeDefined();
             });
-    });
+    }, 10000);
 
     it('Add endpoint', () => {
         return request(app.getHttpServer())
@@ -117,5 +117,5 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .then((res) => {
                 assert.equal(res.body.result, 'success');
             });
-    });
+    }, 10000);
 });

@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { OrmConfig } from '../ormconfig';
 import data from '../config/env.json';
 import { EscrowModule } from '../escrow/escrow.module';
+import { RateLimitModule } from '../ratelimit/ratelimit.module';
 
 /**
  * Initializes the Nest application
@@ -14,6 +15,7 @@ import { EscrowModule } from '../escrow/escrow.module';
 @Module({
     imports: [
         ConfigModule.init(data),
+        RateLimitModule,
         RequestContextModule,
         EscrowModule,
         OrmConfig(),
