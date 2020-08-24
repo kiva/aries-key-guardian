@@ -16,4 +16,9 @@ export class SmsParamsDto {
     })
     @IsOptional() @IsNumber() readonly otp: number;
 
+    @ApiPropertyOptional({
+        description: 'Value of the Authorization header, if present'
+    })
+    @IsOptional() readonly authorization: string;
+
 }

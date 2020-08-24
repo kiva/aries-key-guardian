@@ -1,5 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Post, Body, Headers } from '@nestjs/common';
+import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { EscrowService } from './escrow.service';
 import { ProtocolValidationPipe } from 'protocol-common/protocol.validation.pipe';
 import { VerifyDto } from './verify.dto';
@@ -21,9 +21,17 @@ export class EscrowController {
      * Generic endpoint to identify and authenticate an entity with the given plugin type
      * It will ensure that an agent is ready and return the connection data
      */
+    @ApiHeader({ name: 'authorization', required: false})
     @Post('verify')
-    async verify(@Body(new ProtocolValidationPipe()) body: VerifyDto) {
-        return await this.escrowService.verify(body.pluginType, body.filters, body.params);
+    async verify(
+        @Body(new ProtocolValidationPipe()) body: VerifyDto,
+        @Headers('authorization') authHeader: string,
+    ) {
+        const params = {
+            ...body.params,
+            authorization: authHeader
+        };
+        return await this.escrowService.verify(body.pluginType, body.filters, params);
     }
 
     /**

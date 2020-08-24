@@ -30,17 +30,24 @@ export class SmsService {
      * If passed an otp, verify it
      */
     public async verify(filters: SmsFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
+
+        // Apply rate limiting rules based on the authorization header of the requestor and the id verification is based around
+        const bucket = params.phoneNumber ? RateLimitBucket.SEND_OTP : RateLimitBucket.VERIFY_OTP;
+        const targetKey = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
+        if (params.authorization) {
+            await this.rateLimit(bucket, params.authorization);
+        }
+        await this.rateLimit(bucket, targetKey);
+
+        // If rate limiting has passed, execute the requested verification task
         if (params.phoneNumber) {
-            await this.rateLimit(RateLimitBucket.SEND_OTP, filters);
             return await this.sendSmsOtp(filters, params.phoneNumber);
         } else {
-            await this.rateLimit(RateLimitBucket.VERIFY_OTP, filters);
             return await this.verifyOtp(filters, params.otp);
         }
     }
 
-    private async rateLimit(bucket: RateLimitBucket, filters: SmsFiltersDto): Promise<void> {
-        const key = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
+    private async rateLimit(bucket: RateLimitBucket, key: string): Promise<void> {
         await this.rateLimitService.addAttempt(bucket, key);
         if (await this.rateLimitService.shouldLimit(bucket, key)) {
             throw new ProtocolException(SmsErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
