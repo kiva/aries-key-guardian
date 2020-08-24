@@ -18,7 +18,8 @@
     "start:hmr": "node dist/server",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
-    "test": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit"
+    "test": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit",
+    "test:only": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit --testNamePattern"
   },
   "dependencies": {
     "protocol-common": "0.1.16",

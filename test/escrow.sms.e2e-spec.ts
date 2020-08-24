@@ -62,7 +62,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 expect(res.body.id).toBeDefined();
                 agentId = res.body.id;
             });
-    });
+    }, 10000);
 
     // -- Send -- //
 
@@ -76,7 +76,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 expect(res.body.status).toBe('sent');
                 expect(res.body.id).toBe(null);
             });
-    });
+    }, 10000);
 
     it('Error case: NO_CITIZEN_FOUND', () => {
         data.filters.govId1 = 'BAD_ID';
@@ -115,7 +115,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .then((res) => {
                 expect(res.body.code).toBe(SmsErrorCode.OTP_NO_MATCH);
             });
-    });
+    }, 10000);
 
     it('Verify otp matches', () => {
         data.params.otp = otp;
@@ -127,7 +127,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 expect(res.body.status).toBe('matched');
                 expect(res.body.id).toBe(agentId);
             });
-    });
+    }, 10000);
 
     it('Error case: OTP_EXPIRED', () => {
         return request(app.getHttpServer())
@@ -137,7 +137,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .then((res) => {
                 expect(res.body.code).toBe(SmsErrorCode.OTP_EXPIRED);
             });
-    });
+    }, 10000);
 
     afterAll(async () => {
         await app.close();
