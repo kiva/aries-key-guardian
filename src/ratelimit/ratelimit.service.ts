@@ -9,7 +9,7 @@ export class RateLimitService {
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: CacheStore,
-        private readonly rateLimitConfigFactory: RateLimitConfigService
+        private readonly rateLimitConfigService: RateLimitConfigService
     ) { }
 
     /**
@@ -23,7 +23,7 @@ export class RateLimitService {
      * Record an attempt at a task that rate limiting should apply to. If the configured threshold has been passed, that will also be recorded.
      */
     public async addAttempt(bucket: RateLimitBucket, key: string): Promise<void> {
-        const config = this.rateLimitConfigFactory.getConfig(bucket);
+        const config = this.rateLimitConfigService.getConfig(bucket);
         const baseCacheKey: string = RateLimitService.makeCacheKey(bucket, key);
         const blockedCacheKey: string = `blocked${baseCacheKey}`;
         const now = Date.now();
