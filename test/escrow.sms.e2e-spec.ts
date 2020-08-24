@@ -50,7 +50,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         app = await moduleFixture.createNestApplication();
         await AppService.setup(app);
         await app.init();
-    });
+    }, 10000);
 
     it('Create endpoint', () => {
         return request(app.getHttpServer())
