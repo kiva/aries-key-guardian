@@ -22,11 +22,10 @@
     "test:only": "node -r dotenv/config node_modules/.bin/jest --runInBand  --forceExit --testNamePattern"
   },
   "dependencies": {
-    "protocol-common": "0.1.16",
     "@nestjs/common": "^7.4.2",
     "@nestjs/core": "^7.4.2",
     "@nestjs/platform-express": "^7.4.2",
-    "@nestjs/swagger": "^4.5.12",
+    "@nestjs/swagger": "^4.6.0",
     "@nestjs/typeorm": "^7.1.0",
     "@types/node": "^14.0.27",
     "cache-manager": "^3.3.0",
@@ -42,6 +41,7 @@
     "jaeger-client": "^3.18.0",
     "opentracing": "^0.14.4",
     "pg": "^8.3.0",
+    "protocol-common": "0.1.16",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.2",
     "swagger-ui-express": "^4.1.4",
