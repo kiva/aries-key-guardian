@@ -30,16 +30,7 @@ export class SmsService {
      * If passed an otp, verify it
      */
     public async verify(filters: SmsFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
-
-        // Apply rate limiting rules based on the authorization header of the requestor and the id verification is based around
-        const bucket = params.phoneNumber ? RateLimitBucket.SEND_OTP : RateLimitBucket.VERIFY_OTP;
-        const targetKey = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
-        if (params.authorization) {
-            await this.rateLimit(bucket, params.authorization);
-        }
-        await this.rateLimit(bucket, targetKey);
-
-        // If rate limiting has passed, execute the requested verification task
+        await this.rateLimit(filters, params);
         if (params.phoneNumber) {
             return await this.sendSmsOtp(filters, params.phoneNumber);
         } else {
@@ -47,11 +38,24 @@ export class SmsService {
         }
     }
 
-    private async rateLimit(bucket: RateLimitBucket, key: string): Promise<void> {
-        await this.rateLimitService.addAttempt(bucket, key);
-        if (await this.rateLimitService.shouldLimit(bucket, key)) {
-            throw new ProtocolException(SmsErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
+    /**
+     * Apply rate limiting rules based on the authorization header of the requestor and the id verification is based around.
+     */
+    private async rateLimit(filters: SmsFiltersDto, params: SmsParamsDto): Promise<void> {
+        const bucket = params.phoneNumber ? RateLimitBucket.SEND_OTP : RateLimitBucket.VERIFY_OTP;
+
+        const attempt = async (key: string) => {
+            await this.rateLimitService.addAttempt(bucket, key);
+            if (await this.rateLimitService.shouldLimit(bucket, key)) {
+                throw new ProtocolException(SmsErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
+            }
+        };
+
+        const targetKey = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
+        if (params.authorization) {
+            await attempt(params.authorization);
         }
+        await attempt(targetKey);
     }
 
     /**
