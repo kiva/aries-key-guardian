@@ -1,4 +1,4 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { EscrowService } from './escrow.service';
 import { EscrowController } from './escrow.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';

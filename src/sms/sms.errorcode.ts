@@ -8,4 +8,5 @@ export enum SmsErrorCode {
     SMS_SEND_FAILED = 'SmsSendFailed',
     OTP_NO_MATCH = 'OtpNoMatch',
     OTP_EXPIRED = 'OtpExpired',
+    TOO_MANY_ATTEMPTS = 'TooManyAttempts',
 }

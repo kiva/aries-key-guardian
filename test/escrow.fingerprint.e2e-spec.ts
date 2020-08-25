@@ -20,6 +20,8 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     let did: string;
 
     beforeAll(async () => {
+        jest.setTimeout(10000);
+
         status = 'matched';
         did = 'agentId123'; // Right now identity service returns did, eventually it will return agentId
         const mockHttp = {

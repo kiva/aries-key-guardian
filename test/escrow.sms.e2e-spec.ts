@@ -22,6 +22,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     let nationalId: string;
 
     beforeAll(async () => {
+        jest.setTimeout(10000);
+
         const voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
         nationalId = 'N' + voterId;
         otp = 123456;
@@ -127,7 +129,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 expect(res.body.status).toBe('matched');
                 expect(res.body.id).toBe(agentId);
             });
-    });
+    }, 10000);
 
     it('Error case: OTP_EXPIRED', () => {
         return request(app.getHttpServer())

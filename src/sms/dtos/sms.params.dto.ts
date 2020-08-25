@@ -16,4 +16,6 @@ export class SmsParamsDto {
     })
     @IsOptional() @IsNumber() readonly otp: number;
 
+    @IsOptional() readonly authorization: string;
+
 }

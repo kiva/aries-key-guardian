@@ -9,6 +9,8 @@ import { SmsErrorCode } from './sms.errorcode';
 import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
+import { RateLimitService } from '../ratelimit/ratelimit.service';
+import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -19,7 +21,8 @@ export class SmsService {
     constructor(
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
-        private readonly twillioService: TwillioService
+        private readonly twillioService: TwillioService,
+        private readonly rateLimitService: RateLimitService
     ) {}
 
     /**
@@ -27,6 +30,7 @@ export class SmsService {
      * If passed an otp, verify it
      */
     public async verify(filters: SmsFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
+        await this.rateLimit(filters, params);
         if (params.phoneNumber) {
             return await this.sendSmsOtp(filters, params.phoneNumber);
         } else {
@@ -35,17 +39,37 @@ export class SmsService {
     }
 
     /**
+     * Apply rate limiting rules based on the authorization header of the requestor and the id verification is based around.
+     */
+    private async rateLimit(filters: SmsFiltersDto, params: SmsParamsDto): Promise<void> {
+        const bucket = params.phoneNumber ? RateLimitBucket.SEND_OTP : RateLimitBucket.VERIFY_OTP;
+
+        const attempt = async (key: string) => {
+            await this.rateLimitService.addAttempt(bucket, key);
+            if (await this.rateLimitService.shouldLimit(bucket, key)) {
+                throw new ProtocolException(SmsErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
+            }
+        };
+
+        const targetKey = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
+        if (params.authorization) {
+            await attempt(params.authorization);
+        }
+        await attempt(targetKey);
+    }
+
+    /**
      * Checks the phone number against stored records, generates an OTP and sends it
      */
     private async sendSmsOtp(filters: SmsFiltersDto, phoneNumber: any) {
         const smsOtpEntity = await this.findSmsOtpEntity(filters);
         if (!smsOtpEntity.phone_number_hash) {
-            throw new ProtocolException(SmsErrorCode.NO_PHONE_NUMBER, `No phone number stored for citizen`);
+            throw new ProtocolException(SmsErrorCode.NO_PHONE_NUMBER, 'No phone number stored for citizen');
         }
 
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
         if (smsOtpEntity.phone_number_hash !== phoneNumberHash) {
-            throw new ProtocolException(SmsErrorCode.PHONE_NUMBER_NO_MATCH, `Phone number doesn't match for stored citizen`);
+            throw new ProtocolException(SmsErrorCode.PHONE_NUMBER_NO_MATCH, 'Phone number doesn\'t match for stored citizen');
         }
 
         const otp = await this.generateOtp(smsOtpEntity);
@@ -61,7 +85,7 @@ export class SmsService {
      */
     private async findSmsOtpEntity(filters: SmsFiltersDto): Promise<SmsOtp> {
         let search;
-        // Input verification has already been done so wee can do an if else
+        // Input verification has already been done so we can do an if else
         if (filters.govId1) {
             search = { gov_id_1_hash: SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER) };
         } else {
@@ -69,7 +93,7 @@ export class SmsService {
         }
         const results = await this.smsOtpRepository.find(search);
         if (results.length < 1) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `No citizen found for given filters`);
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No citizen found for given filters');
         }
         return results[0];
     }
@@ -94,10 +118,10 @@ export class SmsService {
     private async verifyOtp(filters: SmsFiltersDto, otp: number) {
         const smsOtpEntity = await this.findSmsOtpEntity(filters);
         if (!smsOtpEntity.otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, `The OTP has expired, please send again`);
+            throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, 'The OTP has expired, please send again');
         }
         if (smsOtpEntity.otp !== otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, `The OTP does not match`);
+            throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, 'The OTP does not match');
         }
 
         smsOtpEntity.otp = null;

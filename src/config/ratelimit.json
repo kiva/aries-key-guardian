@@ -1,0 +1,12 @@
+{
+  "SEND_OTP": {
+    "ttl": 60,
+    "limit": 10,
+    "blockTtl": 900
+  },
+  "VERIFY_OTP": {
+    "ttl": 60,
+    "limit": 10,
+    "blockTtl": 900
+  }
+}
