@@ -1,18 +1,25 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { AppModule } from '../src/app/app.module';
-import { AppService } from '../src/app/app.service';
 import { TwillioService } from '../src/sms/twillio.service';
 import { SmsErrorCode } from '../src/sms/sms.errorcode';
+import { RateLimitModule } from '../src/ratelimit/ratelimit.module';
+import { EscrowService } from '../src/escrow/escrow.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { WalletCredentials } from '../src/entity/wallet.credentials';
+import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
+import { EscrowController } from '../src/escrow/escrow.controller';
+import { PluginFactory } from '../src/plugins/plugin.factory';
+import { MockAgencyService } from './mock/mock.agency.service';
+import { IAgencyService } from '../src/remote/agency.service.interface';
+import { SmsService } from '../src/sms/sms.service';
+import { SmsOtp } from '../src/entity/sms.otp';
+import cacheManager from 'cache-manager';
+import { pepperHash } from './support/functions';
 
 /**
- * This mocks out external dependencies (eg Twillio) but not internal ones (eg DB)
- * Note that it expects the tests to run in order so that the first test inserts data that is later tested by other tests
- * TODO at the end we should clean up DB data
- * Note: This test needs to be run inside the docker container in order to connect to the DB
- * TODO figure out a way to get this test passing when run from a Mac
+ * This mocks out external dependencies (eg Twillio, DB)
  */
 describe('EscrowController (e2e) using SMS plugin', () => {
     let app: INestApplication;
@@ -20,13 +27,21 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     let agentId: string;
     let otp: number;
     let nationalId: string;
+    let voterId: number;
+    let did: string;
+    let phoneNumber: string;
+    let mockSmsOtpRepository: any;
 
     beforeAll(async () => {
         jest.setTimeout(10000);
 
-        const voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
+        voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
+        const voterIdHash = pepperHash(`${voterId}`);
         nationalId = 'N' + voterId;
+        const nationalIdHash = pepperHash(nationalId);
         otp = 123456;
+        did = 'agentId123';
+        phoneNumber = '+14151234567';
         data = {
             pluginType: 'SMS_OTP',
             filters: {
@@ -34,23 +49,93 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 govId2: voterId,
             },
             params: {
-                phoneNumber: '+14151234567',
+                phoneNumber,
             }
         };
 
+        const mockAgencyService = new MockAgencyService('foo');
         const mockTwillio = {
             generateRandomOtp: () => {
                 return otp;
             },
             sendOtp: () => { },
         };
+        const mockWalletCredentialsRepository = {
+            findOne: () => {
+                return {
+                    did,
+                    wallet_id: 'abc',
+                    wallet_key: '123',
+                };
+            },
+            count: () => {
+                return 1;
+            },
+            save: () => {
+                return true;
+            }
+        };
+        mockSmsOtpRepository = {
+            isExpired: false,
+            expireOtp: () => {
+                mockSmsOtpRepository.isExpired = true;
+            },
+            find: (input: any) => {
+                if (input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash) {
+                    return [{
+                        agent_id: agentId,
+                        gov_id_1_hash: nationalIdHash,
+                        gov_id_2_hash: voterIdHash,
+                        phone_number_hash: pepperHash(phoneNumber),
+                        otp: mockSmsOtpRepository.isExpired ? null : otp,
+                        otp_expiration_time: mockSmsOtpRepository.isExpired ? null : new Date(Date.now() + (1000 * 60 * 60 * 24))
+                    }];
+                } else {
+                    return [];
+                }
+            },
+            count: () => {
+                return 1;
+            },
+            save: () => {
+                return true;
+            }
+        };
+        const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
 
-        const moduleFixture = await Test.createTestingModule({ imports: [AppModule] })
-            .overrideProvider('TwillioService')
-            .useValue(mockTwillio)
-            .compile();
+        const moduleFixture = await Test.createTestingModule({
+            imports: [RateLimitModule],
+            controllers: [EscrowController],
+            providers: [
+                EscrowService,
+                SmsService,
+                PluginFactory,
+                {
+                    provide: CACHE_MANAGER,
+                    useValue: memoryCache,
+                },
+                {
+                    provide: getRepositoryToken(WalletCredentials),
+                    useValue: mockWalletCredentialsRepository,
+                },
+                {
+                    provide: getRepositoryToken(SmsOtp),
+                    useValue: mockSmsOtpRepository,
+                },
+                {
+                    provide: IAgencyService,
+                    useValue: mockAgencyService,
+                },
+                {
+                    provide: 'TwillioService',
+                    useValue: mockTwillio
+                },
+            ]
+        }).compile();
+
         app = await moduleFixture.createNestApplication();
-        await AppService.setup(app);
+        // Need to apply exception filter for correct error handling
+        app.useGlobalFilters(new ProtocolExceptionFilter());
         await app.init();
     });
 
@@ -132,6 +217,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     }, 10000);
 
     it('Error case: OTP_EXPIRED', () => {
+        mockSmsOtpRepository.expireOtp();
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)

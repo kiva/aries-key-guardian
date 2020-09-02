@@ -4,6 +4,7 @@ import { EscrowController } from './escrow.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WalletCredentials } from '../entity/wallet.credentials';
 import { PluginModule } from '../plugins/plugin.module';
+import { RemoteModule } from '../remote/remote.module';
 
 /**
  * For now keeping the escrow module as part of the AuthService, but eventually this will be moved to it's own Escrow System repo
@@ -12,6 +13,7 @@ import { PluginModule } from '../plugins/plugin.module';
     imports: [
         TypeOrmModule.forFeature([WalletCredentials]),
         PluginModule,
+        RemoteModule,
     ],
     controllers: [EscrowController],
     providers: [EscrowService],

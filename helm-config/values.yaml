@@ -23,7 +23,7 @@ service:
   port: 3003
   containerPort: 3003
   targetPort: 3003
-  portName: http
+  portName: remote
 
 resources:
   limits:
