@@ -141,9 +141,12 @@ export class SmsService {
     public scheduleOtpExpiration(smsOtpEntity: SmsOtp): void {
         setTimeout(
             async () => {
-                smsOtpEntity.otp = null;
-                smsOtpEntity.otp_expiration_time = null;
-                await this.smsOtpRepository.save(smsOtpEntity);
+                const expiredSmsOtp: SmsOtp = {
+                    ...smsOtpEntity,
+                    otp: null,
+                    otp_expiration_time: null
+                };
+                await this.smsOtpRepository.save(expiredSmsOtp);
             },
             parseInt(process.env.OTP_EXPIRE_MS, 10),
         );

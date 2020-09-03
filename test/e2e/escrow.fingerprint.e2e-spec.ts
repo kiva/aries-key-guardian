@@ -12,6 +12,7 @@ import { IAgencyService } from '../../src/remote/agency.service.interface';
 import { IIdentityService } from '../../src/remote/identity.service.interface';
 import { MockAgencyService } from '../mock/mock.agency.service';
 import { MockIdentityService } from '../mock/mock.identity.service';
+import { MockRepository } from '../mock/mock.repository';
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -30,21 +31,13 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         const mockAgencyService = new MockAgencyService('foo');
         const mockIdentityService = new MockIdentityService(status, did);
-        const mockRepository = {
-            findOne: () => {
-                return {
-                    did: 'agentId123',
-                    wallet_id: 'abc',
-                    wallet_key: '123',
-                };
-            },
-            count: () => {
-                return 1;
-            },
-            save: () => {
-                return true;
-            }
-        };
+        const mockRepository = new MockRepository<WalletCredentials>({
+            id: 1,
+            did,
+            wallet_id: 'abc',
+            wallet_key: '123',
+            seed: ''
+        });
 
         body = {
             pluginType: 'FINGERPRINT',

@@ -17,6 +17,7 @@ import { SmsService } from '../../src/sms/sms.service';
 import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
 import { pepperHash } from '../support/functions';
+import { MockRepository } from '../mock/mock.repository';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -30,11 +31,11 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     let voterId: number;
     let did: string;
     let phoneNumber: string;
-    let mockSmsOtpRepository: any;
 
     beforeAll(async () => {
         jest.setTimeout(10000);
 
+        process.env.OTP_EXPIRE_MS = '90000';
         voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
         const voterIdHash = pepperHash(`${voterId}`);
         nationalId = 'N' + voterId;
@@ -60,47 +61,26 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             },
             sendOtp: () => { },
         };
-        const mockWalletCredentialsRepository = {
-            findOne: () => {
-                return {
-                    did,
-                    wallet_id: 'abc',
-                    wallet_key: '123',
-                };
-            },
-            count: () => {
-                return 1;
-            },
-            save: () => {
-                return true;
+        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>({
+            id: 1,
+            did,
+            wallet_id: 'abc',
+            wallet_key: '123',
+            seed: ''
+        });
+        const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
+            find(input: any): any[] {
+                return super.find(input).filter(() => input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash);
             }
-        };
-        mockSmsOtpRepository = {
-            isExpired: false,
-            expireOtp: () => {
-                mockSmsOtpRepository.isExpired = true;
-            },
-            find: (input: any) => {
-                if (input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash) {
-                    return [{
-                        agent_id: agentId,
-                        gov_id_1_hash: nationalIdHash,
-                        gov_id_2_hash: voterIdHash,
-                        phone_number_hash: pepperHash(phoneNumber),
-                        otp: mockSmsOtpRepository.isExpired ? null : otp,
-                        otp_expiration_time: mockSmsOtpRepository.isExpired ? null : new Date(Date.now() + (1000 * 60 * 60 * 24))
-                    }];
-                } else {
-                    return [];
-                }
-            },
-            count: () => {
-                return 1;
-            },
-            save: () => {
-                return true;
-            }
-        };
+        }({
+            id: 1,
+            agent_id: agentId,
+            gov_id_1_hash: nationalIdHash,
+            gov_id_2_hash: voterIdHash,
+            phone_number_hash: pepperHash(phoneNumber),
+            otp,
+            otp_expiration_time: new Date(Date.now() + (1000 * 60 * 60 * 24))
+        });
         const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
 
         const moduleFixture = await Test.createTestingModule({
@@ -217,7 +197,6 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     }, 10000);
 
     it('Error case: OTP_EXPIRED', () => {
-        mockSmsOtpRepository.expireOtp();
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)
