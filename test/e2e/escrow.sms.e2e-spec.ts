@@ -2,21 +2,21 @@ import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { TwillioService } from '../src/sms/twillio.service';
-import { SmsErrorCode } from '../src/sms/sms.errorcode';
-import { RateLimitModule } from '../src/ratelimit/ratelimit.module';
-import { EscrowService } from '../src/escrow/escrow.service';
+import { TwillioService } from '../../src/sms/twillio.service';
+import { SmsErrorCode } from '../../src/sms/sms.errorcode';
+import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
+import { EscrowService } from '../../src/escrow/escrow.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { WalletCredentials } from '../src/entity/wallet.credentials';
+import { WalletCredentials } from '../../src/entity/wallet.credentials';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { EscrowController } from '../src/escrow/escrow.controller';
-import { PluginFactory } from '../src/plugins/plugin.factory';
-import { MockAgencyService } from './mock/mock.agency.service';
-import { IAgencyService } from '../src/remote/agency.service.interface';
-import { SmsService } from '../src/sms/sms.service';
-import { SmsOtp } from '../src/entity/sms.otp';
+import { EscrowController } from '../../src/escrow/escrow.controller';
+import { PluginFactory } from '../../src/plugins/plugin.factory';
+import { MockAgencyService } from '../mock/mock.agency.service';
+import { IAgencyService } from '../../src/remote/agency.service.interface';
+import { SmsService } from '../../src/sms/sms.service';
+import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
-import { pepperHash } from './support/functions';
+import { pepperHash } from '../support/functions';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
