@@ -7,18 +7,14 @@
  */
 export class MockRepository<T> {
 
-    private frozenEntity: T;
-
-    constructor(entity: T) {
-        this.frozenEntity = Object.freeze(entity);
-    }
+    constructor(private entity: Readonly<T>) {}
 
     findOne(): T {
-        return Object.assign({}, this.frozenEntity);
+        return this.entity;
     }
 
     find(input: any): Array<T> {
-        return [Object.assign({}, this.frozenEntity)];
+        return [this.entity];
     }
 
     count(): number {
@@ -26,7 +22,7 @@ export class MockRepository<T> {
     }
 
     save(input: T): boolean {
-        this.frozenEntity = Object.freeze(input);
+        this.entity = input;
         return true;
     }
 }

@@ -35,7 +35,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     beforeAll(async () => {
         jest.setTimeout(10000);
 
-        process.env.OTP_EXPIRE_MS = '90000';
+        process.env.OTP_EXPIRE_MS = '10000';
         voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
         const voterIdHash = pepperHash(`${voterId}`);
         nationalId = 'N' + voterId;
