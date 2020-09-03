@@ -16,7 +16,7 @@ import { IAgencyService } from '../../src/remote/agency.service.interface';
 import { SmsService } from '../../src/sms/sms.service';
 import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
-import { pepperHash } from '../support/functions';
+import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
 
 /**
@@ -34,9 +34,10 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
     beforeAll(async () => {
         jest.setTimeout(10000);
-
         process.env.OTP_EXPIRE_MS = '10000';
-        voterId = 1000000 + parseInt(Date.now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
+
+        // Constants for use throughout the test suite
+        voterId = 1000000 + parseInt(now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
         const voterIdHash = pepperHash(`${voterId}`);
         nationalId = 'N' + voterId;
         const nationalIdHash = pepperHash(nationalId);
@@ -54,35 +55,40 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             }
         };
 
+        // Set up WalletCredentials repository
+        const mockWalletCredentials = new WalletCredentials();
+        mockWalletCredentials.did = did;
+        mockWalletCredentials.wallet_id = 'abc';
+        mockWalletCredentials.wallet_key = '123';
+        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>(mockWalletCredentials);
+
+        // Set up SmsOtp repository
+        const mockSmsOtp = new SmsOtp();
+        mockSmsOtp.agent_id = agentId;
+        mockSmsOtp.gov_id_1_hash = nationalIdHash;
+        mockSmsOtp.gov_id_2_hash = voterIdHash;
+        mockSmsOtp.phone_number_hash = pepperHash(phoneNumber);
+        mockSmsOtp.otp = otp;
+        mockSmsOtp.otp_expiration_time = nDaysFromNow(1);
+        const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
+            find(input: any): any[] {
+                return super.find(input).filter(() => input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash);
+            }
+        }(mockSmsOtp);
+
+        // Cache for rate limiting
+        const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
+
+        // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
-        const mockTwillio = {
+        const mockTwillioService = {
             generateRandomOtp: () => {
                 return otp;
             },
             sendOtp: () => { },
         };
-        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>({
-            id: 1,
-            did,
-            wallet_id: 'abc',
-            wallet_key: '123',
-            seed: ''
-        });
-        const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
-            find(input: any): any[] {
-                return super.find(input).filter(() => input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash);
-            }
-        }({
-            id: 1,
-            agent_id: agentId,
-            gov_id_1_hash: nationalIdHash,
-            gov_id_2_hash: voterIdHash,
-            phone_number_hash: pepperHash(phoneNumber),
-            otp,
-            otp_expiration_time: new Date(Date.now() + (1000 * 60 * 60 * 24))
-        });
-        const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
 
+        // Tie together application with mocked and actual dependencies
         const moduleFixture = await Test.createTestingModule({
             imports: [RateLimitModule],
             controllers: [EscrowController],
@@ -108,7 +114,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 },
                 {
                     provide: 'TwillioService',
-                    useValue: mockTwillio
+                    useValue: mockTwillioService
                 },
             ]
         }).compile();
