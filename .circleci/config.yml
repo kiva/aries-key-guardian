@@ -23,11 +23,6 @@ jobs:
               sleep 150
               docker-compose -f docker-compose.ci.yml logs
       - run: docker exec -it aries-key-guardian npm run test
-      - run:
-          name: SKIPPING TESTS. Please fix the unit tests
-          command: echo "SKIPPING TESTS"
-
-
 
 workflows:
   build-test-deploy:
