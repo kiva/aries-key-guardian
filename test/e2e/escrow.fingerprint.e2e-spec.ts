@@ -1,21 +1,25 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, HttpService } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import assert from 'assert';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { EscrowController } from '../src/escrow/escrow.controller';
-import { EscrowService } from '../src/escrow/escrow.service';
-import { WalletCredentials } from '../src/entity/wallet.credentials';
-import { PluginFactory } from '../src/plugins/plugin.factory';
+import { EscrowController } from '../../src/escrow/escrow.controller';
+import { EscrowService } from '../../src/escrow/escrow.service';
+import { WalletCredentials } from '../../src/entity/wallet.credentials';
+import { PluginFactory } from '../../src/plugins/plugin.factory';
+import { IAgencyService } from '../../src/remote/agency.service.interface';
+import { IIdentityService } from '../../src/remote/identity.service.interface';
+import { MockAgencyService } from '../mock/mock.agency.service';
+import { MockIdentityService } from '../mock/mock.identity.service';
+import { MockRepository } from '../mock/mock.repository';
 
 /**
- * This requires mocking out the identity service http response
- * @tothink the auth service uses assert while everything else uses expect... should we switch
+ * This mocks out external dependencies (e.g. Db)
  */
 describe('EscrowController (e2e) using fingerprint plugin', () => {
     let app: INestApplication;
-    let data: any;
+    let body: any;
     let status: string;
     let did: string;
 
@@ -24,37 +28,18 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         status = 'matched';
         did = 'agentId123'; // Right now identity service returns did, eventually it will return agentId
-        const mockHttp = {
-            request: () => {
-                return {
-                    toPromise: () => {
-                        return Promise.resolve({
-                            data: {
-                                status,
-                                did
-                            },
-                        });
-                    }
-                };
-            }
-        };
-        const mockRepository = {
-            findOne: () => {
-                return {
-                    did: 'agentId123',
-                    wallet_id: 'abc',
-                    wallet_key: '123',
-                };
-            },
-            count: () => {
-                return 1;
-            },
-            save: () => {
-                return true;
-            }
-        };
 
-        data = {
+        const mockAgencyService = new MockAgencyService('foo');
+        const mockIdentityService = new MockIdentityService(status, did);
+        const mockRepository = new MockRepository<WalletCredentials>({
+            id: 1,
+            did,
+            wallet_id: 'abc',
+            wallet_key: '123',
+            seed: ''
+        });
+
+        body = {
             pluginType: 'FINGERPRINT',
             filters: {
                 nationalId: 'abc123',
@@ -75,8 +60,12 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                     useValue: mockRepository,
                 },
                 {
-                    provide: HttpService,
-                    useValue: mockHttp,
+                    provide: IAgencyService,
+                    useValue: mockAgencyService,
+                },
+                {
+                    provide: IIdentityService,
+                    useValue: mockIdentityService
                 },
                 PluginFactory,
             ],
@@ -91,7 +80,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     it('Verify endpoint', () => {
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
-            .send(data)
+            .send(body)
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
@@ -100,10 +89,10 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     });
 
     it('Create endpoint', () => {
-        data.id = 'agentIdxyz';
+        body.id = 'agentIdxyz';
         return request(app.getHttpServer())
             .post('/v1/escrow/create')
-            .send(data)
+            .send(body)
             .expect(201)
             .then((res) => {
                 // We can't predict the exact value since it will be random
@@ -114,7 +103,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     it('Add endpoint', () => {
         return request(app.getHttpServer())
             .post('/v1/escrow/add')
-            .send(data)
+            .send(body)
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.result, 'success');

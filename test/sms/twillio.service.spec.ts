@@ -1,4 +1,4 @@
-import { TwillioService } from '../src/sms/twillio.service';
+import { TwillioService } from '../../src/sms/twillio.service';
 
 describe ('SMS Twillio Service', () => {
 

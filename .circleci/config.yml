@@ -12,8 +12,11 @@ jobs:
       - checkout
       - run: cp dummy.env .env
       - run: echo $TWILIOENV | base64 --decode >> .env
-      - run: npm install nodemon --save-dev
-      - run: npm install
+      - run:
+          name: Install npm dependencies
+          command: |
+              npm install nodemon --save-dev
+              npm install
       - run: docker-compose -f docker-compose.ci.yml build
       - run:
           name: Start docker compose and wait for readiness
@@ -22,12 +25,7 @@ jobs:
               docker-compose -f docker-compose.ci.yml up -d
               sleep 150
               docker-compose -f docker-compose.ci.yml logs
-#     - run: docker exec -it aries-key-guardian npm run test
-      - run:
-          name: SKIPPING TESTS. Please fix the unit tests
-          command: echo "SKIPPING TESTS"
-
-
+      - run: docker exec -it aries-key-guardian npm run test
 
 workflows:
   build-test-deploy:

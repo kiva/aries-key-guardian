@@ -1,39 +1,17 @@
 import { IPlugin } from './plugin.interface';
-import { AxiosRequestConfig } from 'axios';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
+import { IIdentityService } from '../remote/identity.service.interface';
 
-/**
- * Right now the backend (ie which fingerprint template db to connect to) is defined by an environment variable, eventually we'll want this to
- * be set in a country profile, so the process of setting the backend will change.
- */
 export class FingerprintPlugin implements IPlugin {
 
-    private backend: string;
-
     /**
-     * We pass in the parent class as context so we can access the http module
+     * We pass in the parent class as context so we can access the remote module
      */
-    constructor(private readonly http: ProtocolHttpService) {
-        this.backend = process.env.IDENTITY_SERVICE_BACKEND;
-    }
+    constructor(private readonly identityService: IIdentityService) { }
 
-    /**
-     * TODO right now this keeps the identity service url the same, we probably want to change that so it better matches our plugin pattern
-     */
-    public async verify(filters: any, params: any){
-        const request: AxiosRequestConfig = {
-            method: 'POST',
-            url: process.env.IDENTITY_SERVICE_URL + '/api/v1/verify',
-            data: {
-                backend: this.backend,
-                position: params.position,
-                image: params.image,
-                filters,
-            },
-        };
-        const response = await this.http.requestWithRetry(request);
+    public async verify(filters: any, params: any) {
+        const response = await this.identityService.verify(params.position, params.image, filters);
 
         //  The identity service should throw this error on no match, but just to be safe double check it and throw here
         if (response.data.status !== 'matched') {
@@ -47,22 +25,12 @@ export class FingerprintPlugin implements IPlugin {
         };
     }
 
-    /**
-     * TODO the identity service should update the templatizer endpoint to accept data in the format { id, filters, params }
-     *   Until it does, we just forward the params as the data it's currently expecting
-     */
     public async save(id: string, filters: any, params: any) {
         // TEMP until the identity service is updated
-        const data = params;
+        const data = Array.isArray(params) ? params : [params];
         for (const datum of data) {
             datum.did = id;
         }
-
-        const request: AxiosRequestConfig = {
-            method: 'POST',
-            url: process.env.IDENTITY_SERVICE_URL + '/api/v1/templatizer/bulk/' + this.backend,
-            data,
-        };
-        await this.http.requestWithRetry(request);
+        await this.identityService.templatize(data);
     }
 }

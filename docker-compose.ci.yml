@@ -4,7 +4,11 @@ version: '3.2'
 
 networks:
   agency-network:
-    external: false
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/24
 
 services:
   aries-key-guardian:

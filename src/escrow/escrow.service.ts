@@ -1,13 +1,13 @@
-import { Injectable, InternalServerErrorException, HttpService } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { Logger } from 'protocol-common/logger';
 import cryptoRandomString from 'crypto-random-string';
 import { WalletCredentials } from '../entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
+import { IAgencyService } from '../remote/agency.service.interface';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -18,6 +18,7 @@ export class EscrowService {
     constructor(
         @InjectRepository(WalletCredentials)
         private readonly walletCredentialsRepository: Repository<WalletCredentials>,
+        private readonly agencyService: IAgencyService,
         public readonly pluginFactory: PluginFactory
     ) { }
 
@@ -32,16 +33,16 @@ export class EscrowService {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
             // TODO we need to save the admin api key and then we can pass it along here
-            const data = await this.spinUpAgent(
+            const response = await this.agencyService.spinUpAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
                 walletCredentials.wallet_key,
                 walletCredentials.seed,
                 walletCredentials.did
             );
-            Logger.log(`Spun up agent for did ${walletCredentials.did}`, data);
+            Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
             // Append the connection data onto the result
-            result.connectionData = data.connectionData;
+            result.connectionData = response.data.connectionData;
         }
         return result;
     }
@@ -72,7 +73,7 @@ export class EscrowService {
         Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
 
         // TODO we need to save the admin api key and then we can pass it along here
-        const data = await this.spinUpAgent(
+        const response = await this.agencyService.spinUpAgent(
             walletCredentials.wallet_id,
             walletCredentials.wallet_key,
             walletCredentials.wallet_key,
@@ -81,29 +82,7 @@ export class EscrowService {
         );
         Logger.log(`Spun up agent for did ${walletCredentials.did}`);
 
-        return { id: walletCredentials.did, connectionData: data.connectionData };
-    }
-
-    /**
-     * TODO move this functionality to an agency facade
-     * @tothink may want the whole wallet credentials object
-     */
-    private async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, alias: string) {
-        // TODO when this is in it's own class inject the http service
-        const http = new ProtocolHttpService(new HttpService());
-        const req: any = {
-            method: 'POST',
-            url: process.env.AGENCY_URL + '/v1/manager',
-            data: {
-                walletId,
-                walletKey,
-                adminApiKey,
-                seed,
-                alias
-            }
-        };
-        const res = await http.requestWithRetry(req);
-        return res.data;
+        return { id: walletCredentials.did, connectionData: response.data.connectionData };
     }
 
     private readonly chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
