@@ -6,11 +6,11 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { SmsOtp } from '../entity/sms.otp';
 import { SmsErrorCode } from './sms.errorcode';
-import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
+import { ITwillioService } from '../remote/twillio.service.interface';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -21,7 +21,7 @@ export class SmsService {
     constructor(
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
-        private readonly twillioService: TwillioService,
+        private readonly twillioService: ITwillioService,
         private readonly rateLimitService: RateLimitService
     ) {}
 

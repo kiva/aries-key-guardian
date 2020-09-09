@@ -2,7 +2,7 @@ import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { TwillioService } from '../../src/sms/twillio.service';
+import { TwillioService } from '../../src/remote/impl/twillio.service';
 import { SmsErrorCode } from '../../src/sms/sms.errorcode';
 import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
 import { EscrowService } from '../../src/escrow/escrow.service';
@@ -18,6 +18,8 @@ import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
 import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
+import { MockTwillioService } from '../mock/mock.twillio.service';
+import { ITwillioService } from '../../src/remote/twillio.service.interface';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -81,12 +83,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
-        const mockTwillioService = {
-            generateRandomOtp: () => {
-                return otp;
-            },
-            sendOtp: () => { },
-        };
+        const mockTwillioService = new MockTwillioService(otp);
 
         // Tie together application with mocked and actual dependencies
         const moduleFixture = await Test.createTestingModule({
@@ -113,7 +110,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     useValue: mockAgencyService,
                 },
                 {
-                    provide: 'TwillioService',
+                    provide: ITwillioService,
                     useValue: mockTwillioService
                 },
             ]
@@ -139,7 +136,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
     // -- Send -- //
 
-    it('Verify sms sent', () => {
+    it('Verify remote sent', () => {
         delete data.filters.govId2;
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
