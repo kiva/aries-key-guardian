@@ -6,7 +6,7 @@ import { IIdentityService } from '../remote/identity.service.interface';
 export class FingerprintPlugin implements IPlugin {
 
     /**
-     * We pass in the parent class as context so we can access the remote module
+     * We pass in the parent class as context so we can access the sms module
      */
     constructor(private readonly identityService: IIdentityService) { }
 

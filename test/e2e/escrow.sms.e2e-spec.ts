@@ -20,6 +20,8 @@ import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
 import { MockTwillioService } from '../mock/mock.twillio.service';
 import { ITwillioService } from '../../src/remote/twillio.service.interface';
+import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
+import { SmsHelperService } from '../../src/sms/sms.helper.service';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -83,7 +85,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
-        const mockTwillioService = new MockTwillioService(otp);
+        const mockTwillioService = new MockTwillioService();
+        const mockSmsHelperService = new MockSmsHelperService(otp);
 
         // Tie together application with mocked and actual dependencies
         const moduleFixture = await Test.createTestingModule({
@@ -113,6 +116,10 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     provide: ITwillioService,
                     useValue: mockTwillioService
                 },
+                {
+                    provide: SmsHelperService,
+                    useValue: mockSmsHelperService
+                },
             ]
         }).compile();
 
@@ -136,7 +143,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
     // -- Send -- //
 
-    it('Verify remote sent', () => {
+    it('Verify sms sent', () => {
         delete data.filters.govId2;
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')

@@ -1,8 +1,8 @@
-import { TwillioService } from '../../src/remote/impl/twillio.service';
+import { SmsHelperService } from '../../src/sms/sms.helper.service';
 
-describe ('SMS Twillio Service', () => {
+describe ('SMS Helper Service', () => {
 
-    const service: TwillioService = new TwillioService();
+    const service: SmsHelperService = new SmsHelperService();
 
     // Note: This is a probabilistic test and does not guarantee the behavior of the function
     it('generateRandomOtp() should generate valid OTPs', () => {

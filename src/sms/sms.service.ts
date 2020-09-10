@@ -11,6 +11,7 @@ import { SmsParamsDto } from './dtos/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 import { ITwillioService } from '../remote/twillio.service.interface';
+import { SmsHelperService } from './sms.helper.service';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -22,7 +23,8 @@ export class SmsService {
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
         private readonly twillioService: ITwillioService,
-        private readonly rateLimitService: RateLimitService
+        private readonly rateLimitService: RateLimitService,
+        private readonly smsHelperService: SmsHelperService
     ) {}
 
     /**
@@ -103,7 +105,7 @@ export class SmsService {
      * @tothink maybe we should only save a OTP if the SMS sends successfully
      */
     private async generateOtp(smsOtpEntity: SmsOtp): Promise<number> {
-        const otp = this.twillioService.generateRandomOtp();
+        const otp = this.smsHelperService.generateRandomOtp();
         const otpExpireTime = new Date(Date.now() + 15000); // 15 min
         smsOtpEntity.otp = otp;
         smsOtpEntity.otp_expiration_time = otpExpireTime;

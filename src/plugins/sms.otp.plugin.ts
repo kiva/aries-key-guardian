@@ -12,14 +12,14 @@ export class SmsOtpPlugin implements IPlugin {
     constructor(private readonly smsService: SmsService) { }
 
     /**
-     * Pass call onto remote service
+     * Pass call onto sms service
      */
     public async verify(filters: any, params: any) {
         return await this.smsService.verify(filters, params);
     }
 
     /**
-     * Pass call onto remote service
+     * Pass call onto sms service
      */
     public async save(id: string, filters: any, params: any) {
         return await this.smsService.save(id, filters, params);
