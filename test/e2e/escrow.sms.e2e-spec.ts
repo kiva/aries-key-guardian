@@ -17,10 +17,10 @@ import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
 import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
-import { ITwillioService } from '../../src/remote/twillio.service.interface';
+import { ISmsService } from '../../src/remote/sms.service.interface';
 import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
 import { SmsHelperService } from '../../src/sms/sms.helper.service';
-import { DisabledTwillioService } from '../../src/remote/impl/disabled.twillio.service';
+import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -111,8 +111,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     useValue: mockAgencyService,
                 },
                 {
-                    provide: ITwillioService,
-                    useClass: DisabledTwillioService
+                    provide: ISmsService,
+                    useClass: SmsDisabledService
                 },
                 {
                     provide: SmsHelperService,

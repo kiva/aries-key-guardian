@@ -10,7 +10,7 @@ import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
-import { ITwillioService } from '../remote/twillio.service.interface';
+import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 
 /**
@@ -22,7 +22,7 @@ export class SmsService {
     constructor(
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
-        private readonly twillioService: ITwillioService,
+        private readonly twillioService: ISmsService,
         private readonly rateLimitService: RateLimitService,
         private readonly smsHelperService: SmsHelperService
     ) {}

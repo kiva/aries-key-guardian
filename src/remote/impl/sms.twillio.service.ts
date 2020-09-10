@@ -5,13 +5,13 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from '../../sms/sms.errorcode';
 import { default as twilio } from 'twilio';
-import { ITwillioService } from '../twillio.service.interface';
+import { ISmsService } from '../sms.service.interface';
 
 /**
  * Putting Twillio in it's own service in case we want to support other SMS services
  */
 @Injectable()
-export class TwillioService implements ITwillioService {
+export class SmsTwillioService implements ISmsService {
 
     /**
      * send NIDP OTP SMS via Twilio

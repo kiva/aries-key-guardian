@@ -3,9 +3,9 @@ import { IdentityService } from './impl/identity.service';
 import { AgencyService } from './impl/agency.service';
 import { IIdentityService } from './identity.service.interface';
 import { IAgencyService } from './agency.service.interface';
-import { TwillioService } from './impl/twillio.service';
-import { ITwillioService } from './twillio.service.interface';
-import { DisabledTwillioService } from './impl/disabled.twillio.service';
+import { SmsTwillioService } from './impl/sms.twillio.service';
+import { ISmsService } from './sms.service.interface';
+import { SmsDisabledService } from './impl/sms.disabled.service';
 
 @Module({
     imports: [HttpModule],
@@ -16,9 +16,9 @@ import { DisabledTwillioService } from './impl/disabled.twillio.service';
         provide: IAgencyService,
         useClass: AgencyService
     }, {
-        provide: ITwillioService,
-        useClass: process.env.TWILLIO_ENABLED === 'true' ? TwillioService : DisabledTwillioService
+        provide: ISmsService,
+        useClass: process.env.TWILLIO_ENABLED === 'true' ? SmsTwillioService : SmsDisabledService
     }],
-    exports: [IIdentityService, IAgencyService, ITwillioService]
+    exports: [IIdentityService, IAgencyService, ISmsService]
 })
 export class RemoteModule {}
