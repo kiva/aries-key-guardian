@@ -5,6 +5,7 @@ import { IIdentityService } from './identity.service.interface';
 import { IAgencyService } from './agency.service.interface';
 import { TwillioService } from './impl/twillio.service';
 import { ITwillioService } from './twillio.service.interface';
+import { DisabledTwillioService } from './impl/disabled.twillio.service';
 
 @Module({
     imports: [HttpModule],
@@ -16,7 +17,7 @@ import { ITwillioService } from './twillio.service.interface';
         useClass: AgencyService
     }, {
         provide: ITwillioService,
-        useClass: TwillioService
+        useClass: process.env.TWILLIO_ENABLED === 'true' ? TwillioService : DisabledTwillioService
     }],
     exports: [IIdentityService, IAgencyService, ITwillioService]
 })
