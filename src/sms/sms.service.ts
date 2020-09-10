@@ -6,11 +6,12 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { SmsOtp } from '../entity/sms.otp';
 import { SmsErrorCode } from './sms.errorcode';
-import { TwillioService } from './twillio.service';
 import { SmsFiltersDto } from './dtos/sms.filters.dto';
 import { SmsParamsDto } from './dtos/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
+import { ISmsService } from '../remote/sms.service.interface';
+import { SmsHelperService } from './sms.helper.service';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -21,8 +22,9 @@ export class SmsService {
     constructor(
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
-        private readonly twillioService: TwillioService,
-        private readonly rateLimitService: RateLimitService
+        private readonly twillioService: ISmsService,
+        private readonly rateLimitService: RateLimitService,
+        private readonly smsHelperService: SmsHelperService
     ) {}
 
     /**
@@ -103,7 +105,7 @@ export class SmsService {
      * @tothink maybe we should only save a OTP if the SMS sends successfully
      */
     private async generateOtp(smsOtpEntity: SmsOtp): Promise<number> {
-        const otp = this.twillioService.generateRandomOtp();
+        const otp = this.smsHelperService.generateRandomOtp();
         const otpExpireTime = new Date(Date.now() + 15000); // 15 min
         smsOtpEntity.otp = otp;
         smsOtpEntity.otp_expiration_time = otpExpireTime;

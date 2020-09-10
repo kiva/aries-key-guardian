@@ -2,7 +2,6 @@ import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { TwillioService } from '../../src/sms/twillio.service';
 import { SmsErrorCode } from '../../src/sms/sms.errorcode';
 import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
 import { EscrowService } from '../../src/escrow/escrow.service';
@@ -18,6 +17,10 @@ import { SmsOtp } from '../../src/entity/sms.otp';
 import cacheManager from 'cache-manager';
 import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
+import { ISmsService } from '../../src/remote/sms.service.interface';
+import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
+import { SmsHelperService } from '../../src/sms/sms.helper.service';
+import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -81,12 +84,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
-        const mockTwillioService = {
-            generateRandomOtp: () => {
-                return otp;
-            },
-            sendOtp: () => { },
-        };
+        const mockSmsHelperService = new MockSmsHelperService(otp);
 
         // Tie together application with mocked and actual dependencies
         const moduleFixture = await Test.createTestingModule({
@@ -113,8 +111,12 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     useValue: mockAgencyService,
                 },
                 {
-                    provide: 'TwillioService',
-                    useValue: mockTwillioService
+                    provide: ISmsService,
+                    useClass: SmsDisabledService
+                },
+                {
+                    provide: SmsHelperService,
+                    useValue: mockSmsHelperService
                 },
             ]
         }).compile();
