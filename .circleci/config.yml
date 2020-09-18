@@ -17,6 +17,10 @@ jobs:
           command: |
               npm install nodemon --save-dev
               npm install
+      - run:
+          name: run linter
+          command: |
+              npm run lint
       - run: docker-compose -f docker-compose.ci.yml build
       - run:
           name: Start docker compose and wait for readiness
