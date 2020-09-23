@@ -91,11 +91,12 @@ export class EscrowService {
      * We want the random strings to include any letter or number
      */
     private async createRandomCredentials(): Promise<WalletCredentials> {
-        // Wallet id's will be saved in postgres and need to be all lower case
+        // Wallet id should be lower case when using DB per wallet mode, since we use multiwallet mode it matters less
         const walletId = cryptoRandomString({ length: 32, characters: this.chars }).toLowerCase();
         const walletKey = cryptoRandomString({ length: 32, characters: this.chars });
         const walletSeed = cryptoRandomString({ length: 32, characters: this.chars });
-        const agentId = cryptoRandomString({ length: 22, characters: this.chars });
+        // Agent id needs to be lowercase for k8s pod rules
+        const agentId = cryptoRandomString({ length: 22, characters: this.chars }).toLowerCase();
         const agentApiKey = cryptoRandomString({ length: 32, characters: this.chars }); // TODO update DB to save apiKeys
         const walletCredentials = new WalletCredentials();
         walletCredentials.did = agentId; // TODO change DB name to agent_id

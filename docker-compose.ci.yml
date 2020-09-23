@@ -1,6 +1,6 @@
 # Spin up the Aries Key Guardian service locally with DB
 #
-version: '3.2'
+version: '3.5'
 
 networks:
   agency-network:
@@ -14,7 +14,9 @@ services:
   aries-key-guardian:
     env_file:
       - ./.env
-    build: ./
+    build:
+      context: ./
+      dockerfile: Dockerfile.production
     command: npm run start:debug
     image: aries-key-guardian
     container_name: aries-key-guardian
