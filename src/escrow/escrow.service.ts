@@ -38,7 +38,7 @@ export class EscrowService {
                 walletCredentials.wallet_key,
                 walletCredentials.wallet_key,
                 walletCredentials.seed,
-                walletCredentials.did
+                walletCredentials.did,
             );
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
             // Append the connection data onto the result
