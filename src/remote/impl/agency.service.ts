@@ -19,7 +19,7 @@ export class AgencyService implements IAgencyService {
      * This combines a call to spin up the agent and get it's connection data
      * Note there's an issue with the autoConnect which is why this is broken into 2 calls
      */
-    public async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, alias: string): Promise<any> {
+    public async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, agentId: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v1/manager',
@@ -28,21 +28,21 @@ export class AgencyService implements IAgencyService {
                 walletKey,
                 adminApiKey,
                 seed,
-                alias,
+                agentId,
                 autoConnect: false,
             }
         };
         const response = await this.http.requestWithRetry(request);
-        Logger.log(`Spun up agent ${alias}`);
+        Logger.log(`Spun up agent ${agentId}`);
         const requestConnect: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v1/manager/connect',
             data: {
-                agentId: alias,
+                agentId,
                 adminApiKey,
             }
         };
-        Logger.log(`Connected to agent ${alias}`);
+        Logger.log(`Connecting to agent ${agentId}`);
         return await this.http.requestWithRetry(requestConnect);
     }
 }

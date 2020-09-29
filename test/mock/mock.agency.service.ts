@@ -4,7 +4,7 @@ export class MockAgencyService implements IAgencyService {
 
     constructor(private readonly connectionData: string) {}
 
-    async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, alias: string): Promise<any> {
+    async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, agentId: string): Promise<any> {
         return Promise.resolve({
             data: {
                 connectionData: this.connectionData
