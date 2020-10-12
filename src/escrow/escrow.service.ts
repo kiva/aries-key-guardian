@@ -33,12 +33,15 @@ export class EscrowService {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
             // TODO we need to save the admin api key and then we can pass it along here
+            const adminApiKey = walletCredentials.wallet_key;
+            // TODO we need to explicitly save the agentId and then we can pass it along here
+            const agentId = walletCredentials.did.toLowerCase();
             const response = await this.agencyService.spinUpAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
-                walletCredentials.wallet_key,
+                adminApiKey,
                 walletCredentials.seed,
-                walletCredentials.did,
+                agentId,
             );
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
             // Append the connection data onto the result
@@ -73,13 +76,17 @@ export class EscrowService {
         Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
 
         // TODO we need to save the admin api key and then we can pass it along here
+        const adminApiKey = walletCredentials.wallet_key;
+        // TODO we need to explicitly save the agentId and then we can pass it along here
+        const agentId = walletCredentials.did.toLowerCase();
         const response = await this.agencyService.spinUpAgent(
             walletCredentials.wallet_id,
             walletCredentials.wallet_key,
-            walletCredentials.wallet_key,
+            adminApiKey,
             walletCredentials.seed,
-            walletCredentials.did
+            agentId,
         );
+
         Logger.log(`Spun up agent for did ${walletCredentials.did}`);
 
         return { id: walletCredentials.did, connectionData: response.data.connectionData };
