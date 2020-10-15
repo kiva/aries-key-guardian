@@ -17,7 +17,9 @@ import { SmsDisabledService } from './impl/sms.disabled.service';
         useClass: AgencyService
     }, {
         provide: ISmsService,
-        useClass: process.env.TWILLIO_ENABLED === 'true' ? SmsTwillioService : SmsDisabledService
+        useFactory: () => {
+            return process.env.TWILLIO_ENABLED === 'true' ? new SmsTwillioService() : new SmsDisabledService();
+        }
     }],
     exports: [IIdentityService, IAgencyService, ISmsService]
 })
