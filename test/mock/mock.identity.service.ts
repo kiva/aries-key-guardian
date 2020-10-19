@@ -16,4 +16,10 @@ export class MockIdentityService implements IIdentityService {
             },
         });
     }
+
+    async qualityCheck(filters: any): Promise<any> {
+        return Promise.resolve({
+            data: [1]
+        });
+    }
 }
