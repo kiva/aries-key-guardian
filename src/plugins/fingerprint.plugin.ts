@@ -11,6 +11,11 @@ export class FingerprintPlugin implements IPlugin {
      */
     constructor(private readonly identityService: IIdentityService) { }
 
+    /**
+     * The verify logic involves calling verify against the identity service, and then handling certain error codes
+     * by asking the identity service for the positions with the highest image quality
+     * TODO identity service could just handle both these tasks in one call.
+     */
     public async verify(filters: any, params: any) {
         let response;
         try {
