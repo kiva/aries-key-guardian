@@ -51,4 +51,18 @@ export class IdentityService implements IIdentityService {
         };
         return this.http.requestWithRetry(request);
     }
+
+    /**
+     * Queries the identity service to get the finger positions with the best quality scores
+     * TODO the identity service should update the positions endpoint to accept data in the body instead of via url params
+     */
+    public async qualityCheck(filters: any): Promise<any> {
+        const filterKey = Object.keys(filters)[0];
+        const params = `${filterKey}=${filters[filterKey]}`;
+        const request: AxiosRequestConfig = {
+            method: 'GET',
+            url: this.baseUrl + '/api/v1/positions/' + this.backend + '/' + params,
+        };
+        return this.http.requestWithRetry(request);
+    }
 }
