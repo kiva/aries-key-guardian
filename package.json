@@ -41,7 +41,7 @@
     "jaeger-client": "^3.18.0",
     "opentracing": "^0.14.4",
     "pg": "^8.3.0",
-    "protocol-common": "0.1.16",
+    "protocol-common": "^0.1.20",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.2",
     "swagger-ui-express": "^4.1.4",
