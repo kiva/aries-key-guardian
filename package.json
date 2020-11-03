@@ -9,7 +9,7 @@
     "url": "git+https://github.com/kiva/protocol.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/ && tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts",
     "start:debug": "nodemon --legacy-watch",

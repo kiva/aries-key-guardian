@@ -1,6 +1,6 @@
 import { IsNotEmptyObject, IsEnum, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PluginTypeEnum } from '../plugins/plugin.type.enum';
+import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
 
 /**
  * DTO for the create endpoint

@@ -3,8 +3,8 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { IPlugin } from './plugin.interface';
 import { PluginTypeEnum } from './plugin.type.enum';
-import { FingerprintPlugin } from './fingerprint.plugin';
-import { SmsOtpPlugin } from './sms.otp.plugin';
+import { FingerprintPlugin } from './impl/fingerprint.plugin';
+import { SmsOtpPlugin } from './impl/sms.otp.plugin';
 import { SmsService } from '../sms/sms.service';
 import { IIdentityService } from '../remote/identity.service.interface';
 

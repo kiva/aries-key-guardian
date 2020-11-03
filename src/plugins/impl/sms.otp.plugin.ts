@@ -1,4 +1,4 @@
-import { IPlugin } from './plugin.interface';
+import { IPlugin } from '../plugin.interface';
 import { SmsService } from 'sms/sms.service';
 
 /**

@@ -1,7 +1,7 @@
-import { IPlugin } from './plugin.interface';
+import { IPlugin } from '../plugin.interface';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { IIdentityService } from '../remote/identity.service.interface';
+import { IIdentityService } from '../../remote/identity.service.interface';
 import { Logger } from 'protocol-common/logger';
 
 export class FingerprintPlugin implements IPlugin {
