@@ -8,7 +8,7 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 export class RateLimitConfigService {
     private readonly configs: Map<RateLimitBucket, RateLimitConfig>;
 
-    constructor(@Inject('BASE_RATE_LIMIT_CONFIG') private readonly data: any) {
+    constructor(@Inject('BASE_RATE_LIMIT_CONFIG') data: any) {
         this.configs = new Map<RateLimitBucket, RateLimitConfig>();
         for (const key of Object.keys(data)) {
             switch (RateLimitBucket[key]) {

@@ -16,7 +16,7 @@ export class IdentityService implements IIdentityService {
     private readonly baseUrl: string;
     private readonly http: ProtocolHttpService;
 
-    constructor(private readonly httpService: HttpService) {
+    constructor(httpService: HttpService) {
         this.http = new ProtocolHttpService(httpService);
         this.backend = process.env.IDENTITY_SERVICE_BACKEND;
         this.baseUrl = process.env.IDENTITY_SERVICE_URL;

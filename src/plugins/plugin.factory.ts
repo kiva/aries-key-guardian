@@ -7,6 +7,8 @@ import { FingerprintPlugin } from './impl/fingerprint.plugin';
 import { SmsOtpPlugin } from './impl/sms.otp.plugin';
 import { SmsService } from '../sms/sms.service';
 import { IIdentityService } from '../remote/identity.service.interface';
+import { TokenPlugin } from './impl/token.plugin';
+import { TokenService } from '../token/token.service';
 
 /**
  * Creates the specific plugin based on plugin type and handles passing in dependencies
@@ -20,6 +22,7 @@ export class PluginFactory {
      */
     constructor(
         @Optional() private readonly identityService?: IIdentityService,
+        @Optional() private readonly tokenService?: TokenService,
         @Optional() private readonly smsService?: SmsService
     ) {}
 
@@ -29,6 +32,8 @@ export class PluginFactory {
                 return new FingerprintPlugin(this.identityService);
             case PluginTypeEnum.SMS_OTP:
                 return new SmsOtpPlugin(this.smsService);
+            case PluginTypeEnum.AUTH0:
+                return new TokenPlugin(this.tokenService);
             default:
                 throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Unsupported plugin type');
         }

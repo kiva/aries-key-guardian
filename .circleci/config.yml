@@ -11,7 +11,9 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: cp dummy.env .env
+      - run:
+          name: Prepare Environment
+          command: ./scripts/useDummyEnv.sh --force
       - run: echo $TWILIOENV | base64 --decode >> .env
       - run:
           name: Install npm dependencies
