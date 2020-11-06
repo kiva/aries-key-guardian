@@ -4,7 +4,7 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from '../../sms/sms.errorcode';
-import { default as twilio } from 'twilio';
+import twilio from 'twilio';
 import { ISmsService } from '../sms.service.interface';
 
 /**
