@@ -8,7 +8,7 @@ import { default as twilio } from 'twilio';
 import { ISmsService } from '../sms.service.interface';
 
 /**
- * Putting Twillio in it's own service in case we want to support other SMS services
+ * Putting Twillio in its own service in case we want to support other SMS services
  */
 @Injectable()
 export class SmsTwillioService implements ISmsService {
