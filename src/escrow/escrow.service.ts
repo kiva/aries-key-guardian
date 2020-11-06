@@ -104,7 +104,6 @@ export class EscrowService {
         const walletSeed = cryptoRandomString({ length: 32, characters: this.chars });
         // Agent id needs to be lowercase for k8s pod rules
         const agentId = cryptoRandomString({ length: 22, characters: this.chars }).toLowerCase();
-        // const agentApiKey = cryptoRandomString({ length: 32, characters: this.chars }); // TODO update DB to save apiKeys
         const walletCredentials = new WalletCredentials();
         walletCredentials.did = agentId; // TODO change DB name to agent_id
         walletCredentials.wallet_id = walletId;
