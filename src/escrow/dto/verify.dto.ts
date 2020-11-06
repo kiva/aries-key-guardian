@@ -1,4 +1,4 @@
-import { IsNotEmptyObject, IsEnum } from 'class-validator';
+import { IsNotEmptyObject, IsEnum, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
 
@@ -18,7 +18,7 @@ export class VerifyDto {
     @ApiProperty({
         description: 'JSON filters object to identify a specific entity, eg government id'
     })
-    @IsNotEmptyObject() readonly filters: any;
+    @IsObject() readonly filters: any;
 
     @ApiProperty({
         description: 'JSON params object used to authenticate the identified entity, eg fingerprint template and finger position'
