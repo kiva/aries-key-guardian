@@ -119,7 +119,7 @@ export class EscrowService {
     public async add(pluginType: string, id: string, filters: any, params: any): Promise<{ result: string }> {
         const count = await this.walletCredentialsRepository.count({ did: id });
         if (count < 1) {
-            throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, `Can't update escrow service, the id doesn't exist`);
+            throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
         }
         const plugin = this.pluginFactory.create(pluginType);
         await plugin.save(id, filters, params);
