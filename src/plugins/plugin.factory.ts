@@ -32,7 +32,7 @@ export class PluginFactory {
                 return new FingerprintPlugin(this.identityService);
             case PluginTypeEnum.SMS_OTP:
                 return new SmsOtpPlugin(this.smsService);
-            case PluginTypeEnum.AUTH0:
+            case PluginTypeEnum.TOKEN:
                 return new TokenPlugin(this.tokenService);
             default:
                 throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Unsupported plugin type');

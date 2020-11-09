@@ -22,7 +22,7 @@ export class TokenPlugin implements IPlugin {
     }
 
     /**
-     * Not supported for Auth0 token, doesn't even really make sense.
+     * Not supported for token, would require using the token provider's admin api (e.g. Auth0) to inject the agentId into the user's metadata.
      */
     public async save(id: string, filters: any, params: any) {
         throw new NotImplementedException();

@@ -15,27 +15,30 @@ export class TokenService {
      * Verify the signature on the token and check for an id for the agent within the token.
      */
     public async verify(params: TokenParamsDto): Promise<string> {
+        let agentId: string;
+
+        // Decode & Verify the token
         try {
-            // Decode & Verify the token
             const key = await this.jwksService.getKey(params.token);
             const pubKey: string = IJwksService.isCertSigningKey(key) ? key.publicKey : key.rsaPublicKey;
             const token: any = jwt.verify(params.token, new Buffer(pubKey, 'base64'), {
-                algorithms: [process.env.AUTH0_ALGORITHM as any],
+                algorithms: [process.env.JWT_SIGNATURE_ALGORITHM as any],
                 complete: true
             });
-
-            // Verify the token's content actually contains an id for the agent
-            if (token.payload.agentId) {
-                return token.payload.agentId;
-            } else {
-                throw new ProtocolException(ProtocolErrorCode.MISSING_AGENT_ID, 'Token does not contain an agentId');
-            }
+            agentId = token.payload.agentId;
         } catch (e) {
             if (e instanceof JsonWebTokenError) {
                 throw new ProtocolException(ProtocolErrorCode.INVALID_TOKEN, e.message);
             } else {
                 throw e;
             }
+        }
+
+        // Verify the token's content actually contains an id for the agent
+        if (agentId) {
+            return agentId;
+        } else {
+            throw new ProtocolException(ProtocolErrorCode.MISSING_AGENT_ID, 'Token does not contain an agentId');
         }
     }
 }

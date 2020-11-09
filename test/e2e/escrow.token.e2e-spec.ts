@@ -16,6 +16,7 @@ import { readFileSync } from 'fs';
 import * as jwt from 'jsonwebtoken';
 import { TokenService } from '../../src/token/token.service';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -25,7 +26,7 @@ describe('EscrowController (e2e) using token plugin', () => {
 
     function data(token: string): object {
         return {
-            pluginType: 'AUTH0',
+            pluginType: PluginTypeEnum.TOKEN,
             filters: {},
             params: {
                 token
@@ -35,7 +36,7 @@ describe('EscrowController (e2e) using token plugin', () => {
 
     beforeAll(async () => {
         jest.setTimeout(10000);
-        process.env.AUTH0_ALGORITHM = 'RS256';
+        process.env.JWT_SIGNATURE_ALGORITHM = 'RS256';
 
         agentId = 'agentId123';
         privateKey1 = readFileSync(__dirname + '/../support/test_id_rsa1');

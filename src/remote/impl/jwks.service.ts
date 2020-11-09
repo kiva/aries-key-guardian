@@ -11,7 +11,7 @@ export class JwksService implements IJwksService {
     constructor() {
         this.client = jwksClient({
             cache: true,
-            jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+            jwksUri: `https://${process.env.JWKS_PROVIDER_DOMAIN}/.well-known/jwks.json`
         });
     }
 

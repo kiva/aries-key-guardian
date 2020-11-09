@@ -95,7 +95,8 @@ export class EscrowService {
     private readonly chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
     /**
-     * We want the random strings to include any letter or number
+     * We want the random strings to include any letter or number.
+     * TODO update DB to save agentApiKey (should be 32 alphanumeric characters)
      */
     private async createRandomCredentials(): Promise<WalletCredentials> {
         // Wallet id should be lower case when using DB per wallet mode, since we use multiwallet mode it matters less

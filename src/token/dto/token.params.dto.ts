@@ -2,7 +2,7 @@ import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
- * DTO for Auth0 Token Params
+ * DTO for Token Params
  */
 export class TokenParamsDto {
 
