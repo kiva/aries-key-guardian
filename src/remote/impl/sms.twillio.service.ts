@@ -4,11 +4,11 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
 import { SmsErrorCode } from '../../sms/sms.errorcode';
-import { default as twilio } from 'twilio';
+import twilio from 'twilio';
 import { ISmsService } from '../sms.service.interface';
 
 /**
- * Putting Twillio in it's own service in case we want to support other SMS services
+ * Putting Twillio in its own service in case we want to support other SMS services
  */
 @Injectable()
 export class SmsTwillioService implements ISmsService {
@@ -33,7 +33,7 @@ export class SmsTwillioService implements ISmsService {
             }
         } catch (e) {
             Logger.log('Error sending SMS', e);
-            throw new ProtocolException(SmsErrorCode.SMS_SEND_FAILED, `SMS failed to send`);
+            throw new ProtocolException(SmsErrorCode.SMS_SEND_FAILED, 'SMS failed to send');
         }
     }
 
@@ -49,7 +49,7 @@ export class SmsTwillioService implements ISmsService {
         const fromNumber = process.env.TWILIO_PHONE_NUMBER;
         if (accountSid === '' || authToken === '' || fromNumber === '') {
             throw new ProtocolException(ProtocolErrorCode.INTERNAL_SERVER_ERROR,
-            `SMS configuration not found, required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER`);
+            'SMS configuration not found, required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER');
         }
 
         const client = twilio(accountSid, authToken);

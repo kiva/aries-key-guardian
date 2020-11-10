@@ -2,9 +2,9 @@ import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { EscrowService } from './escrow.service';
 import { ProtocolValidationPipe } from 'protocol-common/protocol.validation.pipe';
-import { VerifyDto } from './verify.dto';
-import { CreateDto } from './create.dto';
-import { AddDto } from './add.dto';
+import { VerifyDto } from './dto/verify.dto';
+import { CreateDto } from './dto/create.dto';
+import { AddDto } from './dto/add.dto';
 
 /**
  * Endpoints for our escrow service

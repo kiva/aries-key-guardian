@@ -9,7 +9,7 @@
     "url": "git+https://github.com/kiva/protocol.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/ && tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts",
     "start:debug": "nodemon --legacy-watch",
@@ -39,6 +39,8 @@
     "dotenv": "^8.2.0",
     "express-opentracing": "^0.1.1",
     "jaeger-client": "^3.18.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.11.0",
     "opentracing": "^0.14.4",
     "pg": "^8.3.0",
     "protocol-common": "^0.1.22",
@@ -53,6 +55,7 @@
     "@nestjs/testing": "^7.4.2",
     "@types/cache-manager": "^2.10.3",
     "@types/jest": "^25.2.3",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/supertest": "^2.0.10",
     "jest": "^25.5.4",
     "kill-port": "^1.6.1",

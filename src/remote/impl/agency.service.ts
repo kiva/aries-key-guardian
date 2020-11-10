@@ -10,7 +10,7 @@ export class AgencyService implements IAgencyService {
     private readonly http: ProtocolHttpService;
     private readonly baseUrl: string;
 
-    constructor(private readonly httpService: HttpService) {
+    constructor(httpService: HttpService) {
         this.http = new ProtocolHttpService(httpService);
         this.baseUrl = process.env.AGENCY_URL;
     }
@@ -32,7 +32,7 @@ export class AgencyService implements IAgencyService {
                 autoConnect: false,
             }
         };
-        const response = await this.http.requestWithRetry(request);
+        await this.http.requestWithRetry(request);
         Logger.log(`Spun up agent ${agentId}`);
         const requestConnect: AxiosRequestConfig = {
             method: 'POST',
