@@ -14,7 +14,7 @@ import { ISmsService } from '../sms.service.interface';
 export class SmsTwillioService implements ISmsService {
 
     /**
-     * send NIDP OTP SMS via Twilio
+     * send NDIP OTP SMS via Twilio
      * In our test envs (local + dev) we also log the OTP to make testing easier
      * toNumber: phone number to send the SMS to (owned by the authenticating user), e.g. +14151234567
      * otp: the number code that the authenticating user will use to prove their ownership of the phone number.
@@ -26,7 +26,7 @@ export class SmsTwillioService implements ISmsService {
      */
     public async sendOtp(toNumber: string, otp: number): Promise<void> {
         try {
-            const message = `Your NIDP one-time passcode is ${otp}`;
+            const message = `Your NDIP one-time passcode is ${otp}`;
             await this.sendSms(toNumber, message);
             if (process.env.NODE_ENV === Constants.LOCAL || process.env.NODE_ENV === Constants.DEV) {
                 Logger.log('Test Twilio Message:', message);
