@@ -3,12 +3,12 @@ import { CertSigningKey, SigningKey } from 'jwks-rsa';
 
 export class MockJwksService implements IJwksService {
 
-    constructor(private readonly publicKey: Buffer) {}
+    constructor(private readonly publicKey: string) {}
 
     private readonly certSigningKey: CertSigningKey = {
         kid: 'abcd',
         nbf: 'efgh',
-        publicKey: this.publicKey.toString('base64'),
+        publicKey: this.publicKey,
         getPublicKey(): string {
             return this.publicKey;
         }

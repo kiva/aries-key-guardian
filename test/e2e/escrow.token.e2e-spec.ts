@@ -21,8 +21,8 @@ import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
     let agentId: string;
-    let privateKey1: Buffer;
-    let privateKey2: Buffer;
+    let privateKey1: string;
+    let privateKey2: string;
 
     function data(token: string): object {
         return {
@@ -39,9 +39,9 @@ describe('EscrowController (e2e) using token plugin', () => {
         process.env.JWT_SIGNATURE_ALGORITHM = 'RS256';
 
         agentId = 'agentId123';
-        privateKey1 = readFileSync(__dirname + '/../support/test_id_rsa1');
-        const publicKey1: Buffer = readFileSync(__dirname + '/../support/test_id_rsa1.pub');
-        privateKey2 = readFileSync(__dirname + '/../support/test_id_rsa2');
+        privateKey1 = readFileSync(__dirname + '/../support/test_id_rsa1').toString('utf-8');
+        const publicKey1: string = readFileSync(__dirname + '/../support/test_id_rsa1.pub').toString('utf-8');
+        privateKey2 = readFileSync(__dirname + '/../support/test_id_rsa2').toString('utf-8');
 
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();

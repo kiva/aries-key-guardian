@@ -5,6 +5,7 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import * as jwt from 'jsonwebtoken';
 import { IJwksService } from '../remote/jwks.service.interface';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { Logger } from 'protocol-common/logger';
 
 @Injectable()
 export class TokenService {
@@ -21,7 +22,8 @@ export class TokenService {
         try {
             const key = await this.jwksService.getKey(params.token);
             const pubKey: string = IJwksService.isCertSigningKey(key) ? key.publicKey : key.rsaPublicKey;
-            const token: any = jwt.verify(params.token, new Buffer(pubKey, 'base64'), {
+            Logger.info(pubKey);
+            const token: any = jwt.verify(params.token, new Buffer(pubKey, 'utf-8'), {
                 algorithms: [process.env.JWT_SIGNATURE_ALGORITHM as any],
                 complete: true
             });
