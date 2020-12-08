@@ -92,7 +92,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
         const templateBody = {
             ...body,
             params: {
-                ...body.params,
+                position: 1,
                 template: 'base64_encoded_template'
             }
         };
