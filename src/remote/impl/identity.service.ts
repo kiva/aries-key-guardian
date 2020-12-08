@@ -25,7 +25,7 @@ export class IdentityService implements IIdentityService {
     /**
      * TODO right now this keeps the identity service url the same, we probably want to change that so it better matches our plugin pattern
      */
-    public async verify(position: number, image: string, filters: any): Promise<any> {
+    public async verifyFingerprint(position: number, image: string, filters: any): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/api/v1/verify',
@@ -34,6 +34,21 @@ export class IdentityService implements IIdentityService {
                 position,
                 image,
                 filters,
+            },
+        };
+        return this.http.requestWithRetry(request);
+    }
+
+    public async verifyFingerprintTemplate(position: number, template: string, filters: any): Promise<any> {
+        const request: AxiosRequestConfig = {
+            method: 'POST',
+            url: this.baseUrl + '/api/v1/verify',
+            data: {
+                backend: this.backend,
+                position,
+                image: template,
+                filters,
+                imageType: 'TEMPLATE',
             },
         };
         return this.http.requestWithRetry(request);
