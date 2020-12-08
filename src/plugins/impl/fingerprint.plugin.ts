@@ -20,26 +20,26 @@ export class FingerprintPlugin implements IPlugin {
      */
     public async verify(filters: any, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
         let response;
-        if (VerifyFingerprintImageDto.isInstance(params)) {
-            try {
+        try {
+            if (VerifyFingerprintImageDto.isInstance(params)) {
                 response = await this.identityService.verifyFingerprint(params.position, params.image, filters);
-            } catch(e) {
-                // Handle specific error codes
-                switch (e.code) {
-                    case 'FINGERPRINT_NO_MATCH':
-                    case 'FINGERPRINT_MISSING_NOT_CAPTURED':
-                    case 'FINGERPRINT_MISSING_AMPUTATION':
-                    case 'FINGERPRINT_MISSING_UNABLE_TO_PRINT':
-                        if (process.env.QUALITY_CHECK_ENABLED === 'true') {
-                            e = await this.fingerprintQualityCheck(e, filters);
-                        }
-                    // no break, fall through
-                    default:
-                        throw e;
-                }
+            } else {
+                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, filters);
             }
-        } else {
-            response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, filters);
+        } catch(e) {
+            // Handle specific error codes
+            switch (e.code) {
+                case 'FINGERPRINT_NO_MATCH':
+                case 'FINGERPRINT_MISSING_NOT_CAPTURED':
+                case 'FINGERPRINT_MISSING_AMPUTATION':
+                case 'FINGERPRINT_MISSING_UNABLE_TO_PRINT':
+                    if (process.env.QUALITY_CHECK_ENABLED === 'true') {
+                        e = await this.fingerprintQualityCheck(e, filters);
+                    }
+                // no break, fall through
+                default:
+                    throw e;
+            }
         }
 
         //  The identity service should throw this error on no match, but just to be safe double check it and throw here
