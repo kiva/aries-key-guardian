@@ -3,6 +3,8 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { IIdentityService } from '../../remote/identity.service.interface';
 import { Logger } from 'protocol-common/logger';
+import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
+import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -16,10 +18,14 @@ export class FingerprintPlugin implements IPlugin {
      * by asking the identity service for the positions with the highest image quality
      * TODO identity service could just handle both these tasks in one call.
      */
-    public async verify(filters: any, params: any) {
+    public async verify(filters: any, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
         let response;
         try {
-            response = await this.identityService.verify(params.position, params.image, filters);
+            if (VerifyFingerprintImageDto.isInstance(params)) {
+                response = await this.identityService.verifyFingerprint(params.position, params.image, filters);
+            } else {
+                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, filters);
+            }
         } catch(e) {
             // Handle specific error codes
             switch (e.code) {
@@ -30,7 +36,7 @@ export class FingerprintPlugin implements IPlugin {
                     if (process.env.QUALITY_CHECK_ENABLED === 'true') {
                         e = await this.fingerprintQualityCheck(e, filters);
                     }
-                    // no break, fall through
+                // no break, fall through
                 default:
                     throw e;
             }

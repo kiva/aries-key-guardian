@@ -8,7 +8,16 @@ export class MockIdentityService implements IIdentityService {
         return Promise.resolve(undefined);
     }
 
-    async verify(position: number, image: string, filters: any): Promise<any> {
+    async verifyFingerprint(position: number, image: string, filters: any): Promise<any> {
+        return Promise.resolve({
+            data: {
+                status: this.status,
+                did: this.did,
+            },
+        });
+    }
+
+    async verifyFingerprintTemplate(position: number, template: string, filters: any): Promise<any> {
         return Promise.resolve({
             data: {
                 status: this.status,
