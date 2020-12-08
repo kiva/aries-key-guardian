@@ -77,10 +77,28 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
         await app.init();
     });
 
-    it('Verify endpoint', () => {
+    it('Verify endpoint (fingerprint image)', () => {
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(body)
+            .expect(201)
+            .then((res) => {
+                assert.equal(res.body.status, 'matched');
+                assert.equal(res.body.id, 'agentId123');
+            });
+    });
+
+    it('Verify endpoint (fingerprint template)', () => {
+        const templateBody = {
+            ...body,
+            params: {
+                ...body.params,
+                template: 'base64_encoded_template'
+            }
+        };
+        return request(app.getHttpServer())
+            .post('/v1/escrow/verify')
+            .send(templateBody)
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
