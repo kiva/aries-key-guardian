@@ -13,8 +13,9 @@ jobs:
       - checkout
       - run:
           name: Prepare Environment
-          command: ./scripts/useDummyEnv.sh --force
-      - run: echo $TWILIOENV | base64 --decode >> .env
+          command: |
+            ./scripts/useDummyEnv.sh --force
+            echo $TWILIOENV | base64 --decode >> .env
       - run: npm install
       - run: npm run build
       - run: npm run lint
@@ -28,8 +29,9 @@ jobs:
       - checkout
       - run:
           name: Prepare Environment
-          command: ./scripts/useDummyEnv.sh --force
-      - run: echo $TWILIOENV | base64 --decode >> .env
+          command: |
+            ./scripts/useDummyEnv.sh --force
+            echo $TWILIOENV | base64 --decode >> .env
       - run:
           name: Start docker compose and wait for readiness
           command: |
