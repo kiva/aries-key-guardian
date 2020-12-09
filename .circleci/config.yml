@@ -6,6 +6,21 @@ version: 2.1
 
 jobs:
   build-and-test:
+    executor:
+      name: node/default
+      tag: '14.15.1'
+    steps:
+      - checkout
+      - run:
+          name: Prepare Environment
+          command: ./scripts/useDummyEnv.sh --force
+      - run: echo $TWILIOENV | base64 --decode >> .env
+      - run: npm install
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run test
+
+  integration-test:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01
@@ -16,24 +31,18 @@ jobs:
           command: ./scripts/useDummyEnv.sh --force
       - run: echo $TWILIOENV | base64 --decode >> .env
       - run:
-          name: Install npm dependencies
-          command: |
-            npm install nodemon --save-dev
-            npm install
-      - run:
-          name: run linter
-          command: |
-            npm run lint
-      - run:
           name: Start docker compose and wait for readiness
           command: |
             docker network prune -f
             docker-compose -f docker-compose.ci.yml build
             set -x
             docker-compose -f docker-compose.ci.yml up -d
-            sleep 150
+            sleep 15
             docker-compose -f docker-compose.ci.yml logs
-      - run: npm run test
+      - run:
+          name: Check prod container is running
+          command: |
+            ./scripts/healthcheck.sh http://localhost:3003/healthz
 
 workflows:
   build-test-deploy:
@@ -42,9 +51,15 @@ workflows:
           filters: # run for all branches AND tags
             tags:
               only: /.*/
-      - docker/publish:
+      - integration-test:
           requires:
             - build-and-test
+          filters: # run for all branches AND tags
+            tags:
+              only: /.*/
+      - docker/publish:
+          requires:
+            - integration-test
           filters: # only run for semver tagged versions
             tags:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)/
