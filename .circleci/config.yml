@@ -6,6 +6,22 @@ version: 2.1
 
 jobs:
   build-and-test:
+    executor:
+      name: node/default
+      tag: '14.15.1'
+    steps:
+      - checkout
+      - run:
+          name: Prepare Environment
+          command: |
+            ./scripts/useDummyEnv.sh --force
+            echo $TWILIOENV | base64 --decode >> .env
+      - run: npm install
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run test
+
+  integration-test:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01
@@ -13,17 +29,9 @@ jobs:
       - checkout
       - run:
           name: Prepare Environment
-          command: ./scripts/useDummyEnv.sh --force
-      - run: echo $TWILIOENV | base64 --decode >> .env
-      - run:
-          name: Install npm dependencies
           command: |
-            npm install nodemon --save-dev
-            npm install
-      - run:
-          name: run linter
-          command: |
-            npm run lint
+            ./scripts/useDummyEnv.sh --force
+            echo $TWILIOENV | base64 --decode >> .env
       - run:
           name: Start docker compose and wait for readiness
           command: |
@@ -31,9 +39,12 @@ jobs:
             docker-compose -f docker-compose.ci.yml build
             set -x
             docker-compose -f docker-compose.ci.yml up -d
-            sleep 150
+            sleep 15
             docker-compose -f docker-compose.ci.yml logs
-      - run: docker exec -it aries-key-guardian npm run test
+      - run:
+          name: Check prod container is running
+          command: |
+            ./scripts/healthcheck.sh http://localhost:3003/healthz
 
 workflows:
   build-test-deploy:
@@ -42,8 +53,13 @@ workflows:
           filters: # run for all branches AND tags
             tags:
               only: /.*/
+      - integration-test:
+          filters: # run for all branches AND tags
+            tags:
+              only: /.*/
       - docker/publish:
           requires:
+            - integration-test
             - build-and-test
           filters: # only run for semver tagged versions
             tags:
@@ -56,5 +72,5 @@ workflows:
           tag: << pipeline.git.tag >>
 
 orbs:
-  node: circleci/node@3.0.0
+  node: circleci/node@4.1.0
   docker: circleci/docker@1.3.0

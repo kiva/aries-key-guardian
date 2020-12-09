@@ -18,7 +18,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.production
-    command: npm run start:debug
     image: aries-key-guardian
     container_name: aries-key-guardian
     working_dir: /www
@@ -26,8 +25,6 @@ services:
       - "3003:3003"
     expose:
       - "3003"
-    volumes:
-      - ./:/www
     networks:
       - agency-network
     tty: true
