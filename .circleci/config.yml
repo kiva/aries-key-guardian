@@ -20,9 +20,6 @@ jobs:
           command: |
             npm install nodemon --save-dev
             npm install
-            nvm install v14.15.1
-            node -v
-            nvm alias default v14.15.1
       - run:
           name: run linter
           command: |
