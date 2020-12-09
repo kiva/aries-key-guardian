@@ -3,7 +3,7 @@ WORKDIR /tmp/
 COPY package.json package-lock.json ./
 RUN npm install --production
 
-FROM node:c14.15.1-alpine3.12 as dist
+FROM node:14.15.1-alpine3.12 as dist
 WORKDIR /tmp/
 COPY package.json package-lock.json tsconfig.json ./
 RUN npm install
