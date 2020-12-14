@@ -93,6 +93,7 @@ export class EscrowService {
     }
 
     private readonly chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    private readonly letters = 'abcdefghijklmnopqrstuvwxyz';
 
     /**
      * We want the random strings to include any letter or number.
@@ -103,8 +104,8 @@ export class EscrowService {
         const walletId = cryptoRandomString({ length: 32, characters: this.chars }).toLowerCase();
         const walletKey = cryptoRandomString({ length: 32, characters: this.chars });
         const walletSeed = cryptoRandomString({ length: 32, characters: this.chars });
-        // Agent id needs to be lowercase for k8s pod rules
-        const agentId = cryptoRandomString({ length: 22, characters: this.chars }).toLowerCase();
+        // Agent id needs to be lowercase letters for k8s pod rules
+        const agentId = cryptoRandomString({ length: 22, characters: this.letters });
         const walletCredentials = new WalletCredentials();
         walletCredentials.did = agentId; // TODO change DB name to agent_id
         walletCredentials.wallet_id = walletId;
