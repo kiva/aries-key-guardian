@@ -4,6 +4,7 @@ Interoperable key guardian and recovery system for self sovereign identity walle
 
 
 ### Setup
+
 1. Copy the contents of dummy.env into a .env file at the top level of the `aries-key-guardian` repo. You can either do
    this manually, or you can run the provided script from the top level of the `aries-key-guardian` repo:
    ```
@@ -16,6 +17,7 @@ Interoperable key guardian and recovery system for self sovereign identity walle
    ```
 
 ### Testing
+
 To run tests, you can either run them from inside a docker container or locally from your Mac.
 1. To run them from a docker-container:
    ```
@@ -28,6 +30,9 @@ To run tests, you can either run them from inside a docker container or locally 
 
 
 ### DB Migrations
+
+For more details about TypeORM migrations, take a look at [their documentation](https://github.com/typeorm/typeorm/blob/master/docs/migrations.md).
+
 To create a new database migration, run the following command from the top level of the `aries-key-guardian` repo:
    ```
    npm run typeorm:migration NameOfNewMigration
@@ -48,7 +53,25 @@ complete.
 As a matter of style, we strongly prefer migrations to be written in sql. That means using `queryRunner.query(...)`
 instead of TypeORM's query runner api. This gives us a lot more control and certainty over what actually runs on the db.
 
-For more details about TypeORM migrations, take a look at [their documentation](https://github.com/typeorm/typeorm/blob/master/docs/migrations.md).
+#### Developing Migrations
+
+The process or writing and testing migrations can be a little tedious if you have to create a new docker image every
+time you make a minor change to the migration file. To that end, it's recommended to spin up `docker-compose.local.yml`,
+add an entry for escrow-db to your `etc/hosts`, and run the service locally. Every time you run the service locally, it
+will attempt to apply your migration.
+
+The Process:
+1. Edit `etc/hosts` to contain the following lines:
+   ```
+   127.0.0.1       escrow-db
+   ::1             escrow-db
+   ```
+2. Spin up the local docker-compose: `docker-compose -f docker-compose.local.yml up --force-recreate`
+3. Edit your migration.
+4. Build your migration: `npm run build`
+5. Test out your migration: `npm run start:debug`
+
+If you see any errors or the migration doesn't do what you expect, go back to step 3. Rinse, repeat.
 
 
 ### Epic

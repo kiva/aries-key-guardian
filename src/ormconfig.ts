@@ -9,7 +9,7 @@ export function OrmConfig(): DynamicModule {
     synchronize: false,
     migrationsRun: true,
     entities: ['src/entity/**/*.ts', 'dist/entity/**/*.js'],
-    migrations: ['src/migration/**/*.ts', 'dist/migration/**/*.js'],
+    migrations: ['dist/migration/**/*.js'],
     host: process.env.POSTGRES_HOST,
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
