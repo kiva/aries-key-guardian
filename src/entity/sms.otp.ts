@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class SmsOtp {
@@ -18,7 +18,6 @@ export class SmsOtp {
     /**
      * First 32 bytes of SHA256 hash of government id 1 + pepper (aka national id)
      */
-    @Index()
     @Column({ length: 32, unique: true })
     gov_id_1_hash: string;
 
