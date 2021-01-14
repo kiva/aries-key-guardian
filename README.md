@@ -56,7 +56,7 @@ instead of TypeORM's query runner api. This gives us a lot more control and cert
 #### Developing Migrations
 
 The process or writing and testing migrations can be a little tedious if you have to create a new docker image every
-time you make a minor change to the migration file. To that end, it's recommended to spin up `docker-compose.local.yml`,
+time you make a minor change to the migration file. To that end, it's recommended to spin up `docker-compose.yml`,
 add an entry for escrow-db to your `etc/hosts`, and run the service locally. Every time you run the service locally, it
 will attempt to apply your migration.
 
@@ -66,12 +66,13 @@ The Process:
    127.0.0.1       escrow-db
    ::1             escrow-db
    ```
-2. Spin up the local docker-compose: `docker-compose -f docker-compose.local.yml up --force-recreate`
-3. Edit your migration.
-4. Build your migration: `npm run build`
-5. Test out your migration: `npm run start:debug`
+2. Comment everything above `# ----------LOCAL MODE----------` and uncomment everything below that same line in `docker-compose.yml`
+3. Spin up the local docker-compose: `docker-compose -f docker-compose.yml up --force-recreate`
+4. Author/Edit your migration.
+5. Build your migration: `npm run build`
+6. Test out your migration: `npm run start:debug`
 
-If you see any errors or the migration doesn't do what you expect, go back to step 3. Rinse, repeat.
+If you see any errors or the migration doesn't do what you expect, go back to step 4. Rinse, repeat.
 
 
 ### Epic
