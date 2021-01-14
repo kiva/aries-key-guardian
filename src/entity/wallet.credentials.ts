@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class WalletCredentials {
@@ -12,7 +12,6 @@ export class WalletCredentials {
   /**
    * Typically any of the authentication microservices will return a DID which can be used to look up the wallet data. All dids should be of length 32
    */
-  @Index()
   @Column({ length: 32, unique: true })
   did: string;
 
