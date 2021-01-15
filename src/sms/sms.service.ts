@@ -132,7 +132,7 @@ export class SmsService {
 
         return {
             status: 'matched',
-            id: smsOtpEntity.agent_id,
+            id: smsOtpEntity.did,
         };
     }
 
@@ -159,7 +159,7 @@ export class SmsService {
      */
     public async save(id: string, filters: SmsFiltersDto, params: SmsParamsDto) {
         const smsOtpEntity = new SmsOtp();
-        smsOtpEntity.agent_id = id;
+        smsOtpEntity.did = id;
         smsOtpEntity.gov_id_1_hash = SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER);
         smsOtpEntity.gov_id_2_hash = SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER);
         smsOtpEntity.phone_number_hash = SecurityUtility.hash32(params.phoneNumber + process.env.HASH_PEPPER);

@@ -11,7 +11,7 @@ export class CreateExternalId1610660009057 implements MigrationInterface {
               id SERIAL PRIMARY KEY,
               did VARCHAR(32) NOT NULL,
               external_id TEXT NOT NULL,
-              external_id_type VARCHAR(40) NOT NULL,
+              external_id_type TEXT NOT NULL,
               UNIQUE (external_id, external_id_type)
             );`
         );

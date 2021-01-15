@@ -67,7 +67,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Set up SmsOtp repository
         const mockSmsOtp = new SmsOtp();
-        mockSmsOtp.agent_id = agentId;
+        mockSmsOtp.did = agentId;
         mockSmsOtp.gov_id_1_hash = nationalIdHash;
         mockSmsOtp.gov_id_2_hash = voterIdHash;
         mockSmsOtp.phone_number_hash = pepperHash(phoneNumber);
