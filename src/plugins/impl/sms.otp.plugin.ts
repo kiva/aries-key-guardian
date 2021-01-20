@@ -21,7 +21,7 @@ export class SmsOtpPlugin implements IPlugin {
     /**
      * Pass call onto sms service
      */
-    public async save(id: string, filters: any, params: any) {
-        return await this.smsService.save(id, filters, params);
+    public async save(id: string, params: any) {
+        return await this.smsService.save(id, params);
     }
 }

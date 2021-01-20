@@ -6,13 +6,15 @@ import assert from 'assert';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
 import { EscrowController } from '../../src/escrow/escrow.controller';
 import { EscrowService } from '../../src/escrow/escrow.service';
-import { WalletCredentials } from '../../src/entity/wallet.credentials';
+import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
 import { PluginFactory } from '../../src/plugins/plugin.factory';
 import { IAgencyService } from '../../src/remote/agency.service.interface';
 import { IIdentityService } from '../../src/remote/identity.service.interface';
 import { MockAgencyService } from '../mock/mock.agency.service';
 import { MockIdentityService } from '../mock/mock.identity.service';
 import { MockRepository } from '../mock/mock.repository';
+import { ExternalId } from '../../src/db/entity/external.id';
+import { ExternalIdService } from '../../src/db/external.id.service';
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -31,18 +33,26 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         const mockAgencyService = new MockAgencyService('foo');
         const mockIdentityService = new MockIdentityService(status, did);
-        const mockRepository = new MockRepository<WalletCredentials>({
-            id: 1,
-            did,
-            wallet_id: 'abc',
-            wallet_key: '123',
-            seed: ''
-        });
+
+        // Set up ExternalId repository
+        const mockExternalId = new ExternalId();
+        mockExternalId.did = did;
+        mockExternalId.external_id = 'abc123';
+        mockExternalId.external_id_type = 'sl_national_id';
+        const mockExternalIdRepository = new MockRepository<ExternalId>([mockExternalId]);
+
+        // Set up WalletCredentials repository
+        const mockWalletCredentials = new WalletCredentials();
+        mockWalletCredentials.did = did;
+        mockWalletCredentials.wallet_id = 'abc';
+        mockWalletCredentials.wallet_key = '123';
+        mockWalletCredentials.seed = '';
+        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>([mockWalletCredentials]);
 
         body = {
             pluginType: 'FINGERPRINT',
             filters: {
-                nationalId: 'abc123',
+                govId1: 'abc123',
             },
             params: {
                 position: 1,
@@ -55,9 +65,14 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             controllers: [EscrowController],
             providers: [
                 EscrowService,
+                ExternalIdService,
+                {
+                    provide: getRepositoryToken(ExternalId),
+                    useValue: mockExternalIdRepository
+                },
                 {
                     provide: getRepositoryToken(WalletCredentials),
-                    useValue: mockRepository,
+                    useValue: mockWalletCredentialsRepository,
                 },
                 {
                     provide: IAgencyService,

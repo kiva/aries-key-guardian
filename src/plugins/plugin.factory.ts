@@ -9,6 +9,7 @@ import { SmsService } from '../sms/sms.service';
 import { IIdentityService } from '../remote/identity.service.interface';
 import { TokenPlugin } from './impl/token.plugin';
 import { TokenService } from '../token/token.service';
+import { ExternalIdService } from '../db/external.id.service';
 
 /**
  * Creates the specific plugin based on plugin type and handles passing in dependencies
@@ -23,13 +24,14 @@ export class PluginFactory {
     constructor(
         @Optional() private readonly identityService?: IIdentityService,
         @Optional() private readonly tokenService?: TokenService,
-        @Optional() private readonly smsService?: SmsService
+        @Optional() private readonly smsService?: SmsService,
+        @Optional() private readonly externalIdService?: ExternalIdService
     ) {}
 
     public create(pluginType: string): IPlugin {
         switch (pluginType) {
             case PluginTypeEnum.FINGERPRINT:
-                return new FingerprintPlugin(this.identityService);
+                return new FingerprintPlugin(this.identityService, this.externalIdService);
             case PluginTypeEnum.SMS_OTP:
                 return new SmsOtpPlugin(this.smsService);
             case PluginTypeEnum.TOKEN:

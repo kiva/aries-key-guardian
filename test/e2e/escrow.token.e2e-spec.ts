@@ -7,7 +7,7 @@ import { EscrowService } from '../../src/escrow/escrow.service';
 import { PluginFactory } from '../../src/plugins/plugin.factory';
 import { IJwksService } from '../../src/remote/jwks.service.interface';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { WalletCredentials } from '../../src/entity/wallet.credentials';
+import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
 import { MockRepository } from '../mock/mock.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MockAgencyService } from '../mock/mock.agency.service';
@@ -17,6 +17,8 @@ import * as jwt from 'jsonwebtoken';
 import { TokenService } from '../../src/token/token.service';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
+import { ExternalId } from '../../src/db/entity/external.id';
+import { ExternalIdService } from '../../src/db/external.id.service';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -43,12 +45,19 @@ describe('EscrowController (e2e) using token plugin', () => {
         const publicKey1: string = readFileSync(__dirname + '/../support/test_id_rsa1.pub').toString('utf-8');
         privateKey2 = readFileSync(__dirname + '/../support/test_id_rsa2').toString('utf-8');
 
+        // Set up ExternalId repository
+        const mockExternalId = new ExternalId();
+        mockExternalId.did = agentId;
+        mockExternalId.external_id = 'abc123';
+        mockExternalId.external_id_type = 'sl_national_id';
+        const mockExternalIdRepository = new MockRepository<ExternalId>([mockExternalId]);
+
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
         mockWalletCredentials.did = agentId;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
-        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>(mockWalletCredentials);
+        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>([mockWalletCredentials]);
 
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
@@ -59,10 +68,15 @@ describe('EscrowController (e2e) using token plugin', () => {
             providers: [
                 EscrowService,
                 TokenService,
+                ExternalIdService,
                 PluginFactory,
                 {
+                    provide: getRepositoryToken(ExternalId),
+                    useValue: mockExternalIdRepository
+                },
+                {
                     provide: getRepositoryToken(WalletCredentials),
-                    useValue: mockWalletCredentialsRepository,
+                    useValue: mockWalletCredentialsRepository
                 },
                 {
                     provide: IJwksService,
@@ -70,7 +84,7 @@ describe('EscrowController (e2e) using token plugin', () => {
                 },
                 {
                     provide: IAgencyService,
-                    useValue: mockAgencyService,
+                    useValue: mockAgencyService
                 }
             ]
         }).compile();

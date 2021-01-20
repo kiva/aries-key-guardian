@@ -6,14 +6,14 @@ import { SmsErrorCode } from '../../src/sms/sms.errorcode';
 import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
 import { EscrowService } from '../../src/escrow/escrow.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { WalletCredentials } from '../../src/entity/wallet.credentials';
+import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
 import { EscrowController } from '../../src/escrow/escrow.controller';
 import { PluginFactory } from '../../src/plugins/plugin.factory';
 import { MockAgencyService } from '../mock/mock.agency.service';
 import { IAgencyService } from '../../src/remote/agency.service.interface';
 import { SmsService } from '../../src/sms/sms.service';
-import { SmsOtp } from '../../src/entity/sms.otp';
+import { SmsOtp } from '../../src/db/entity/sms.otp';
 import cacheManager from 'cache-manager';
 import { nDaysFromNow, now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
@@ -21,6 +21,10 @@ import { ISmsService } from '../../src/remote/sms.service.interface';
 import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
 import { SmsHelperService } from '../../src/sms/sms.helper.service';
 import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
+import { ExternalId } from '../../src/db/entity/external.id';
+import { FindConditions } from 'typeorm/find-options/FindConditions';
+import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
+import { ExternalIdService } from '../../src/db/external.id.service';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -58,26 +62,51 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             }
         };
 
+        // Set up ExternalId repository
+        const mockExternalId1 = new ExternalId();
+        mockExternalId1.did = did;
+        mockExternalId1.external_id = nationalIdHash;
+        mockExternalId1.external_id_type = 'sl_national_id';
+        const mockExternalId2 = new ExternalId();
+        mockExternalId2.did = did;
+        mockExternalId2.external_id = voterIdHash;
+        mockExternalId2.external_id_type = 'sl_voter_id';
+        const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
+
+            externalIdFilter(externalId: ExternalId, conditions?: FindConditions<ExternalId>): boolean {
+                return conditions.external_id === externalId.external_id && conditions.external_id_type === externalId.external_id_type;
+            }
+
+            async findOne(conditions?: FindConditions<ExternalId>, options?: FindOneOptions<ExternalId>): Promise<ExternalId | undefined> {
+                const externalIds = await super.find(conditions);
+                return externalIds.find((externalId: ExternalId) => this.externalIdFilter(externalId, conditions));
+            }
+
+            async find(conditions?: FindConditions<ExternalId>): Promise<ExternalId[]> {
+                const externalIds = await super.find(conditions);
+                return externalIds.filter((externalId: ExternalId) => this.externalIdFilter(externalId, conditions));
+            }
+        }([mockExternalId1, mockExternalId2]);
+
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
         mockWalletCredentials.did = did;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
-        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>(mockWalletCredentials);
+        const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>([mockWalletCredentials]);
 
         // Set up SmsOtp repository
         const mockSmsOtp = new SmsOtp();
-        mockSmsOtp.did = agentId;
-        mockSmsOtp.gov_id_1_hash = nationalIdHash;
-        mockSmsOtp.gov_id_2_hash = voterIdHash;
         mockSmsOtp.phone_number_hash = pepperHash(phoneNumber);
         mockSmsOtp.otp = otp;
         mockSmsOtp.otp_expiration_time = nDaysFromNow(1);
         const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
-            find(input: any): any[] {
-                return super.find(input).filter(() => input.gov_id_1_hash === nationalIdHash || input.gov_id_2_hash === voterIdHash);
+            async find(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp[]> {
+                const smsOtps = await super.find(conditions);
+                smsOtps.forEach((smsOtp: SmsOtp) => smsOtp.did = agentId);
+                return smsOtps;
             }
-        }(mockSmsOtp);
+        }([mockSmsOtp]);
 
         // Cache for rate limiting
         const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
@@ -93,22 +122,27 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             providers: [
                 EscrowService,
                 SmsService,
+                ExternalIdService,
                 PluginFactory,
                 {
                     provide: CACHE_MANAGER,
-                    useValue: memoryCache,
+                    useValue: memoryCache
+                },
+                {
+                    provide: getRepositoryToken(ExternalId),
+                    useValue: mockExternalIdRepository
                 },
                 {
                     provide: getRepositoryToken(WalletCredentials),
-                    useValue: mockWalletCredentialsRepository,
+                    useValue: mockWalletCredentialsRepository
                 },
                 {
                     provide: getRepositoryToken(SmsOtp),
-                    useValue: mockSmsOtpRepository,
+                    useValue: mockSmsOtpRepository
                 },
                 {
                     provide: IAgencyService,
-                    useValue: mockAgencyService,
+                    useValue: mockAgencyService
                 },
                 {
                     provide: ISmsService,
