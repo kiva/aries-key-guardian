@@ -7,6 +7,7 @@ import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 import { ExternalIdService } from '../../db/external.id.service';
 import { ExternalId } from '../../db/entity/external.id';
+import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -23,7 +24,7 @@ export class FingerprintPlugin implements IPlugin {
      * by asking the identity service for the positions with the highest image quality
      * TODO identity service could just handle both these tasks in one call.
      */
-    public async verify(filters: any, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
+    public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
 
         const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
         const did: string = externalId.did;

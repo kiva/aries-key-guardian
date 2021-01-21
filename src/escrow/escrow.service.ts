@@ -9,6 +9,8 @@ import { WalletCredentials } from '../db/entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
 import { IAgencyService } from '../remote/agency.service.interface';
 import { ExternalIdService } from '../db/external.id.service';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
+import { CreateFiltersDto } from './dto/create.filters.dto';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -27,7 +29,7 @@ export class EscrowService {
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, filters: any, params: any) {
+    public async verify(pluginType: string, filters: VerifyFiltersDto, params: any) {
         const plugin = this.pluginFactory.create(pluginType);
 
         // TODO we may want to update the verify result to include the connectionData even if null
@@ -65,7 +67,7 @@ export class EscrowService {
     /**
      * Handles create a new agent and saving the verification data to allow later authentication
      */
-    public async create(pluginType: string, filters: any, params: any): Promise<{ id: string, connectionData: any }> {
+    public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string, connectionData: any }> {
         const plugin = this.pluginFactory.create(pluginType);
         const walletCredentials = await this.createRandomCredentials();
 
@@ -119,7 +121,7 @@ export class EscrowService {
      * Assuming there are already wallet credentials this adds support for the new plugin
      * TODO we may want error handling if the plugin row already exists and we attempt to save again
      */
-    public async add(pluginType: string, id: string, filters: any, params: any): Promise<{ result: string }> {
+    public async add(pluginType: string, id: string, filters: CreateFiltersDto, params: any): Promise<{ result: string }> {
         const count = await this.walletCredentialsRepository.count({ did: id });
         if (count < 1) {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');

@@ -13,6 +13,7 @@ import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 import { ExternalId } from '../db/entity/external.id';
 import { ExternalIdService } from '../db/external.id.service';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -33,7 +34,7 @@ export class SmsService {
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(filters: any, params: SmsParamsDto): Promise<{ status, id }> {
+    public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
 
         const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
         const did: string = externalId.did;

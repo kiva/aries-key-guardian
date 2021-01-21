@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 
 @Injectable()
 export class ExternalIdService {
@@ -14,13 +16,18 @@ export class ExternalIdService {
         private readonly externalIdRepository: Repository<ExternalId>
     ) {}
 
-    public async fetchExternalId(filters: any): Promise<ExternalId> {
+    public async fetchExternalId(filters: VerifyFiltersDto): Promise<ExternalId> {
         let externalIdValue: string;
         let externalIdType: string;
-        if (filters.govId1) {
+        if (filters.externalId && filters.externalIdType) {
+            externalIdValue = filters.externalId;
+            externalIdType = filters.externalIdType;
+        } else if (filters.govId1) {
+            // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
             externalIdValue = SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER);
             externalIdType = 'sl_national_id';
         } else if (filters.govId2) {
+            // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
             externalIdValue = SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER);
             externalIdType = 'sl_voter_id';
         } else {
@@ -38,8 +45,15 @@ export class ExternalIdService {
         return externalId;
     }
 
-    public async createExternalIds(did: string, filters: any): Promise<Array<ExternalId>> {
-        const externalIds: ExternalId[] = [];
+    public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
+        const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
+            const externalId = new ExternalId();
+            externalId.did = did;
+            externalId.external_id = entry[1];
+            externalId.external_id_type = entry[0];
+            return externalId;
+        });
+        // TODO: Remove these two checks once we've removed the deprecated code (PRO-2676)
         if (filters.govId1) {
             const externalId1 = new ExternalId();
             externalId1.did = did;
