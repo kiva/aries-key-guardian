@@ -25,7 +25,7 @@ export class IdentityService implements IIdentityService {
     /**
      * TODO right now this keeps the identity service url the same, we probably want to change that so it better matches our plugin pattern
      */
-    public async verifyFingerprint(position: number, image: string, filters: any): Promise<any> {
+    public async verifyFingerprint(position: number, image: string, did: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/api/v1/verify',
@@ -33,13 +33,15 @@ export class IdentityService implements IIdentityService {
                 backend: this.backend,
                 position,
                 image,
-                filters,
+                filters: {
+                    did
+                },
             },
         };
         return this.http.requestWithRetry(request);
     }
 
-    public async verifyFingerprintTemplate(position: number, template: string, filters: any): Promise<any> {
+    public async verifyFingerprintTemplate(position: number, template: string, did: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/api/v1/verify',
@@ -47,7 +49,9 @@ export class IdentityService implements IIdentityService {
                 backend: this.backend,
                 position,
                 image: template,
-                filters,
+                filters: {
+                    did
+                },
                 imageType: 'TEMPLATE',
             },
         };
@@ -71,12 +75,10 @@ export class IdentityService implements IIdentityService {
      * Queries the identity service to get the finger positions with the best quality scores
      * TODO the identity service should update the positions endpoint to accept data in the body instead of via url params
      */
-    public async qualityCheck(filters: any): Promise<any> {
-        const filterKey = Object.keys(filters)[0];
-        const params = `${filterKey}=${filters[filterKey]}`;
+    public async qualityCheck(id: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'GET',
-            url: this.baseUrl + '/api/v1/positions/' + this.backend + '/' + params,
+            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/did=${id}`,
         };
         return this.http.requestWithRetry(request);
     }

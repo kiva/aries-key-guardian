@@ -5,26 +5,36 @@ import { IIdentityService } from '../../remote/identity.service.interface';
 import { Logger } from 'protocol-common/logger';
 import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
+import { ExternalIdService } from '../../db/external.id.service';
+import { ExternalId } from '../../db/entity/external.id';
+import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 
 export class FingerprintPlugin implements IPlugin {
 
     /**
      * We pass in the parent class as context so we can access the sms module
      */
-    constructor(private readonly identityService: IIdentityService) { }
+    constructor(
+        private readonly identityService: IIdentityService,
+        private readonly externalIdService: ExternalIdService
+    ) { }
 
     /**
      * The verify logic involves calling verify against the identity service, and then handling certain error codes
      * by asking the identity service for the positions with the highest image quality
      * TODO identity service could just handle both these tasks in one call.
      */
-    public async verify(filters: any, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
+    public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
+
+        const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
+        const did: string = externalId.did;
+
         let response;
         try {
             if (VerifyFingerprintImageDto.isInstance(params)) {
-                response = await this.identityService.verifyFingerprint(params.position, params.image, filters);
+                response = await this.identityService.verifyFingerprint(params.position, params.image, did);
             } else {
-                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, filters);
+                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, did);
             }
         } catch(e) {
             // Handle specific error codes
@@ -34,7 +44,7 @@ export class FingerprintPlugin implements IPlugin {
                 case 'FINGERPRINT_MISSING_AMPUTATION':
                 case 'FINGERPRINT_MISSING_UNABLE_TO_PRINT':
                     if (process.env.QUALITY_CHECK_ENABLED === 'true') {
-                        e = await this.fingerprintQualityCheck(e, filters);
+                        e = await this.fingerprintQualityCheck(e, did);
                     }
                 // no break, fall through
                 default:
@@ -54,9 +64,9 @@ export class FingerprintPlugin implements IPlugin {
         };
     }
 
-    private async fingerprintQualityCheck(e: any, filters: any): Promise<any> {
+    private async fingerprintQualityCheck(e: any, id: string): Promise<any> {
         try {
-            const response = await this.identityService.qualityCheck(filters);
+            const response = await this.identityService.qualityCheck(id);
             e.details = e.details || {};
             e.details.bestPositions = response.data;
         } catch (ex) {
@@ -65,7 +75,7 @@ export class FingerprintPlugin implements IPlugin {
         return e;
     }
 
-    public async save(id: string, filters: any, params: any) {
+    public async save(id: string, params: any) {
         // TEMP until the identity service is updated
         const data = Array.isArray(params) ? params : [params];
         for (const datum of data) {

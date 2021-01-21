@@ -10,22 +10,10 @@ export class SmsOtp {
     id: number;
 
     /**
-     * The agent id of the entity this record hold the phone number for
+     * The did of the entity this record hold the phone number for
      */
     @Column({ length: 32, unique: true })
-    agent_id: string;
-
-    /**
-     * First 32 bytes of SHA256 hash of government id 1 + pepper (aka national id)
-     */
-    @Column({ length: 32, unique: true })
-    gov_id_1_hash: string;
-
-    /**
-     * First 32 bytes of SHA256 hash of government id 2 + pepper (aka voter id)
-     */
-    @Column({ length: 32, unique: true })
-    gov_id_2_hash: string;
+    did: string;
 
     /**
      * First 32 bytes of SHA256 hash of phone number

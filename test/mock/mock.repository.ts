@@ -1,3 +1,5 @@
+import { FindConditions } from 'typeorm/find-options/FindConditions';
+
 /**
  * Provides a mock repository that holds onto a single immutable entity of type T. This mimics how an in-memory update to an entity wouldn't affect
  * the underlying stored entity in the db.
@@ -7,14 +9,18 @@
  */
 export class MockRepository<T> {
 
-    constructor(private entity: Readonly<T>) {}
-
-    findOne(): T {
-        return this.entity;
+    constructor(private entities: Readonly<T>[]) {
+        if (entities.length === 0) {
+            throw new Error('Must provide Repository with at least 1 entity');
+        }
     }
 
-    find(input: any): Array<T> {
-        return [this.entity];
+    findOne(conditions?: FindConditions<T>): Promise<T | undefined> {
+        return Promise.resolve(this.entities[0]);
+    }
+
+    find(conditions?: FindConditions<T>): Promise<T[]> {
+        return Promise.resolve(this.entities);
     }
 
     count(): number {
@@ -22,7 +28,7 @@ export class MockRepository<T> {
     }
 
     save(input: T): boolean {
-        this.entity = input;
+        this.entities.push(input);
         return true;
     }
 }

@@ -2,6 +2,7 @@ import { IPlugin } from '../plugin.interface';
 import { NotImplementedException } from '@nestjs/common';
 import { TokenParamsDto } from '../../token/dto/token.params.dto';
 import { TokenService } from '../../token/token.service';
+import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 
 export class TokenPlugin implements IPlugin {
 
@@ -13,7 +14,7 @@ export class TokenPlugin implements IPlugin {
     /**
      * Pass call on to TokenService
      */
-    public async verify(filters: any, params: TokenParamsDto): Promise<{ status, id }> {
+    public async verify(filters: VerifyFiltersDto, params: TokenParamsDto): Promise<{ status, id }> {
         const id: string = await this.tokenService.verify(params);
         return {
             status: 'matched',
@@ -22,9 +23,9 @@ export class TokenPlugin implements IPlugin {
     }
 
     /**
-     * Not supported for token, would require using the token provider's admin api (e.g. Auth0) to inject the agentId into the user's metadata.
+     * Not supported for token, would require using the token provider's admin api (e.g. Auth0) to inject the did into the user's metadata.
      */
-    public async save(id: string, filters: any, params: any) {
+    public async save(id: string, params: any) {
         throw new NotImplementedException();
     }
 }

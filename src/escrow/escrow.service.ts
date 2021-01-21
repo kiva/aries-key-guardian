@@ -5,9 +5,12 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Logger } from 'protocol-common/logger';
 import cryptoRandomString from 'crypto-random-string';
-import { WalletCredentials } from '../entity/wallet.credentials';
+import { WalletCredentials } from '../db/entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
 import { IAgencyService } from '../remote/agency.service.interface';
+import { ExternalIdService } from '../db/external.id.service';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
+import { CreateFiltersDto } from './dto/create.filters.dto';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -19,14 +22,16 @@ export class EscrowService {
         @InjectRepository(WalletCredentials)
         private readonly walletCredentialsRepository: Repository<WalletCredentials>,
         private readonly agencyService: IAgencyService,
-        public readonly pluginFactory: PluginFactory
+        private readonly externalIdService: ExternalIdService,
+        private readonly pluginFactory: PluginFactory
     ) { }
 
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, filters: any, params: any) {
+    public async verify(pluginType: string, filters: VerifyFiltersDto, params: any) {
         const plugin = this.pluginFactory.create(pluginType);
+
         // TODO we may want to update the verify result to include the connectionData even if null
         const result: any = await plugin.verify(filters, params);
         if (result.status === 'matched') {
@@ -34,14 +39,12 @@ export class EscrowService {
 
             // TODO we need to save the admin api key and then we can pass it along here
             const adminApiKey = walletCredentials.wallet_key;
-            // TODO we need to explicitly save the agentId and then we can pass it along here
-            const agentId = walletCredentials.did.toLowerCase();
             const response = await this.agencyService.spinUpAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
                 adminApiKey,
                 walletCredentials.seed,
-                agentId,
+                result.id.toLocaleLowerCase(),
             );
             Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
             // Append the connection data onto the result
@@ -52,12 +55,11 @@ export class EscrowService {
 
     /**
      * Gets wallet credentials by did and throws an exception is not found
-     * TODO we're changing from "did" to "agentId", however this will involve DB changes, etc, so we can phase it in slowly
      */
-    private async fetchWalletCredentials(agentId: string): Promise<WalletCredentials> {
-        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ did: agentId });
+    private async fetchWalletCredentials(did: string): Promise<WalletCredentials> {
+        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ did });
         if (!walletCredentials) {
-            throw new InternalServerErrorException(`No wallet credentials found for "${agentId}"`);
+            throw new InternalServerErrorException(`No wallet credentials found for "${did}"`);
         }
         return walletCredentials;
     }
@@ -65,11 +67,13 @@ export class EscrowService {
     /**
      * Handles create a new agent and saving the verification data to allow later authentication
      */
-    public async create(pluginType: string, filters: any, params: any): Promise<{ id: string, connectionData: any }> {
+    public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string, connectionData: any }> {
+        const plugin = this.pluginFactory.create(pluginType);
         const walletCredentials = await this.createRandomCredentials();
 
-        const plugin = this.pluginFactory.create(pluginType);
-        await plugin.save(walletCredentials.did, filters, params);
+        await this.externalIdService.createExternalIds(walletCredentials.did, filters);
+
+        await plugin.save(walletCredentials.did, params);
         Logger.log(`Saved to plugin ${pluginType}`);
 
         await this.walletCredentialsRepository.save(walletCredentials);
@@ -77,14 +81,13 @@ export class EscrowService {
 
         // TODO we need to save the admin api key and then we can pass it along here
         const adminApiKey = walletCredentials.wallet_key;
-        // TODO we need to explicitly save the agentId and then we can pass it along here
-        const agentId = walletCredentials.did.toLowerCase();
+        const did = walletCredentials.did.toLowerCase();
         const response = await this.agencyService.spinUpAgent(
             walletCredentials.wallet_id,
             walletCredentials.wallet_key,
             adminApiKey,
             walletCredentials.seed,
-            agentId,
+            did,
         );
 
         Logger.log(`Spun up agent for did ${walletCredentials.did}`);
@@ -105,9 +108,9 @@ export class EscrowService {
         const walletKey = cryptoRandomString({ length: 32, characters: this.chars });
         const walletSeed = cryptoRandomString({ length: 32, characters: this.chars });
         // Agent id needs to be lowercase letters for k8s pod rules
-        const agentId = cryptoRandomString({ length: 22, characters: this.letters });
+        const did = cryptoRandomString({ length: 22, characters: this.letters });
         const walletCredentials = new WalletCredentials();
-        walletCredentials.did = agentId; // TODO change DB name to agent_id
+        walletCredentials.did = did;
         walletCredentials.wallet_id = walletId;
         walletCredentials.wallet_key = walletKey;
         walletCredentials.seed = walletSeed;
@@ -118,13 +121,16 @@ export class EscrowService {
      * Assuming there are already wallet credentials this adds support for the new plugin
      * TODO we may want error handling if the plugin row already exists and we attempt to save again
      */
-    public async add(pluginType: string, id: string, filters: any, params: any): Promise<{ result: string }> {
+    public async add(pluginType: string, id: string, filters: CreateFiltersDto, params: any): Promise<{ result: string }> {
         const count = await this.walletCredentialsRepository.count({ did: id });
         if (count < 1) {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
         }
+
+        await this.externalIdService.createExternalIds(id, filters);
+
         const plugin = this.pluginFactory.create(pluginType);
-        await plugin.save(id, filters, params);
+        await plugin.save(id, params);
         return { result: 'success' };
     }
 }

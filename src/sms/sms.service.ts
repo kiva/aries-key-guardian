@@ -4,14 +4,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { SecurityUtility } from 'protocol-common/security.utility';
-import { SmsOtp } from '../entity/sms.otp';
+import { SmsOtp } from '../db/entity/sms.otp';
 import { SmsErrorCode } from './sms.errorcode';
-import { SmsFiltersDto } from './dto/sms.filters.dto';
 import { SmsParamsDto } from './dto/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
+import { ExternalId } from '../db/entity/external.id';
+import { ExternalIdService } from '../db/external.id.service';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -22,28 +24,34 @@ export class SmsService {
     constructor(
         @InjectRepository(SmsOtp)
         private readonly smsOtpRepository: Repository<SmsOtp>,
-        private readonly twillioService: ISmsService,
+        private readonly smsService: ISmsService,
         private readonly rateLimitService: RateLimitService,
-        private readonly smsHelperService: SmsHelperService
+        private readonly smsHelperService: SmsHelperService,
+        private readonly externalIdService: ExternalIdService
     ) {}
 
     /**
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(filters: SmsFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
-        await this.rateLimit(filters, params);
+    public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
+
+        const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
+        const did: string = externalId.did;
+
+        await this.rateLimit(did, params);
+
         if (params.phoneNumber) {
-            return await this.sendSmsOtp(filters, params.phoneNumber);
+            return await this.sendSmsOtp(did, params.phoneNumber);
         } else {
-            return await this.verifyOtp(filters, params.otp);
+            return await this.verifyOtp(did, params.otp);
         }
     }
 
     /**
      * Apply rate limiting rules based on the authorization header of the requestor and the id verification is based around.
      */
-    private async rateLimit(filters: SmsFiltersDto, params: SmsParamsDto): Promise<void> {
+    private async rateLimit(id: string, params: SmsParamsDto): Promise<void> {
         const bucket = params.phoneNumber ? RateLimitBucket.SEND_OTP : RateLimitBucket.VERIFY_OTP;
 
         const attempt = async (key: string) => {
@@ -53,18 +61,17 @@ export class SmsService {
             }
         };
 
-        const targetKey = filters.govId1 ? `govId1${filters.govId1}` : `govId2${filters.govId2}`;
         if (params.authorization) {
             await attempt(params.authorization);
         }
-        await attempt(targetKey);
+        await attempt(id);
     }
 
     /**
      * Checks the phone number against stored records, generates an OTP and sends it
      */
-    private async sendSmsOtp(filters: SmsFiltersDto, phoneNumber: any) {
-        const smsOtpEntity = await this.findSmsOtpEntity(filters);
+    private async sendSmsOtp(did: string, phoneNumber: any) {
+        const smsOtpEntity = await this.findSmsOtpEntity(did);
         if (!smsOtpEntity.phone_number_hash) {
             throw new ProtocolException(SmsErrorCode.NO_PHONE_NUMBER, 'No phone number stored for citizen');
         }
@@ -75,7 +82,7 @@ export class SmsService {
         }
 
         const otp = await this.generateOtp(smsOtpEntity);
-        await this.twillioService.sendOtp(phoneNumber, otp);
+        await this.smsService.sendOtp(phoneNumber, otp);
         return {
             status: 'sent',
             id: null,
@@ -85,15 +92,8 @@ export class SmsService {
     /**
      * Looks up the SMS OTP entity by passed in gov ids
      */
-    private async findSmsOtpEntity(filters: SmsFiltersDto): Promise<SmsOtp> {
-        let search;
-        // Input verification has already been done so we can do an if else
-        if (filters.govId1) {
-            search = { gov_id_1_hash: SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER) };
-        } else {
-            search = { gov_id_2_hash: SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER) };
-        }
-        const results = await this.smsOtpRepository.find(search);
+    private async findSmsOtpEntity(did: string): Promise<SmsOtp> {
+        const results = await this.smsOtpRepository.find({did});
         if (results.length < 1) {
             throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No citizen found for given filters');
         }
@@ -117,8 +117,8 @@ export class SmsService {
     /**
      * Check if the passed in otp matches the stored one and clear out if needed
      */
-    private async verifyOtp(filters: SmsFiltersDto, otp: number) {
-        const smsOtpEntity = await this.findSmsOtpEntity(filters);
+    private async verifyOtp(id: string, otp: number) {
+        const smsOtpEntity = await this.findSmsOtpEntity(id);
         if (!smsOtpEntity.otp) {
             throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, 'The OTP has expired, please send again');
         }
@@ -132,7 +132,7 @@ export class SmsService {
 
         return {
             status: 'matched',
-            id: smsOtpEntity.agent_id,
+            id: smsOtpEntity.did,
         };
     }
 
@@ -157,11 +157,9 @@ export class SmsService {
     /**
      * Saves a phone number for later SMS OTP verification
      */
-    public async save(id: string, filters: SmsFiltersDto, params: SmsParamsDto) {
+    public async save(id: string, params: SmsParamsDto) {
         const smsOtpEntity = new SmsOtp();
-        smsOtpEntity.agent_id = id;
-        smsOtpEntity.gov_id_1_hash = SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER);
-        smsOtpEntity.gov_id_2_hash = SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER);
+        smsOtpEntity.did = id;
         smsOtpEntity.phone_number_hash = SecurityUtility.hash32(params.phoneNumber + process.env.HASH_PEPPER);
         try {
             await this.smsOtpRepository.save(smsOtpEntity);

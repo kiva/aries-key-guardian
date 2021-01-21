@@ -24,7 +24,7 @@ services:
     networks:
       - agency-network
     tty: true
-    depends_on: 
+    depends_on:
       - escrow-db
 
   escrow-db:

@@ -23,7 +23,7 @@ export class TokenService {
             const key = await this.jwksService.getKey(params.token);
             const pubKey: string = IJwksService.isCertSigningKey(key) ? key.publicKey : key.rsaPublicKey;
             Logger.info(pubKey);
-            const token: any = jwt.verify(params.token, new Buffer(pubKey, 'utf-8'), {
+            const token: any = jwt.verify(params.token, Buffer.from(pubKey, 'utf-8'), {
                 algorithms: [process.env.JWT_SIGNATURE_ALGORITHM as any],
                 complete: true
             });
@@ -36,11 +36,11 @@ export class TokenService {
             }
         }
 
-        // Verify the token's content actually contains an id for the agent
-        if (agentId) {
-            return agentId;
-        } else {
+        // Verify the token's content actually contains an id for the agent and also contains the right id
+        if (agentId == null) {
             throw new ProtocolException(ProtocolErrorCode.MISSING_AGENT_ID, 'Token does not contain an agentId');
+        } else {
+            return agentId;
         }
     }
 }
