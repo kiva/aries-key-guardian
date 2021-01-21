@@ -12,8 +12,8 @@ import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 import { ExternalId } from '../db/entity/external.id';
-import { ExternalIdService } from '../db/external.id.service';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
+import { ExternalIdService } from '../db/external.id.service';
 
 /**
  * Service to send an OTP via SMS and verify it

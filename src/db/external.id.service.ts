@@ -22,13 +22,15 @@ export class ExternalIdService {
         if (filters.externalId && filters.externalIdType) {
             externalIdValue = filters.externalId;
             externalIdType = filters.externalIdType;
-        } else if (filters.govId1) {
+        } else if (filters.govId1 || filters.nationalId) {
             // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            externalIdValue = SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER);
+            const idValue: string = filters.govId1 ?? filters.nationalId;
+            externalIdValue = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
             externalIdType = 'sl_national_id';
-        } else if (filters.govId2) {
+        } else if (filters.govId2 || filters.voterId) {
             // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            externalIdValue = SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER);
+            const idValue: string = filters.govId2 ?? filters.voterId;
+            externalIdValue = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
             externalIdType = 'sl_voter_id';
         } else {
             throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No external ID provided to look up a DID');
@@ -54,17 +56,19 @@ export class ExternalIdService {
             return externalId;
         });
         // TODO: Remove these two checks once we've removed the deprecated code (PRO-2676)
-        if (filters.govId1) {
+        if (filters.govId1 || filters.nationalId) {
+            const idValue: string = filters.govId1 ?? filters.nationalId;
             const externalId1 = new ExternalId();
             externalId1.did = did;
-            externalId1.external_id = SecurityUtility.hash32(filters.govId1 + process.env.HASH_PEPPER);
+            externalId1.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
             externalId1.external_id_type = 'sl_national_id'; // TODO: update to be specifiable by the filters
             externalIds.push(externalId1);
         }
-        if (filters.govId2) {
+        if (filters.govId2 || filters.voterId) {
+            const idValue: string = filters.govId2 ?? filters.voterId;
             const externalId2 = new ExternalId();
             externalId2.did = did;
-            externalId2.external_id = SecurityUtility.hash32(filters.govId2 + process.env.HASH_PEPPER);
+            externalId2.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
             externalId2.external_id_type = 'sl_voter_id'; // TODO: update to be specifiable by the filters
             externalIds.push(externalId2);
         }

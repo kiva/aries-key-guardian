@@ -6,6 +6,16 @@ export abstract class CreateFiltersDto {
     @ApiProperty({
         description: 'DEPRECATED. A hardcoded id that could be provided. Maps to type "sl_national_id".'
     })
+    @IsOptional() @IsNotEmpty() readonly nationalId: string | undefined;
+
+    @ApiProperty({
+        description: 'DEPRECATED. A hardcoded id that could be provided. Maps to type "sl_voter_id".'
+    })
+    @IsOptional() @IsNotEmpty() readonly voterId: string | undefined;
+
+    @ApiProperty({
+        description: 'DEPRECATED. A hardcoded id that could be provided. Maps to type "sl_national_id".'
+    })
     @IsOptional() @IsNotEmpty() readonly govId1: string | undefined;
 
     @ApiProperty({
