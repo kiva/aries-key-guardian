@@ -1,6 +1,7 @@
 import { IsNotEmptyObject, IsEnum, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
+import { CreateFiltersDto } from './create.filters.dto';
 
 /**
  * DTO for the create endpoint
@@ -14,12 +15,12 @@ export class CreateDto {
     @IsEnum(PluginTypeEnum) readonly pluginType: string;
 
     @ApiProperty({
-        description: 'JSON filters object to save so we can identify the entity later, dependant on plugin type, eg { governmentId: 123 }'
+        description: 'JSON filters object to save so we can identify the entity later, depending on plugin type. eg { governmentId: 123 }'
     })
-    @IsNotEmptyObject() readonly filters: any;
+    @IsNotEmptyObject() readonly filters: CreateFiltersDto;
 
     @ApiProperty({
-        description: 'JSON params object or array to save so we can authenticate the entity, dependant on plugin type, eg { fingerprintTemplate: xyz, position: 1 }'
+        description: 'JSON params object or array to save so we can authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
     })
     @IsNotEmpty() readonly params: any;
 

@@ -5,9 +5,9 @@ import { IIdentityService } from '../../remote/identity.service.interface';
 import { Logger } from 'protocol-common/logger';
 import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
-import { ExternalIdService } from '../../db/external.id.service';
 import { ExternalId } from '../../db/entity/external.id';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
+import { ExternalIdService } from '../../db/external.id.service';
 
 export class FingerprintPlugin implements IPlugin {
 

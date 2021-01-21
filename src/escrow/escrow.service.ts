@@ -8,9 +8,9 @@ import cryptoRandomString from 'crypto-random-string';
 import { WalletCredentials } from '../db/entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
 import { IAgencyService } from '../remote/agency.service.interface';
-import { ExternalIdService } from '../db/external.id.service';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 import { CreateFiltersDto } from './dto/create.filters.dto';
+import { ExternalIdService } from '../db/external.id.service';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
