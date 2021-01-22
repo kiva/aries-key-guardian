@@ -81,7 +81,7 @@ export class MigrateTables1610566573713 implements MigrationInterface {
             `SELECT rename_constraint('wallet_credentials', 'id', 'wallet_credentials_pkey', true);`
         );
         await queryRunner.query(
-            `SELECT rename_constraint('wallet_credentials', 'did', 'sms_otp_did_key', false);`
+            `SELECT rename_constraint('wallet_credentials', 'did', 'wallet_credentials_did_key', false);`
         );
 
         // Don't need this function anymore, so delete it
