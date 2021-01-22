@@ -13,10 +13,10 @@ export class MigrateTables1610566573713 implements MigrationInterface {
               i RECORD;
             BEGIN
               FOR i IN
-                (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND LOWER(indexname) LIKE 'idx%' AND LOWER(indexdef) LIKE CONCAT('%', LOWER(_colname), '%'))
+                (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'idx%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
               LOOP
                 RAISE INFO 'DROPPING INDEX: %', i.indexname;
-                EXECUTE 'DROP INDEX IF EXISTS ' || i.indexname;
+                EXECUTE 'DROP INDEX IF EXISTS "' || i.indexname || '"';
               END LOOP;
             RETURN 1;
             END;
@@ -46,17 +46,17 @@ export class MigrateTables1610566573713 implements MigrationInterface {
             BEGIN
               IF _pk THEN
                   FOR i IN
-                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND LOWER(indexname) LIKE 'pk%' AND LOWER(indexdef) LIKE CONCAT('%', LOWER(_colname), '%'))
+                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'pk%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
                   LOOP
                     RAISE INFO 'RENAMING CONSTRAINT % to %', i.indexname, _newname;
-                    EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT ' || i.indexname || ' TO ' || _newname;
+                    EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT "' || i.indexname || '" TO "' || _newname || '"';
                   END LOOP;
               ELSE
                   FOR i IN
-                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND LOWER(indexname) LIKE 'uq%' AND LOWER(indexdef) LIKE CONCAT('%', LOWER(_colname), '%'))
+                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'uq%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
                   LOOP
                     RAISE INFO 'RENAMING INDEX % to %', i.indexname, _newname;
-                    EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT ' || i.indexname || ' TO ' || _newname;
+                    EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT "' || i.indexname || '" TO "' || _newname || '"';
                   END LOOP;
               END IF;
             RETURN 1;
