@@ -2,7 +2,6 @@ import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { SmsErrorCode } from '../../src/sms/sms.errorcode';
 import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
 import { EscrowService } from '../../src/escrow/escrow.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -206,7 +205,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .send(data)
             .expect(400)
             .then((res) => {
-                expect(res.body.code).toBe(SmsErrorCode.PHONE_NUMBER_NO_MATCH);
+                expect(res.body.code).toBe(ProtocolErrorCode.PHONE_NUMBER_NO_MATCH);
             });
     });
 
@@ -222,7 +221,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .send(data)
             .expect(400)
             .then((res) => {
-                expect(res.body.code).toBe(SmsErrorCode.OTP_NO_MATCH);
+                expect(res.body.code).toBe(ProtocolErrorCode.OTP_NO_MATCH);
             });
     });
 
@@ -244,7 +243,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .send(data)
             .expect(400)
             .then((res) => {
-                expect(res.body.code).toBe(SmsErrorCode.OTP_EXPIRED);
+                expect(res.body.code).toBe(ProtocolErrorCode.OTP_EXPIRED);
             });
     });
 

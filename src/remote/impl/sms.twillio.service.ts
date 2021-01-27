@@ -3,7 +3,6 @@ import { Logger } from 'protocol-common/logger';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Constants } from 'protocol-common/constants';
-import { SmsErrorCode } from '../../sms/sms.errorcode';
 import twilio from 'twilio';
 import { ISmsService } from '../sms.service.interface';
 
@@ -33,7 +32,7 @@ export class SmsTwillioService implements ISmsService {
             }
         } catch (e) {
             Logger.log('Error sending SMS', e);
-            throw new ProtocolException(SmsErrorCode.SMS_SEND_FAILED, 'SMS failed to send');
+            throw new ProtocolException(ProtocolErrorCode.SMS_SEND_FAILED, 'SMS failed to send');
         }
     }
 
