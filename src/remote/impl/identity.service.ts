@@ -34,7 +34,7 @@ export class IdentityService implements IIdentityService {
                 position,
                 image,
                 filters: {
-                    did
+                    dids: did
                 },
             },
         };
@@ -50,7 +50,7 @@ export class IdentityService implements IIdentityService {
                 position,
                 image: template,
                 filters: {
-                    did
+                    dids: did
                 },
                 imageType: 'TEMPLATE',
             },

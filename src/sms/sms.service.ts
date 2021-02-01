@@ -5,7 +5,6 @@ import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { SmsOtp } from '../db/entity/sms.otp';
-import { SmsErrorCode } from './sms.errorcode';
 import { SmsParamsDto } from './dto/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
@@ -57,7 +56,7 @@ export class SmsService {
         const attempt = async (key: string) => {
             await this.rateLimitService.addAttempt(bucket, key);
             if (await this.rateLimitService.shouldLimit(bucket, key)) {
-                throw new ProtocolException(SmsErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
+                throw new ProtocolException(ProtocolErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
             }
         };
 
@@ -73,12 +72,12 @@ export class SmsService {
     private async sendSmsOtp(did: string, phoneNumber: any) {
         const smsOtpEntity = await this.findSmsOtpEntity(did);
         if (!smsOtpEntity.phone_number_hash) {
-            throw new ProtocolException(SmsErrorCode.NO_PHONE_NUMBER, 'No phone number stored for citizen');
+            throw new ProtocolException(ProtocolErrorCode.NO_PHONE_NUMBER, 'No phone number stored for citizen');
         }
 
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
         if (smsOtpEntity.phone_number_hash !== phoneNumberHash) {
-            throw new ProtocolException(SmsErrorCode.PHONE_NUMBER_NO_MATCH, 'Phone number doesn\'t match for stored citizen');
+            throw new ProtocolException(ProtocolErrorCode.PHONE_NUMBER_NO_MATCH, 'Phone number doesn\'t match for stored citizen');
         }
 
         const otp = await this.generateOtp(smsOtpEntity);
@@ -120,10 +119,10 @@ export class SmsService {
     private async verifyOtp(id: string, otp: number) {
         const smsOtpEntity = await this.findSmsOtpEntity(id);
         if (!smsOtpEntity.otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_EXPIRED, 'The OTP has expired, please send again');
+            throw new ProtocolException(ProtocolErrorCode.OTP_EXPIRED, 'The OTP has expired, please send again');
         }
         if (smsOtpEntity.otp !== otp) {
-            throw new ProtocolException(SmsErrorCode.OTP_NO_MATCH, 'The OTP does not match');
+            throw new ProtocolException(ProtocolErrorCode.OTP_NO_MATCH, 'The OTP does not match');
         }
 
         smsOtpEntity.otp = null;

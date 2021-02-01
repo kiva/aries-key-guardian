@@ -39,10 +39,10 @@ export class FingerprintPlugin implements IPlugin {
         } catch(e) {
             // Handle specific error codes
             switch (e.code) {
-                case 'FINGERPRINT_NO_MATCH':
-                case 'FINGERPRINT_MISSING_NOT_CAPTURED':
-                case 'FINGERPRINT_MISSING_AMPUTATION':
-                case 'FINGERPRINT_MISSING_UNABLE_TO_PRINT':
+                case ProtocolErrorCode.FINGERPRINT_NO_MATCH:
+                case ProtocolErrorCode.FINGERPRINT_MISSING_NOT_CAPTURED:
+                case ProtocolErrorCode.FINGERPRINT_MISSING_AMPUTATION:
+                case ProtocolErrorCode.FINGERPRINT_MISSING_UNABLE_TO_PRINT:
                     if (process.env.QUALITY_CHECK_ENABLED === 'true') {
                         e = await this.fingerprintQualityCheck(e, did);
                     }
@@ -54,7 +54,7 @@ export class FingerprintPlugin implements IPlugin {
 
         //  The identity service should throw this error on no match, but just to be safe double check it and throw here
         if (response.data.status !== 'matched') {
-            throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NOMATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
+            throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
         }
 
         // TODO right now the data we get from identity service uses did we should change it to agent id and then we don't need this conversion
