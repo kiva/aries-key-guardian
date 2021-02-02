@@ -127,7 +127,7 @@ export class EscrowService {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
         }
 
-        await this.externalIdService.createExternalIds(id, filters);
+        await this.externalIdService.getOrCreateExternalIds(id, filters);
 
         const plugin = this.pluginFactory.create(pluginType);
         await plugin.save(id, params);
