@@ -78,7 +78,7 @@ export class IdentityService implements IIdentityService {
     public async qualityCheck(id: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'GET',
-            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/did=${id}`,
+            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/dids=${id}`,
         };
         return this.http.requestWithRetry(request);
     }
