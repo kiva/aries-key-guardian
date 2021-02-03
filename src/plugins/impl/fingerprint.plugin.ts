@@ -26,15 +26,15 @@ export class FingerprintPlugin implements IPlugin {
      */
     public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
 
-        const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
-        const did: string = externalId.did;
+        const externalIds: ExternalId[] = await this.externalIdService.fetchExternalIds(filters);
+        const dids: string = externalIds.map((externalId: ExternalId) => externalId.did).join(',');
 
         let response;
         try {
             if (VerifyFingerprintImageDto.isInstance(params)) {
-                response = await this.identityService.verifyFingerprint(params.position, params.image, did);
+                response = await this.identityService.verifyFingerprint(params.position, params.image, dids);
             } else {
-                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, did);
+                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, dids);
             }
         } catch(e) {
             // Handle specific error codes
@@ -44,7 +44,7 @@ export class FingerprintPlugin implements IPlugin {
                 case ProtocolErrorCode.FINGERPRINT_MISSING_AMPUTATION:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_UNABLE_TO_PRINT:
                     if (process.env.QUALITY_CHECK_ENABLED === 'true') {
-                        e = await this.fingerprintQualityCheck(e, did);
+                        e = await this.fingerprintQualityCheck(e, dids);
                     }
                 // no break, fall through
                 default:
@@ -64,9 +64,9 @@ export class FingerprintPlugin implements IPlugin {
         };
     }
 
-    private async fingerprintQualityCheck(e: any, id: string): Promise<any> {
+    private async fingerprintQualityCheck(e: any, dids: string): Promise<any> {
         try {
-            const response = await this.identityService.qualityCheck(id);
+            const response = await this.identityService.qualityCheck(dids);
             e.details = e.details || {};
             e.details.bestPositions = response.data;
         } catch (ex) {

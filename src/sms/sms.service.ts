@@ -35,8 +35,11 @@ export class SmsService {
      */
     public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
 
-        const externalId: ExternalId = await this.externalIdService.fetchExternalId(filters);
-        const did: string = externalId.did;
+        const externalIds: ExternalId[] = await this.externalIdService.fetchExternalIds(filters);
+        if (externalIds.length > 1) {
+            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identity a did');
+        }
+        const did: string = externalIds[0].did;
 
         await this.rateLimit(did, params);
 
