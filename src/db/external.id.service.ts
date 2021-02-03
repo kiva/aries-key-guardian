@@ -52,7 +52,7 @@ export class ExternalIdService {
         const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
             const externalId = new ExternalId();
             externalId.did = did;
-            externalId.external_id = entry[1];
+            externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
         });
@@ -89,7 +89,7 @@ export class ExternalIdService {
         const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
             const externalId = new ExternalId();
             externalId.did = did;
-            externalId.external_id = entry[1];
+            externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
         });

@@ -24,6 +24,7 @@ import { ExternalId } from '../../src/db/entity/external.id';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
 import { ExternalIdService } from '../../src/db/external.id.service';
+import { FindOperator } from 'typeorm';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -73,7 +74,12 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
 
             externalIdFilter(externalId: ExternalId, conditions?: FindConditions<ExternalId>): boolean {
-                return conditions.external_id === externalId.external_id && conditions.external_id_type === externalId.external_id_type;
+                // @ts-ignore
+                const values: string[] = conditions.external_id instanceof FindOperator && conditions.external_id.type === 'in' ?
+                    conditions.external_id.value :
+                    [conditions.external_id];
+                return values.some((value: string) => value === externalId.external_id) &&
+                    conditions.external_id_type === externalId.external_id_type;
             }
 
             async findOne(conditions?: FindConditions<ExternalId>, options?: FindOneOptions<ExternalId>): Promise<ExternalId | undefined> {
