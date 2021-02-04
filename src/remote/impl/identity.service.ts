@@ -23,9 +23,14 @@ export class IdentityService implements IIdentityService {
     }
 
     /**
+     * Send a request to IdentityService to verify a fingerprint image.
      * TODO right now this keeps the identity service url the same, we probably want to change that so it better matches our plugin pattern
+     *
+     * @param position The position of the finger that the fingerprint template refers to.
+     * @param image The image of the fingerprint.
+     * @param dids A comma-separated list of dids that the fingerprint template may correspond to.
      */
-    public async verifyFingerprint(position: number, image: string, did: string): Promise<any> {
+    public async verifyFingerprint(position: number, image: string, dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/api/v1/verify',
@@ -34,14 +39,21 @@ export class IdentityService implements IIdentityService {
                 position,
                 image,
                 filters: {
-                    dids: did
+                    dids
                 },
             },
         };
         return this.http.requestWithRetry(request);
     }
 
-    public async verifyFingerprintTemplate(position: number, template: string, did: string): Promise<any> {
+    /**
+     * Send a request to IdentityService to verify a fingerprint template.
+     *
+     * @param position The position of the finger that the fingerprint template refers to.
+     * @param template The template of the fingerprint.
+     * @param dids A comma-separated list of dids that the fingerprint template may correspond to.
+     */
+    public async verifyFingerprintTemplate(position: number, template: string, dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/api/v1/verify',
@@ -50,7 +62,7 @@ export class IdentityService implements IIdentityService {
                 position,
                 image: template,
                 filters: {
-                    dids: did
+                    dids
                 },
                 imageType: 'TEMPLATE',
             },
@@ -75,10 +87,10 @@ export class IdentityService implements IIdentityService {
      * Queries the identity service to get the finger positions with the best quality scores
      * TODO the identity service should update the positions endpoint to accept data in the body instead of via url params
      */
-    public async qualityCheck(id: string): Promise<any> {
+    public async qualityCheck(dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'GET',
-            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/dids=${id}`,
+            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/dids=${dids}`,
         };
         return this.http.requestWithRetry(request);
     }

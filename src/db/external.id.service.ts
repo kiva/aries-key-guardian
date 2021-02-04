@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExternalId } from './entity/external.id';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
@@ -16,42 +16,43 @@ export class ExternalIdService {
         private readonly externalIdRepository: Repository<ExternalId>
     ) {}
 
-    public async fetchExternalId(filters: VerifyFiltersDto): Promise<ExternalId> {
-        let externalIdValue: string;
+    public async fetchExternalIds(filters: VerifyFiltersDto): Promise<ExternalId[]> {
+        let idValues: string;
         let externalIdType: string;
         if (filters.externalId && filters.externalIdType) {
-            externalIdValue = filters.externalId;
+            idValues = filters.externalId;
             externalIdType = filters.externalIdType;
         } else if (filters.govId1 || filters.nationalId) {
             // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            const idValue: string = filters.govId1 ?? filters.nationalId;
-            externalIdValue = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
+            idValues = filters.govId1 ?? filters.nationalId;
             externalIdType = 'sl_national_id';
         } else if (filters.govId2 || filters.voterId) {
             // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            const idValue: string = filters.govId2 ?? filters.voterId;
-            externalIdValue = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
+            idValues = filters.govId2 ?? filters.voterId;
             externalIdType = 'sl_voter_id';
         } else {
             throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No external ID provided to look up a DID');
         }
+        const externalIdValues: string[] = idValues.split(',').map((idValue: string) => {
+            return SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
+        });
 
         // If we make it this far, we have something to look up
-        const externalId: ExternalId | undefined = await this.externalIdRepository.findOne({
-            external_id: externalIdValue,
+        const externalIds: ExternalId[] = await this.externalIdRepository.find({
+            external_id: In(externalIdValues),
             external_id_type: externalIdType
         });
-        if (!externalId) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for ${externalIdType}: ${externalIdValue}`);
+        if (externalIds.length === 0) {
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for ${externalIdType}: ${idValues}`);
         }
-        return externalId;
+        return externalIds;
     }
 
     public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
         const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
             const externalId = new ExternalId();
             externalId.did = did;
-            externalId.external_id = entry[1];
+            externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
         });
@@ -88,7 +89,7 @@ export class ExternalIdService {
         const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
             const externalId = new ExternalId();
             externalId.did = did;
-            externalId.external_id = entry[1];
+            externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
         });
