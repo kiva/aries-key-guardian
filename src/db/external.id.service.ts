@@ -38,12 +38,17 @@ export class ExternalIdService {
         });
 
         // If we make it this far, we have something to look up
-        const externalIds: ExternalId[] = await this.externalIdRepository.find({
-            external_id: In(externalIdValues),
-            external_id_type: externalIdType
-        });
+        let externalIds: ExternalId[] = [];
+        try {
+            externalIds = await this.externalIdRepository.find({
+                external_id: In(externalIdValues),
+                external_id_type: externalIdType
+            });
+        } catch (e) {
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Failed to retrieve a DID for provided IDs ${externalIdType}`);
+        }
         if (externalIds.length === 0) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for ${externalIdType}: ${idValues}`);
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for provided IDs ${externalIdType}`);
         }
         return externalIds;
     }
@@ -73,7 +78,14 @@ export class ExternalIdService {
             externalId2.external_id_type = 'sl_voter_id'; // TODO: update to be specifiable by the filters
             externalIds.push(externalId2);
         }
-        return this.externalIdRepository.save(externalIds);
+        let results: ExternalId[] = [];
+        try {
+            results = await this.externalIdRepository.save(externalIds);
+        } catch (e) {
+            const msg = externalIds.map((id: ExternalId) => `${id.external_id_type}`).join('; ');
+            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${msg}`);
+        }
+        return results;
     }
 
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
@@ -82,7 +94,14 @@ export class ExternalIdService {
             external_id: externalId.external_id,
             external_id_type: externalId.external_id_type
         });
-        return dbExternalId ?? await this.externalIdRepository.save(externalId);
+        const save: () => Promise<ExternalId> = async () => {
+            try {
+                return await this.externalIdRepository.save(externalId);
+            } catch (e) {
+                throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${externalId.external_id_type}`);
+            }
+        };
+        return dbExternalId ?? await save();
     }
 
     public async getOrCreateExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
