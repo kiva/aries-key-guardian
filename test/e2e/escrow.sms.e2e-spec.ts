@@ -31,36 +31,56 @@ import { FindOperator } from 'typeorm';
  */
 describe('EscrowController (e2e) using SMS plugin', () => {
     let app: INestApplication;
-    let data: any;
     let agentId: string;
     let otp: number;
     let nationalId: string;
-    let voterId: number;
+    let voterId: string;
     let did: string;
     let phoneNumber: string;
+    let pluginType: string;
+
+    const buildCreateRequest: () => any = () => {
+        return {
+            pluginType,
+            filters: {
+                externalIds: {
+                    sl_national_id: nationalId,
+                    sl_voter_id: voterId
+                }
+            },
+            params: {
+                phoneNumber,
+            }
+        };
+    };
+
+    const buildVerifyRequest: () => any = () => {
+        return {
+            pluginType,
+            filters: {
+                externalIds: {
+                    sl_national_id: nationalId
+                }
+            },
+            params: {
+                phoneNumber
+            }
+        };
+    };
 
     beforeAll(async () => {
         jest.setTimeout(10000);
         process.env.OTP_EXPIRE_MS = '10000';
 
         // Constants for use throughout the test suite
-        voterId = 1000000 + parseInt(now().toString().substr(7, 6), 10); // Predictable and unique exact 7 digits that doesn't start with 0
+        voterId = `${1000000 + parseInt(now().toString().substr(7, 6), 10)}`; // Unique 7 digit number that doesn't start with 0
         const voterIdHash = pepperHash(`${voterId}`);
         nationalId = 'N' + voterId;
         const nationalIdHash = pepperHash(nationalId);
         otp = 123456;
         did = 'agentId123';
         phoneNumber = '+14151234567';
-        data = {
-            pluginType: 'SMS_OTP',
-            filters: {
-                govId1: nationalId,
-                govId2: voterId,
-            },
-            params: {
-                phoneNumber,
-            }
-        };
+        pluginType = 'SMS_OTP';
 
         // Set up ExternalId repository
         const mockExternalId1 = new ExternalId();
@@ -167,6 +187,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     });
 
     it('Create endpoint', () => {
+        const data = buildCreateRequest();
         return request(app.getHttpServer())
             .post('/v1/escrow/create')
             .send(data)
@@ -181,7 +202,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     // -- Send -- //
 
     it('Verify sms sent', () => {
-        delete data.filters.govId2;
+        const data = buildVerifyRequest();
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)
@@ -193,7 +214,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     });
 
     it('Error case: NO_CITIZEN_FOUND', () => {
-        data.filters.govId1 = 'BAD_ID';
+        const data = buildVerifyRequest();
+        data.filters.externalIds.sl_national_id = 'BAD_ID';
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)
@@ -204,7 +226,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     });
 
     it('Error case: PHONE_NUMBER_NO_MATCH', () => {
-        data.filters.govId1 = nationalId;
+        const data = buildVerifyRequest();
         data.params.phoneNumber = '+23276543210';
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
@@ -220,6 +242,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     // -- Match -- //
 
     it('Error case: OTP_NO_MATCH', () => {
+        const data = buildVerifyRequest();
         delete data.params.phoneNumber;
         data.params.otp = 111111;
         return request(app.getHttpServer())
@@ -232,6 +255,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     });
 
     it('Verify otp matches', () => {
+        const data = buildVerifyRequest();
+        delete data.params.phoneNumber;
         data.params.otp = otp;
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
@@ -244,6 +269,9 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     }, 10000);
 
     it('Error case: OTP_EXPIRED', () => {
+        const data = buildVerifyRequest();
+        delete data.params.phoneNumber;
+        data.params.otp = otp;
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)
