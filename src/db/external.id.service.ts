@@ -6,7 +6,6 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
-import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 
 @Injectable()
 export class ExternalIdService {
@@ -16,68 +15,58 @@ export class ExternalIdService {
         private readonly externalIdRepository: Repository<ExternalId>
     ) {}
 
-    public async fetchExternalIds(filters: VerifyFiltersDto): Promise<ExternalId[]> {
-        let idValues: string;
-        let externalIdType: string;
-        if (filters.externalId && filters.externalIdType) {
-            idValues = filters.externalId;
-            externalIdType = filters.externalIdType;
-        } else if (filters.govId1 || filters.nationalId) {
-            // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            idValues = filters.govId1 ?? filters.nationalId;
-            externalIdType = 'sl_national_id';
-        } else if (filters.govId2 || filters.voterId) {
-            // TODO: Remove this check once we've removed the deprecated code (PRO-2676)
-            idValues = filters.govId2 ?? filters.voterId;
-            externalIdType = 'sl_voter_id';
-        } else {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No external ID provided to look up a DID');
-        }
-        const externalIdValues: string[] = idValues.split(',').map((idValue: string) => {
-            return SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
-        });
+    public async fetchExternalIds(ids: Map<string, string>, throwIfEmpty: boolean = true): Promise<ExternalId[]> {
 
-        // If we make it this far, we have something to look up
-        let externalIds: ExternalId[] = [];
-        try {
-            externalIds = await this.externalIdRepository.find({
-                external_id: In(externalIdValues),
-                external_id_type: externalIdType
-            });
-        } catch (e) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Failed to retrieve a DID for provided IDs ${externalIdType}`);
+        // For each id, split the id by by comma (in case it's a comma separated list of id values) and hash them, then return a new map of the same
+        // id type to the array of hashed values
+        const hashedIds: Map<string, string[]> = new Map(
+            Array.from(ids.entries()).map(([idType, idValues]: [string, string]) => {
+                const hashedIdValues: string[] = idValues.split(',').map((idValue: string) => {
+                    return SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
+                });
+                return [idType, hashedIdValues];
+            })
+        );
+
+        // For each (idType, idValue) pair, search the db for ExternalIds that match that pair. Each query returns a Promise of one or more
+        // ExternalIds, so wait for all those Promises and then flatten the results into a single array of ExternalIds.
+        const externalIds: ExternalId[] = (
+            await Promise.all(
+                Array.from(hashedIds.entries())
+                    .map(async ([idType, idValues]: [string, string[]]) => {
+                        try {
+                            return this.externalIdRepository.find({
+                                external_id: In(idValues),
+                                external_id_type: idType
+                            });
+                        } catch (e) {
+                            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Failed to retrieve a DID for provided IDs ${idType}`);
+                        }
+                    })
+            )
+        ).flat();
+
+        // Sometimes it's okay to return an empty array! Let's not be too prescriptive.
+        if (throwIfEmpty && externalIds.length === 0) {
+            const idTypes: string = Array.from(ids.keys()).join(', ');
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for provided IDs ${idTypes}`);
         }
-        if (externalIds.length === 0) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for provided IDs ${externalIdType}`);
-        }
+
         return externalIds;
     }
 
-    public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
-        const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
+    private buildExternalIds(did: string, filters: CreateFiltersDto): Array<ExternalId> {
+        return Array.from(CreateFiltersDto.getIds(filters).entries()).map((entry: [string, string]) => {
             const externalId = new ExternalId();
             externalId.did = did;
             externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
         });
-        // TODO: Remove these two checks once we've removed the deprecated code (PRO-2676)
-        if (filters.govId1 || filters.nationalId) {
-            const idValue: string = filters.govId1 ?? filters.nationalId;
-            const externalId1 = new ExternalId();
-            externalId1.did = did;
-            externalId1.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
-            externalId1.external_id_type = 'sl_national_id'; // TODO: update to be specifiable by the filters
-            externalIds.push(externalId1);
-        }
-        if (filters.govId2 || filters.voterId) {
-            const idValue: string = filters.govId2 ?? filters.voterId;
-            const externalId2 = new ExternalId();
-            externalId2.did = did;
-            externalId2.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
-            externalId2.external_id_type = 'sl_voter_id'; // TODO: update to be specifiable by the filters
-            externalIds.push(externalId2);
-        }
+    }
+
+    public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
+        const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
         let results: ExternalId[] = [];
         try {
             results = await this.externalIdRepository.save(externalIds);
@@ -105,30 +94,7 @@ export class ExternalIdService {
     }
 
     public async getOrCreateExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
-        const externalIds: ExternalId[] = Array.from(filters.externalIds?.entries() ?? []).map((entry: [string, string]) => {
-            const externalId = new ExternalId();
-            externalId.did = did;
-            externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
-            externalId.external_id_type = entry[0];
-            return externalId;
-        });
-        // TODO: Remove these two checks once we've removed the deprecated code (PRO-2676)
-        if (filters.govId1 || filters.nationalId) {
-            const idValue: string = filters.govId1 ?? filters.nationalId;
-            const externalId1 = new ExternalId();
-            externalId1.did = did;
-            externalId1.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
-            externalId1.external_id_type = 'sl_national_id'; // TODO: update to be specifiable by the filters
-            externalIds.push(externalId1);
-        }
-        if (filters.govId2 || filters.voterId) {
-            const idValue: string = filters.govId2 ?? filters.voterId;
-            const externalId2 = new ExternalId();
-            externalId2.did = did;
-            externalId2.external_id = SecurityUtility.hash32(idValue + process.env.HASH_PEPPER);
-            externalId2.external_id_type = 'sl_voter_id'; // TODO: update to be specifiable by the filters
-            externalIds.push(externalId2);
-        }
+        const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
         return Promise.all(externalIds.map((externalId: ExternalId) => this.getOrCreateExternalId(externalId)));
     }
 }

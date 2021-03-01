@@ -11,6 +11,7 @@ import { IAgencyService } from '../remote/agency.service.interface';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 import { CreateFiltersDto } from './dto/create.filters.dto';
 import { ExternalIdService } from '../db/external.id.service';
+import { ExternalId } from '../db/entity/external.id';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -68,13 +69,26 @@ export class EscrowService {
      * Handles create a new agent and saving the verification data to allow later authentication
      */
     public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string, connectionData: any }> {
+        let walletCredentials: WalletCredentials;
+
+        // In case this is a retry (roll-forward case), try to retrieve existing ExternalIds. If any are found, they should all map to the same DID,
+        // indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as fist attempt.
+        const externalIds: Array<ExternalId> = await this.externalIdService.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
+        if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.did === externalIds[0].did)) {
+            walletCredentials = await this.createRandomCredentials(externalIds[0].did);
+        } else {
+            walletCredentials = await this.createRandomCredentials();
+            await this.externalIdService.createExternalIds(walletCredentials.did, filters);
+        }
+
         const plugin = this.pluginFactory.create(pluginType);
-        const walletCredentials = await this.createRandomCredentials();
 
-        await this.externalIdService.createExternalIds(walletCredentials.did, filters);
-
-        await plugin.save(walletCredentials.did, params);
-        Logger.log(`Saved to plugin ${pluginType}`);
+        try {
+            await plugin.save(walletCredentials.did, params);
+            Logger.log(`Saved to plugin ${pluginType}`);
+        } catch (e) {
+            throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+        }
 
         await this.walletCredentialsRepository.save(walletCredentials);
         Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
@@ -102,13 +116,13 @@ export class EscrowService {
      * We want the random strings to include any letter or number.
      * TODO update DB to save agentApiKey (should be 32 alphanumeric characters)
      */
-    private async createRandomCredentials(): Promise<WalletCredentials> {
+    private async createRandomCredentials(preexistingDid?: string): Promise<WalletCredentials> {
         // Wallet id should be lower case when using DB per wallet mode, since we use multiwallet mode it matters less
         const walletId = cryptoRandomString({ length: 32, characters: this.chars }).toLowerCase();
         const walletKey = cryptoRandomString({ length: 32, characters: this.chars });
         const walletSeed = cryptoRandomString({ length: 32, characters: this.chars });
         // Agent id needs to be lowercase letters for k8s pod rules
-        const did = cryptoRandomString({ length: 22, characters: this.letters });
+        const did = preexistingDid ?? cryptoRandomString({ length: 22, characters: this.letters });
         const walletCredentials = new WalletCredentials();
         walletCredentials.did = did;
         walletCredentials.wallet_id = walletId;
@@ -130,7 +144,12 @@ export class EscrowService {
         await this.externalIdService.getOrCreateExternalIds(id, filters);
 
         const plugin = this.pluginFactory.create(pluginType);
-        await plugin.save(id, params);
+        try {
+            await plugin.save(id, params);
+            Logger.log(`Saved to plugin ${pluginType}`);
+        } catch (e) {
+            throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+        }
         return { result: 'success' };
     }
 }

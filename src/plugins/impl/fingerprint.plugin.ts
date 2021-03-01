@@ -26,7 +26,7 @@ export class FingerprintPlugin implements IPlugin {
      */
     public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
 
-        const externalIds: ExternalId[] = await this.externalIdService.fetchExternalIds(filters);
+        const externalIds: ExternalId[] = await this.externalIdService.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         const dids: string = externalIds.map((externalId: ExternalId) => externalId.did).join(',');
 
         let response;
