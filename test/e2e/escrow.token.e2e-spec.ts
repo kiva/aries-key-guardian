@@ -119,7 +119,7 @@ describe('EscrowController (e2e) using token plugin', () => {
             });
     });
 
-    it('Can reject an auth token that has been signed with the algorithm', () => {
+    it('Can reject an auth token that has been signed with the wrong algorithm', () => {
         const token = jwt.sign({agentId}, 'sekrit', {algorithm: 'HS512'});
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
