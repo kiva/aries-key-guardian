@@ -25,6 +25,7 @@ import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
 import { ExternalIdService } from '../../src/db/external.id.service';
 import { FindOperator } from 'typeorm';
+import { SmsOtpService } from '../../src/db/sms.otp.service';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -126,10 +127,16 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         mockSmsOtp.otp = otp;
         mockSmsOtp.otp_expiration_time = nDaysFromNow(1);
         const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
-            async find(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp[]> {
-                const smsOtps = await super.find(conditions);
-                smsOtps.forEach((smsOtp: SmsOtp) => smsOtp.did = agentId);
-                return smsOtps;
+
+            async findOne(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp | undefined> {
+                const smsOtp = await super.findOne(conditions);
+                smsOtp.did = agentId;
+                return smsOtp;
+            }
+
+            async save(input: SmsOtp): Promise<SmsOtp> {
+                this.entities = this.entities.filter((entity: SmsOtp) => entity.id !== input.id);
+                return super.save(input);
             }
         }([mockSmsOtp]);
 
@@ -147,6 +154,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             providers: [
                 EscrowService,
                 SmsService,
+                SmsOtpService,
                 ExternalIdService,
                 PluginFactory,
                 {

@@ -9,7 +9,7 @@ import { FindConditions } from 'typeorm/find-options/FindConditions';
  */
 export class MockRepository<T> {
 
-    constructor(private entities: Readonly<T>[]) {
+    constructor(protected entities: Readonly<T>[]) {
         if (entities.length === 0) {
             throw new Error('Must provide Repository with at least 1 entity');
         }
@@ -27,8 +27,8 @@ export class MockRepository<T> {
         return 1;
     }
 
-    save(input: T): boolean {
+    save(input: T): Promise<T> {
         this.entities.push(input);
-        return true;
+        return Promise.resolve(input);
     }
 }
