@@ -9,7 +9,7 @@ export class SmsParamsDto {
     @ApiPropertyOptional({
         description: 'Phone number including country code, eg +14151234567'
     })
-    @IsOptional() @IsPhoneNumber('US') readonly phoneNumber: any;
+    @IsOptional() @IsPhoneNumber('US') readonly phoneNumber: string;
 
     @ApiPropertyOptional({
         description: '6-digit One Time Password, eg 123456'

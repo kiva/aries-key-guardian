@@ -23,9 +23,9 @@ import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
-import { ExternalIdService } from '../../src/db/external.id.service';
+import { ExternalIdRepository } from '../../src/db/external.id.repository';
 import { FindOperator } from 'typeorm';
-import { SmsOtpService } from '../../src/db/sms.otp.service';
+import { SmsOtpRepository } from '../../src/db/sms.otp.repository';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -154,8 +154,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             providers: [
                 EscrowService,
                 SmsService,
-                SmsOtpService,
-                ExternalIdService,
+                SmsOtpRepository,
+                ExternalIdRepository,
                 PluginFactory,
                 {
                     provide: CACHE_MANAGER,
