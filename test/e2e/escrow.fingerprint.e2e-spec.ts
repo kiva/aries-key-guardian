@@ -14,7 +14,7 @@ import { MockAgencyService } from '../mock/mock.agency.service';
 import { MockIdentityService } from '../mock/mock.identity.service';
 import { MockRepository } from '../mock/mock.repository';
 import { ExternalId } from '../../src/db/entity/external.id';
-import { ExternalIdRepository } from '../../src/db/external.id.repository';
+import { ExternalIdGateway } from '../../src/db/external.id.gateway';
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -65,7 +65,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             controllers: [EscrowController],
             providers: [
                 EscrowService,
-                ExternalIdRepository,
+                ExternalIdGateway,
                 {
                     provide: getRepositoryToken(ExternalId),
                     useValue: mockExternalIdRepository

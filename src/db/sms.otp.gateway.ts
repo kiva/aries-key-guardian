@@ -5,10 +5,10 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Injectable } from '@nestjs/common';
-import { RepositoryBase } from './repository.base';
+import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class SmsOtpRepository extends RepositoryBase<SmsOtp> {
+export class SmsOtpGateway extends BaseRepository<SmsOtp> {
 
     constructor(
         @InjectRepository(SmsOtp)
@@ -50,10 +50,14 @@ export class SmsOtpRepository extends RepositoryBase<SmsOtp> {
     /**
      * Save an OTP to the record corresponding to the provided did. If there is no such record, throw a ProtocolException error.
      */
-    public saveOtp(did: string, otp: number): Promise<SmsOtp> {
+    public saveOtp(did: string, phoneNumber: string, otp: number): Promise<SmsOtp> {
+        const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
         const otpExpirationTime = new Date(Date.now() + 15000); // 15 min
         return this.runInTransaction(async (entityManager: EntityManager) => {
-            const smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {did});
+            const smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {
+                did,
+                phone_number_hash: phoneNumberHash
+            });
             if (!smsOtp) {
                 throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No citizen found for given filters');
             }

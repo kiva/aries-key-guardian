@@ -6,10 +6,10 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
-import { RepositoryBase } from './repository.base';
+import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class ExternalIdRepository extends RepositoryBase<ExternalId> {
+export class ExternalIdGateway extends BaseRepository<ExternalId> {
 
     constructor(
         @InjectRepository(ExternalId)

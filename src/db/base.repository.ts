@@ -1,7 +1,7 @@
 import { QueryRunner, Repository } from 'typeorm';
 import { ObjectLiteral } from 'typeorm/common/ObjectLiteral';
 
-export abstract class RepositoryBase<Entity extends ObjectLiteral> {
+export abstract class BaseRepository<Entity extends ObjectLiteral> {
 
     constructor(
         protected readonly repository: Repository<Entity>
