@@ -52,7 +52,9 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
         body = {
             pluginType: 'FINGERPRINT',
             filters: {
-                govId1: 'abc123',
+                externalIds: {
+                    'sl_national_id': 'abc123'
+                }
             },
             params: {
                 position: 1,
