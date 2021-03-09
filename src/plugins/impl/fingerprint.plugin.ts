@@ -7,7 +7,7 @@ import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 import { ExternalId } from '../../db/entity/external.id';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
-import { ExternalIdGateway } from '../../db/external.id.gateway';
+import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -16,7 +16,7 @@ export class FingerprintPlugin implements IPlugin {
      */
     constructor(
         private readonly identityService: IIdentityService,
-        private readonly externalIdGateway: ExternalIdGateway
+        private readonly externalIdDbGateway: ExternalIdDbGateway
     ) { }
 
     /**
@@ -26,7 +26,7 @@ export class FingerprintPlugin implements IPlugin {
      */
     public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
 
-        const externalIds: ExternalId[] = await this.externalIdGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
+        const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         const dids: string = externalIds.map((externalId: ExternalId) => externalId.did).join(',');
 
         let response;

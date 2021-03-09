@@ -10,7 +10,7 @@ import { PluginFactory } from '../plugins/plugin.factory';
 import { IAgencyService } from '../remote/agency.service.interface';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 import { CreateFiltersDto } from './dto/create.filters.dto';
-import { ExternalIdGateway } from '../db/external.id.gateway';
+import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
 import { ExternalId } from '../db/entity/external.id';
 
 /**
@@ -23,7 +23,7 @@ export class EscrowService {
         @InjectRepository(WalletCredentials)
         private readonly walletCredentialsRepository: Repository<WalletCredentials>,
         private readonly agencyService: IAgencyService,
-        private readonly externalIdGateway: ExternalIdGateway,
+        private readonly externalIdDbGateway: ExternalIdDbGateway,
         private readonly pluginFactory: PluginFactory
     ) { }
 
@@ -73,12 +73,12 @@ export class EscrowService {
 
         // In case this is a retry (roll-forward case), try to retrieve existing ExternalIds. If any are found, they should all map to the same DID,
         // indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as fist attempt.
-        const externalIds: Array<ExternalId> = await this.externalIdGateway.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
+        const externalIds: Array<ExternalId> = await this.externalIdDbGateway.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
         if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.did === externalIds[0].did)) {
             walletCredentials = await this.createRandomCredentials(externalIds[0].did);
         } else {
             walletCredentials = await this.createRandomCredentials();
-            await this.externalIdGateway.createExternalIds(walletCredentials.did, filters);
+            await this.externalIdDbGateway.createExternalIds(walletCredentials.did, filters);
         }
 
         const plugin = this.pluginFactory.create(pluginType);
@@ -141,7 +141,7 @@ export class EscrowService {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
         }
 
-        await this.externalIdGateway.getOrCreateExternalIds(id, filters);
+        await this.externalIdDbGateway.getOrCreateExternalIds(id, filters);
 
         const plugin = this.pluginFactory.create(pluginType);
         try {

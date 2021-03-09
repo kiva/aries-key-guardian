@@ -9,8 +9,8 @@ import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 import { ExternalId } from '../db/entity/external.id';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
-import { ExternalIdGateway } from '../db/external.id.gateway';
-import { SmsOtpGateway } from '../db/sms.otp.gateway';
+import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
+import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -22,8 +22,8 @@ export class SmsService {
         private readonly smsService: ISmsService,
         private readonly rateLimitService: RateLimitService,
         private readonly smsHelperService: SmsHelperService,
-        private readonly externalIdGateway: ExternalIdGateway,
-        private readonly smsOtpGateway: SmsOtpGateway
+        private readonly externalIdDbGateway: ExternalIdDbGateway,
+        private readonly smsOtpDbGateway: SmsOtpDbGateway
     ) {}
 
     /**
@@ -32,7 +32,7 @@ export class SmsService {
      */
     public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
 
-        const externalIds: ExternalId[] = await this.externalIdGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
+        const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         if (externalIds.some((id: ExternalId) => id.did !== externalIds[0].did)) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identity a did');
         }
@@ -71,7 +71,7 @@ export class SmsService {
      */
     private async sendSmsOtp(did: string, phoneNumber: string) {
         const otp = this.smsHelperService.generateRandomOtp();
-        await this.smsOtpGateway.saveOtp(did, phoneNumber, otp);
+        await this.smsOtpDbGateway.saveOtp(did, phoneNumber, otp);
         await this.smsService.sendOtp(phoneNumber, otp);
         return {
             status: 'sent',
@@ -83,14 +83,14 @@ export class SmsService {
      * Check if the passed in otp matches the stored one and clear out if needed
      */
     private async verifyOtp(id: string, otp: number) {
-        const smsOtp: SmsOtp  = (await this.smsOtpGateway.fetchSmsOtp(id));
+        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(id));
         const otpMatches: boolean = smsOtp.otp === otp;
         const otpExpired: boolean = !smsOtp.otp_expiration_time || smsOtp.otp_expiration_time.valueOf() < Date.now();
         if (!otpMatches || otpExpired) {
             throw new ProtocolException(ProtocolErrorCode.OTP_NO_MATCH, 'The OTP either does not match or has expired.');
         }
 
-        await this.smsOtpGateway.expireOtp(smsOtp);
+        await this.smsOtpDbGateway.expireOtp(smsOtp);
 
         return {
             status: 'matched',
@@ -102,6 +102,6 @@ export class SmsService {
      * Saves a phone number for later SMS OTP verification
      */
     public async save(id: string, params: SmsParamsDto) {
-        await this.smsOtpGateway.savePhoneNumber(id, params.phoneNumber);
+        await this.smsOtpDbGateway.savePhoneNumber(id, params.phoneNumber);
     }
 }

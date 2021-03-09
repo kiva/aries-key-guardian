@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ExternalIdGateway } from './external.id.gateway';
+import { ExternalIdDbGateway } from './external.id.db.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExternalId } from './entity/external.id';
-import { SmsOtpGateway } from './sms.otp.gateway';
+import { SmsOtpDbGateway } from './sms.otp.db.gateway';
 import { SmsOtp } from './entity/sms.otp';
 
 @Module({
@@ -10,7 +10,7 @@ import { SmsOtp } from './entity/sms.otp';
         TypeOrmModule.forFeature([ExternalId]),
         TypeOrmModule.forFeature([SmsOtp])
     ],
-    providers: [ExternalIdGateway, SmsOtpGateway],
-    exports: [ExternalIdGateway, SmsOtpGateway]
+    providers: [ExternalIdDbGateway, SmsOtpDbGateway],
+    exports: [ExternalIdDbGateway, SmsOtpDbGateway]
 })
 export class DbModule {}
