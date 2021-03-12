@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { SecurityUtility } from 'protocol-common/security.utility';
 import { SmsOtp } from '../db/entity/sms.otp';
 import { SmsParamsDto } from './dto/sms.params.dto';
 import { RateLimitService } from '../ratelimit/ratelimit.service';
@@ -12,7 +9,8 @@ import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 import { ExternalId } from '../db/entity/external.id';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
-import { ExternalIdService } from '../db/external.id.service';
+import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
+import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -21,12 +19,11 @@ import { ExternalIdService } from '../db/external.id.service';
 export class SmsService {
 
     constructor(
-        @InjectRepository(SmsOtp)
-        private readonly smsOtpRepository: Repository<SmsOtp>,
         private readonly smsService: ISmsService,
         private readonly rateLimitService: RateLimitService,
         private readonly smsHelperService: SmsHelperService,
-        private readonly externalIdService: ExternalIdService
+        private readonly externalIdDbGateway: ExternalIdDbGateway,
+        private readonly smsOtpDbGateway: SmsOtpDbGateway
     ) {}
 
     /**
@@ -35,7 +32,7 @@ export class SmsService {
      */
     public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
 
-        const externalIds: ExternalId[] = await this.externalIdService.fetchExternalIds(VerifyFiltersDto.getIds(filters));
+        const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         if (externalIds.some((id: ExternalId) => id.did !== externalIds[0].did)) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identity a did');
         }
@@ -72,18 +69,9 @@ export class SmsService {
     /**
      * Checks the phone number against stored records, generates an OTP and sends it
      */
-    private async sendSmsOtp(did: string, phoneNumber: any) {
-        const smsOtpEntity = await this.findSmsOtpEntity(did);
-        if (!smsOtpEntity.phone_number_hash) {
-            throw new ProtocolException(ProtocolErrorCode.NO_PHONE_NUMBER, 'No phone number stored for citizen');
-        }
-
-        const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
-        if (smsOtpEntity.phone_number_hash !== phoneNumberHash) {
-            throw new ProtocolException(ProtocolErrorCode.PHONE_NUMBER_NO_MATCH, 'Phone number doesn\'t match for stored citizen');
-        }
-
-        const otp = await this.generateOtp(smsOtpEntity);
+    private async sendSmsOtp(did: string, phoneNumber: string) {
+        const otp = this.smsHelperService.generateRandomOtp();
+        await this.smsOtpDbGateway.saveOtp(did, phoneNumber, otp);
         await this.smsService.sendOtp(phoneNumber, otp);
         return {
             status: 'sent',
@@ -92,82 +80,28 @@ export class SmsService {
     }
 
     /**
-     * Looks up the SMS OTP entity by passed in gov ids
-     */
-    private async findSmsOtpEntity(did: string): Promise<SmsOtp> {
-        const results = await this.smsOtpRepository.find({did});
-        if (results.length < 1) {
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No citizen found for given filters');
-        }
-        return results[0];
-    }
-
-    /**
-     * Generate an OTP and save it for future verification
-     * @tothink maybe we should only save a OTP if the SMS sends successfully
-     */
-    private async generateOtp(smsOtpEntity: SmsOtp): Promise<number> {
-        const otp = this.smsHelperService.generateRandomOtp();
-        const otpExpireTime = new Date(Date.now() + 15000); // 15 min
-        smsOtpEntity.otp = otp;
-        smsOtpEntity.otp_expiration_time = otpExpireTime;
-        await this.smsOtpRepository.save(smsOtpEntity);
-        this.scheduleOtpExpiration(smsOtpEntity);
-        return otp;
-    }
-
-    /**
      * Check if the passed in otp matches the stored one and clear out if needed
      */
     private async verifyOtp(id: string, otp: number) {
-        const smsOtpEntity = await this.findSmsOtpEntity(id);
-        if (!smsOtpEntity.otp) {
-            throw new ProtocolException(ProtocolErrorCode.OTP_EXPIRED, 'The OTP has expired, please send again');
-        }
-        if (smsOtpEntity.otp !== otp) {
-            throw new ProtocolException(ProtocolErrorCode.OTP_NO_MATCH, 'The OTP does not match');
+        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(id));
+        const otpMatches: boolean = smsOtp.otp === otp;
+        const otpExpired: boolean = !smsOtp.otp_expiration_time || smsOtp.otp_expiration_time.valueOf() < Date.now();
+        if (!otpMatches || otpExpired) {
+            throw new ProtocolException(ProtocolErrorCode.OTP_NO_MATCH, 'The OTP either does not match or has expired.');
         }
 
-        smsOtpEntity.otp = null;
-        smsOtpEntity.otp_expiration_time = null;
-        await this.smsOtpRepository.save(smsOtpEntity);
+        await this.smsOtpDbGateway.expireOtp(smsOtp);
 
         return {
             status: 'matched',
-            id: smsOtpEntity.did,
+            id: smsOtp.did,
         };
-    }
-
-    /**
-     * Kicks off a timed job to expire the OTP in 15 min
-     * To make this more robust we could add a cron job that double checks expiration times, or move stored OTPs to a cache
-     */
-    public scheduleOtpExpiration(smsOtpEntity: SmsOtp): void {
-        setTimeout(
-            async () => {
-                const expiredSmsOtp: SmsOtp = {
-                    ...smsOtpEntity,
-                    otp: null,
-                    otp_expiration_time: null
-                };
-                await this.smsOtpRepository.save(expiredSmsOtp);
-            },
-            parseInt(process.env.OTP_EXPIRE_MS, 10),
-        );
     }
 
     /**
      * Saves a phone number for later SMS OTP verification
      */
     public async save(id: string, params: SmsParamsDto) {
-        const smsOtpEntity = new SmsOtp();
-        smsOtpEntity.did = id;
-        smsOtpEntity.phone_number_hash = SecurityUtility.hash32(params.phoneNumber + process.env.HASH_PEPPER);
-        try {
-            await this.smsOtpRepository.save(smsOtpEntity);
-        } catch (e) {
-            // Maybe we want some extra handling?
-            throw e;
-        }
+        await this.smsOtpDbGateway.savePhoneNumber(id, params.phoneNumber);
     }
 }

@@ -1,20 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExternalId } from './entity/external.id';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
+import { BaseDbGateway } from './base..db.gateway';
 
 @Injectable()
-export class ExternalIdService {
+export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
 
     constructor(
         @InjectRepository(ExternalId)
-        private readonly externalIdRepository: Repository<ExternalId>
-    ) {}
+        externalIdRepository: Repository<ExternalId>
+    ) {
+        super(externalIdRepository);
+    }
 
+    /**
+     * This function will attempt to retrieve all external IDs that correspond to an id type -> value entry in the ids map. If the throwIfEmpty flag
+     * is set, then the function will throw an error if there are no results.
+     */
     public async fetchExternalIds(ids: Map<string, string>, throwIfEmpty: boolean = true): Promise<ExternalId[]> {
 
         // For each id, split the id by by comma (in case it's a comma separated list of id values) and hash them, then return a new map of the same
@@ -35,7 +42,7 @@ export class ExternalIdService {
                 Array.from(hashedIds.entries())
                     .map(async ([idType, idValues]: [string, string[]]) => {
                         try {
-                            return this.externalIdRepository.find({
+                            return this.repository.find({
                                 external_id: In(idValues),
                                 external_id_type: idType
                             });
@@ -55,6 +62,9 @@ export class ExternalIdService {
         return externalIds;
     }
 
+    /**
+     * This helper function turns did + filters into an array of ExternalId objects. It's a purely in-memory operation that does not affect the db.
+     */
     private buildExternalIds(did: string, filters: CreateFiltersDto): Array<ExternalId> {
         return Array.from(CreateFiltersDto.getIds(filters).entries()).map((entry: [string, string]) => {
             const externalId = new ExternalId();
@@ -65,11 +75,14 @@ export class ExternalIdService {
         });
     }
 
+    /**
+     * This function will attempt to create an external ID for every did + externalId pair provided.
+     */
     public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
         const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
         let results: ExternalId[] = [];
         try {
-            results = await this.externalIdRepository.save(externalIds);
+            results = await this.repository.save(externalIds);
         } catch (e) {
             const msg = externalIds.map((id: ExternalId) => `${id.external_id_type}`).join('; ');
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${msg}`);
@@ -77,20 +90,28 @@ export class ExternalIdService {
         return results;
     }
 
+    /**
+     * This function will attempt to retrieve an external ID that matches the provided externalId (same did, external_id, and external_id_type). If no
+     * such match exists, then it will attempt to create one. If an entry with the same did and type (but different value) already exists, then it
+     * will throw a ProtocolException.
+     */
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
-        const dbExternalId = await this.externalIdRepository.findOne({
-            did: externalId.did,
-            external_id: externalId.external_id,
-            external_id_type: externalId.external_id_type
-        });
-        const save: () => Promise<ExternalId> = async () => {
-            try {
-                return await this.externalIdRepository.save(externalId);
-            } catch (e) {
-                throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${externalId.external_id_type}`);
+        return this.runInTransaction(async (entityManager: EntityManager) => {
+            const dbExternalId: ExternalId | undefined = await entityManager.findOne(ExternalId, {
+                did: externalId.did,
+                external_id: externalId.external_id,
+                external_id_type: externalId.external_id_type
+            });
+            if (!dbExternalId) {
+                try {
+                    return await this.repository.save(externalId);
+                } catch (e) {
+                    throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${externalId.external_id_type}`);
+                }
+            } else {
+                return dbExternalId;
             }
-        };
-        return dbExternalId ?? await save();
+        });
     }
 
     public async getOrCreateExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {

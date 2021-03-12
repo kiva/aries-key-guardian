@@ -18,7 +18,7 @@ import { TokenService } from '../../src/token/token.service';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 import { ExternalId } from '../../src/db/entity/external.id';
-import { ExternalIdService } from '../../src/db/external.id.service';
+import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -68,7 +68,7 @@ describe('EscrowController (e2e) using token plugin', () => {
             providers: [
                 EscrowService,
                 TokenService,
-                ExternalIdService,
+                ExternalIdDbGateway,
                 PluginFactory,
                 {
                     provide: getRepositoryToken(ExternalId),
