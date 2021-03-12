@@ -9,7 +9,7 @@ import { EscrowModule } from '../escrow/escrow.module';
 import { RateLimitModule } from '../ratelimit/ratelimit.module';
 import { DbModule } from '../db/db.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggingInterceptor } from '../../../protocol-common/dist/logging.interceptor';
+import { LoggingInterceptor } from 'protocol-common/logging.interceptor';
 
 /**
  * Initializes the Nest application
