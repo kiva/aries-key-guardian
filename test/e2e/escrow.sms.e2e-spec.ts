@@ -14,7 +14,7 @@ import { IAgencyService } from '../../src/remote/agency.service.interface';
 import { SmsService } from '../../src/sms/sms.service';
 import { SmsOtp } from '../../src/db/entity/sms.otp';
 import cacheManager from 'cache-manager';
-import { nDaysFromNow, now, pepperHash } from '../support/functions';
+import { now, pepperHash } from '../support/functions';
 import { MockRepository } from '../mock/mock.repository';
 import { ISmsService } from '../../src/remote/sms.service.interface';
 import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
@@ -23,8 +23,9 @@ import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
-import { ExternalIdService } from '../../src/db/external.id.service';
+import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { FindOperator } from 'typeorm';
+import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -122,14 +123,22 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Set up SmsOtp repository
         const mockSmsOtp = new SmsOtp();
-        mockSmsOtp.phone_number_hash = pepperHash(phoneNumber);
-        mockSmsOtp.otp = otp;
-        mockSmsOtp.otp_expiration_time = nDaysFromNow(1);
         const mockSmsOtpRepository = new class extends MockRepository<SmsOtp> {
-            async find(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp[]> {
-                const smsOtps = await super.find(conditions);
-                smsOtps.forEach((smsOtp: SmsOtp) => smsOtp.did = agentId);
-                return smsOtps;
+
+            async findOne(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp | undefined> {
+                const smsOtp = await super.findOne(conditions);
+                const didMatches: boolean = !conditions.did || smsOtp.did === conditions.did;
+                const phoneNumberHashMatches: boolean = !conditions.phone_number_hash || smsOtp.phone_number_hash === conditions.phone_number_hash;
+                if (didMatches && phoneNumberHashMatches) {
+                    return smsOtp;
+                } else {
+                    return undefined;
+                }
+            }
+
+            async save(input: SmsOtp): Promise<SmsOtp> {
+                this.entities = this.entities.filter((entity: SmsOtp) => entity.id !== input.id);
+                return super.save(input);
             }
         }([mockSmsOtp]);
 
@@ -147,7 +156,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             providers: [
                 EscrowService,
                 SmsService,
-                ExternalIdService,
+                SmsOtpDbGateway,
+                ExternalIdDbGateway,
                 PluginFactory,
                 {
                     provide: CACHE_MANAGER,
@@ -188,6 +198,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
     it('Create endpoint', () => {
         const data = buildCreateRequest();
+        data.params.phoneNumber = '+14153456789'; // Will be overwritten by the next test
         return request(app.getHttpServer())
             .post('/v1/escrow/create')
             .send(data)
@@ -196,6 +207,18 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 // We can't predict the exact value since it will be random
                 expect(res.body.id).toBeDefined();
                 agentId = res.body.id;
+            });
+    });
+
+    it('Update phone number', () => {
+        const data = buildCreateRequest(); // Overwrites the phone number from the previous test
+        return request(app.getHttpServer())
+            .post('/v1/escrow/create')
+            .send(data)
+            .expect(201)
+            .then((res) => {
+                expect(res.body.id).toBeDefined();
+                expect(res.body.id).toEqual(agentId);
             });
     });
 
@@ -213,7 +236,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             });
     });
 
-    it('Error case: NO_CITIZEN_FOUND', () => {
+    it('Error case: Invalid ID leads to NO_CITIZEN_FOUND', () => {
         const data = buildVerifyRequest();
         data.filters.externalIds.sl_national_id = 'BAD_ID';
         return request(app.getHttpServer())
@@ -225,7 +248,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             });
     });
 
-    it('Error case: PHONE_NUMBER_NO_MATCH', () => {
+    it('Error case: Invalid phone number leads to NO_CITIZEN_FOUND', () => {
         const data = buildVerifyRequest();
         data.params.phoneNumber = '+23276543210';
         return request(app.getHttpServer())
@@ -233,15 +256,25 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .send(data)
             .expect(400)
             .then((res) => {
-                expect(res.body.code).toBe(ProtocolErrorCode.PHONE_NUMBER_NO_MATCH);
+                expect(res.body.code).toBe(ProtocolErrorCode.NO_CITIZEN_FOUND);
             });
     });
 
-    // TODO NO_PHONE_NUMBER
+    it('Error case: No phone number leads to ValidationException', () => {
+        const data = buildVerifyRequest();
+        delete data.params.phoneNumber;
+        return request(app.getHttpServer())
+            .post('/v1/escrow/verify')
+            .send(data)
+            .expect(400)
+            .then((res) => {
+                expect(res.body.code).toBe(ProtocolErrorCode.VALIDATION_EXCEPTION);
+            });
+    });
 
     // -- Match -- //
 
-    it('Error case: OTP_NO_MATCH', () => {
+    it('Error case: Incorrect OTP leads to OTP_NO_MATCH', () => {
         const data = buildVerifyRequest();
         delete data.params.phoneNumber;
         data.params.otp = 111111;
@@ -268,7 +301,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             });
     }, 10000);
 
-    it('Error case: OTP_EXPIRED', () => {
+    it('Error case: Expired OTP leads to OTP_NO_MATCH', () => {
         const data = buildVerifyRequest();
         delete data.params.phoneNumber;
         data.params.otp = otp;
@@ -277,7 +310,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .send(data)
             .expect(400)
             .then((res) => {
-                expect(res.body.code).toBe(ProtocolErrorCode.OTP_EXPIRED);
+                expect(res.body.code).toBe(ProtocolErrorCode.OTP_NO_MATCH);
             });
     });
 

@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { SmsService } from './sms.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SmsOtp } from '../db/entity/sms.otp';
 import { RateLimitModule } from '../ratelimit/ratelimit.module';
 import { RemoteModule } from '../remote/remote.module';
 import { SmsHelperService } from './sms.helper.service';
@@ -12,7 +10,6 @@ import { DbModule } from '../db/db.module';
  */
 @Module({
     imports: [
-        TypeOrmModule.forFeature([SmsOtp]),
         DbModule,
         RateLimitModule,
         RemoteModule
