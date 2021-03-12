@@ -8,6 +8,8 @@ import data from '../config/env.json';
 import { EscrowModule } from '../escrow/escrow.module';
 import { RateLimitModule } from '../ratelimit/ratelimit.module';
 import { DbModule } from '../db/db.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from '../../../protocol-common/dist/logging.interceptor';
 
 /**
  * Initializes the Nest application
@@ -23,6 +25,12 @@ import { DbModule } from '../db/db.module';
         OrmConfig(),
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [
+        AppService,
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: LoggingInterceptor
+        }
+    ],
 })
 export class AppModule {}
