@@ -2,7 +2,6 @@ import { Injectable, INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json } from 'body-parser';
 import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { LoggingInterceptor } from 'protocol-common/logging.interceptor';
 import { DatadogLogger } from 'protocol-common/datadog.logger';
 import { Logger } from 'protocol-common/logger';
 import { traceware } from 'protocol-common/tracer';
@@ -23,7 +22,6 @@ export class AppService {
         app.useLogger(logger);
         app.use(traceware('aries-key-guardian'));
 
-        app.useGlobalInterceptors(new LoggingInterceptor());
         app.useGlobalFilters(new ProtocolExceptionFilter());
 
         // Increase json parse size to handle encoded images
