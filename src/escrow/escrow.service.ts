@@ -38,18 +38,14 @@ export class EscrowService {
         if (result.status === 'matched') {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
-            // TODO we need to save the admin api key and then we can pass it along here
-            const adminApiKey = walletCredentials.wallet_key;
-            const response = await this.agencyService.spinUpAgent(
+            const response = await this.agencyService.registerMultitenantAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
-                adminApiKey,
-                walletCredentials.seed,
                 result.id.toLocaleLowerCase(),
             );
-            Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
+            Logger.log(`Register agent for did ${walletCredentials.did}`);
             // Append the connection data onto the result
-            result.connectionData = response.data.connectionData;
+            result.connectionData = response.data.invitation;
         }
         return result;
     }
@@ -93,20 +89,15 @@ export class EscrowService {
         await this.walletCredentialsRepository.save(walletCredentials);
         Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
 
-        // TODO we need to save the admin api key and then we can pass it along here
-        const adminApiKey = walletCredentials.wallet_key;
         const did = walletCredentials.did.toLowerCase();
-        const response = await this.agencyService.spinUpAgent(
+        const response = await this.agencyService.registerMultitenantAgent(
             walletCredentials.wallet_id,
             walletCredentials.wallet_key,
-            adminApiKey,
-            walletCredentials.seed,
             did,
         );
+        Logger.log(`Register agent for did ${walletCredentials.did}`);
 
-        Logger.log(`Spun up agent for did ${walletCredentials.did}`);
-
-        return { id: walletCredentials.did, connectionData: response.data.connectionData };
+        return { id: walletCredentials.did, connectionData: response.data.invitation };
     }
 
     private readonly chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
