@@ -43,7 +43,7 @@ export class EscrowService {
                 walletCredentials.wallet_key,
                 result.id.toLocaleLowerCase(),
             );
-            Logger.log(`Register agent for did ${walletCredentials.did}`, response.data);
+            Logger.log(`Register agent for did ${walletCredentials.did}`);
             // Append the connection data onto the result
             result.connectionData = response.data.invitation;
         }
@@ -95,7 +95,7 @@ export class EscrowService {
             walletCredentials.wallet_key,
             did,
         );
-        Logger.log(`Register agent for did ${walletCredentials.did}`, response.data);
+        Logger.log(`Register agent for did ${walletCredentials.did}`);
 
         return { id: walletCredentials.did, connectionData: response.data.invitation };
     }

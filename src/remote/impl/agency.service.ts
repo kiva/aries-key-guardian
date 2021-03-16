@@ -34,7 +34,7 @@ export class AgencyService implements IAgencyService {
             }
         };
         await this.http.requestWithRetry(request);
-        Logger.log(`Spun up agent ${agentId}`);
+        Logger.debug(`Spun up agent ${agentId}`);
         const requestConnect: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v1/manager/connect',
@@ -43,7 +43,7 @@ export class AgencyService implements IAgencyService {
                 adminApiKey,
             }
         };
-        Logger.log(`Connecting to agent ${agentId}`);
+        Logger.debug(`Connecting to agent ${agentId}`);
         return await this.http.requestWithRetry(requestConnect);
     }
 
@@ -55,7 +55,7 @@ export class AgencyService implements IAgencyService {
      * The return object includes a invitation arg
      */
     public async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
-        Logger.log(`Registering multitenant agent ${label}`);
+        Logger.debug(`Registering multitenant agent ${label}`);
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v2/multitenant',
