@@ -6,17 +6,14 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
-import { BaseDbGateway } from './base..db.gateway';
 
 @Injectable()
-export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
+export class ExternalIdDbGateway {
 
     constructor(
         @InjectRepository(ExternalId)
-        externalIdRepository: Repository<ExternalId>
-    ) {
-        super(externalIdRepository);
-    }
+        private readonly externalIdRepository: Repository<ExternalId>
+    ) { }
 
     /**
      * This function will attempt to retrieve all external IDs that correspond to an id type -> value entry in the ids map. If the throwIfEmpty flag
@@ -42,7 +39,7 @@ export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
                 Array.from(hashedIds.entries())
                     .map(async ([idType, idValues]: [string, string[]]) => {
                         try {
-                            return this.repository.find({
+                            return this.externalIdRepository.find({
                                 external_id: In(idValues),
                                 external_id_type: idType
                             });
@@ -82,7 +79,7 @@ export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
         const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
         let results: ExternalId[] = [];
         try {
-            results = await this.repository.save(externalIds);
+            results = await this.externalIdRepository.save(externalIds);
         } catch (e) {
             const msg = externalIds.map((id: ExternalId) => `${id.external_id_type}`).join('; ');
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${msg}`);
@@ -96,7 +93,7 @@ export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
      * will throw a ProtocolException.
      */
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
-        return this.runInTransaction(async (entityManager: EntityManager) => {
+        return this.externalIdRepository.manager.transaction(async (entityManager: EntityManager) => {
             const dbExternalId: ExternalId | undefined = await entityManager.findOne(ExternalId, {
                 did: externalId.did,
                 external_id: externalId.external_id,
@@ -104,7 +101,7 @@ export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
             });
             if (!dbExternalId) {
                 try {
-                    return await this.repository.save(externalId);
+                    return await entityManager.save(externalId);
                 } catch (e) {
                     throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Entry already exists for ${externalId.external_id_type}`);
                 }

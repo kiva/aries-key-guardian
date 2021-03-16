@@ -5,23 +5,20 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Injectable } from '@nestjs/common';
-import { BaseDbGateway } from './base..db.gateway';
 
 @Injectable()
-export class SmsOtpDbGateway extends BaseDbGateway<SmsOtp> {
+export class SmsOtpDbGateway {
 
     constructor(
         @InjectRepository(SmsOtp)
-        smsOtpRepository: Repository<SmsOtp>
-    ) {
-        super(smsOtpRepository);
-    }
+        private readonly smsOtpRepository: Repository<SmsOtp>
+    ) {}
 
     /**
      * Given a did, return the entry corresponding to that did, if one exists. If one does not exist, throw a ProtocolException.
      */
     public async fetchSmsOtp(did: string): Promise<SmsOtp> {
-        const smsOtp: SmsOtp | undefined = await this.repository.findOne({did});
+        const smsOtp: SmsOtp | undefined = await this.smsOtpRepository.findOne({did});
         if (!smsOtp) {
             throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, 'No citizen found for given filters');
         }
@@ -34,7 +31,7 @@ export class SmsOtpDbGateway extends BaseDbGateway<SmsOtp> {
      */
     public async savePhoneNumber(did: string, phoneNumber: string): Promise<SmsOtp> {
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
-        return this.runInTransaction(async (entityManager: EntityManager) => {
+        return this.smsOtpRepository.manager.transaction(async (entityManager: EntityManager) => {
             let smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {did});
             if (!smsOtp) {
                 smsOtp = new SmsOtp();
@@ -53,7 +50,7 @@ export class SmsOtpDbGateway extends BaseDbGateway<SmsOtp> {
     public saveOtp(did: string, phoneNumber: string, otp: number): Promise<SmsOtp> {
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
         const otpExpirationTime = new Date(Date.now() + 15000); // 15 min
-        return this.runInTransaction(async (entityManager: EntityManager) => {
+        return this.smsOtpRepository.manager.transaction(async (entityManager: EntityManager) => {
             const smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {
                 did,
                 phone_number_hash: phoneNumberHash
@@ -78,6 +75,6 @@ export class SmsOtpDbGateway extends BaseDbGateway<SmsOtp> {
             otp: null,
             otp_expiration_time: null
         };
-        return this.repository.save(expiredSmsOtp);
+        return this.smsOtpRepository.save(expiredSmsOtp);
     }
 }
