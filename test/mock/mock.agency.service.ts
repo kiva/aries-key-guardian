@@ -15,7 +15,7 @@ export class MockAgencyService implements IAgencyService {
     async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
         return Promise.resolve({
             data: {
-                connectionData: this.connectionData
+                invitation: this.connectionData
             }
         });
     }

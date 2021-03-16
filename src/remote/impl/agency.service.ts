@@ -52,9 +52,10 @@ export class AgencyService implements IAgencyService {
      * Note that this introduces some new terminology closer to what aca-py uses:
      *   walletName instead of walletId
      *   label instead of agentId
-     * The return object includes a connectionData arg
+     * The return object includes a invitation arg
      */
     public async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
+        Logger.log(`Registering multitenant agent ${label}`);
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v2/multitenant',
@@ -64,8 +65,6 @@ export class AgencyService implements IAgencyService {
                 label
             }
         };
-        const res = await this.http.requestWithRetry(request);
-        Logger.log(`Registered multitenant agent ${label}`);
-        return res;
+        return await this.http.requestWithRetry(request);
     }
 }
