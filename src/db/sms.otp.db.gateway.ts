@@ -5,7 +5,7 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Injectable } from '@nestjs/common';
-import { BaseDbGateway } from './base.db.gateway';
+import { BaseDbGateway } from './base..db.gateway';
 
 @Injectable()
 export class SmsOtpDbGateway extends BaseDbGateway<SmsOtp> {

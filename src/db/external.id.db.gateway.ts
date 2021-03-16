@@ -6,7 +6,7 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
-import { BaseDbGateway } from './base.db.gateway';
+import { BaseDbGateway } from './base..db.gateway';
 
 @Injectable()
 export class ExternalIdDbGateway extends BaseDbGateway<ExternalId> {
