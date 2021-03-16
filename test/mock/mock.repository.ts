@@ -1,5 +1,6 @@
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { EntityTarget } from 'typeorm/common/EntityTarget';
+import { EntityManager } from 'typeorm';
 
 /**
  * Provides a mock repository that holds onto a single immutable entity of type T. This mimics how an in-memory update to an entity wouldn't affect
@@ -7,13 +8,13 @@ import { EntityTarget } from 'typeorm/common/EntityTarget';
  */
 export class MockRepository<Entity> {
 
-    public readonly queryRunner: MockQueryRunner<Entity>;
+    public readonly manager: MockEntityManager<Entity>;
 
     constructor(protected entities: Readonly<Entity>[]) {
         if (entities.length === 0) {
             throw new Error('Must provide Repository with at least 1 entity');
         }
-        this.queryRunner = new MockQueryRunner<Entity>(this);
+        this.manager = new MockEntityManager<Entity>(this);
     }
 
     findOne(conditions?: FindConditions<Entity>): Promise<Entity | undefined> {
@@ -34,21 +35,6 @@ export class MockRepository<Entity> {
     }
 }
 
-class MockQueryRunner<Entity> {
-
-    public manager: MockEntityManager<Entity>;
-
-    constructor(repository: MockRepository<Entity>) {
-        this.manager = new MockEntityManager<Entity>(repository);
-    }
-
-    startTransaction(): void {}
-
-    rollbackTransaction(): void {}
-
-    release(): void {}
-}
-
 class MockEntityManager<Entity> {
 
     constructor(private readonly repository: MockRepository<Entity>) {}
@@ -59,5 +45,9 @@ class MockEntityManager<Entity> {
 
     save(entityClass: EntityTarget<Entity>, entity: Entity) {
         return this.repository.save(entity);
+    }
+
+    transaction(fun: (entityManager: EntityManager) => Promise<Entity>) {
+        return fun(this as unknown as EntityManager);
     }
 }
