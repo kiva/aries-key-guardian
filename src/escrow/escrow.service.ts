@@ -38,16 +38,12 @@ export class EscrowService {
         if (result.status === 'matched') {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
-            // TODO we need to save the admin api key and then we can pass it along here
-            const adminApiKey = walletCredentials.wallet_key;
-            const response = await this.agencyService.spinUpAgent(
+            const response = await this.agencyService.registerMultitenantAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
-                adminApiKey,
-                walletCredentials.seed,
                 result.id.toLocaleLowerCase(),
             );
-            Logger.log(`Spun up agent for did ${walletCredentials.did}`, response.data);
+            Logger.log(`Register agent for did ${walletCredentials.did}`, response.data);
             // Append the connection data onto the result
             result.connectionData = response.data.connectionData;
         }
