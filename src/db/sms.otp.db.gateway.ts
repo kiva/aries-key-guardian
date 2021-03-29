@@ -49,7 +49,7 @@ export class SmsOtpDbGateway {
      */
     public saveOtp(did: string, phoneNumber: string, otp: number): Promise<SmsOtp> {
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
-        const otpExpirationTime = new Date(Date.now() + 15000); // 15 min
+        const otpExpirationTime = new Date(Date.now() + 900000); // 15 min (15 min * 60 sec * 1000 ms)
         return this.smsOtpRepository.manager.transaction(async (entityManager: EntityManager) => {
             const smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {
                 did,
