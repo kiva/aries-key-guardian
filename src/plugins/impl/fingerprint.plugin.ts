@@ -8,6 +8,8 @@ import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 import { ExternalId } from '../../db/entity/external.id';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
+import { IsValidInstance } from 'protocol-common/validation/decorator/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorator/function/validate.params.decorator';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -23,8 +25,13 @@ export class FingerprintPlugin implements IPlugin {
      * The verify logic involves calling verify against the identity service, and then handling certain error codes
      * by asking the identity service for the positions with the highest image quality
      * TODO identity service could just handle both these tasks in one call.
+     * TODO Add @IsValidInstance validation to params once it supports union types
      */
-    public async verify(filters: VerifyFiltersDto, params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto) {
+    @ValidateParams
+    public async verify(
+        params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto,
+        @IsValidInstance filters: VerifyFiltersDto
+    ) {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         const dids: string = externalIds.map((externalId: ExternalId) => externalId.did).join(',');

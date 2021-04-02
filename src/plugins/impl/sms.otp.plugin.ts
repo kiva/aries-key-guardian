@@ -1,6 +1,9 @@
 import { IPlugin } from '../plugin.interface';
 import { SmsService } from 'sms/sms.service';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
+import { IsValidInstance } from 'protocol-common/validation/decorator/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorator/function/validate.params.decorator';
+import { SmsParamsDto } from '../../sms/dto/sms.params.dto';
 
 /**
  * For simplicity the SMS plugin isn't a separate microservice, it's just a module inside this service
@@ -15,14 +18,16 @@ export class SmsOtpPlugin implements IPlugin {
     /**
      * Pass call onto sms service
      */
-    public async verify(filters: VerifyFiltersDto, params: any) {
-        return await this.smsService.verify(filters, params);
+    @ValidateParams
+    public async verify(@IsValidInstance params: SmsParamsDto, @IsValidInstance filters: VerifyFiltersDto) {
+        return await this.smsService.verify(params, filters);
     }
 
     /**
      * Pass call onto sms service
      */
-    public async save(id: string, params: any) {
+    @ValidateParams
+    public async save(id: string, @IsValidInstance params: SmsParamsDto) {
         return await this.smsService.save(id, params);
     }
 }

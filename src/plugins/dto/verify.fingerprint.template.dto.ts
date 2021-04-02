@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyFingerprintTemplateDto {
@@ -6,7 +6,7 @@ export class VerifyFingerprintTemplateDto {
     @ApiProperty({
         description: 'Finger position of the fingerprint template'
     })
-    @IsNotEmpty() readonly position: number;
+    @IsNotEmpty() @IsInt() readonly position: number;
 
     @ApiProperty({
         description: 'Base 64 representation of the fingerprint template'
