@@ -19,6 +19,7 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
+import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -40,7 +41,7 @@ describe('EscrowController (e2e) using token plugin', () => {
         jest.setTimeout(10000);
         process.env.JWT_SIGNATURE_ALGORITHM = 'RS256';
 
-        agentId = 'agentId123';
+        agentId = 'agentid123';
         privateKey1 = readFileSync(__dirname + '/../support/test_id_rsa1').toString('utf-8');
         const publicKey1: string = readFileSync(__dirname + '/../support/test_id_rsa1.pub').toString('utf-8');
         privateKey2 = readFileSync(__dirname + '/../support/test_id_rsa2').toString('utf-8');
@@ -69,6 +70,7 @@ describe('EscrowController (e2e) using token plugin', () => {
                 EscrowService,
                 TokenService,
                 ExternalIdDbGateway,
+                WalletCredentialsDbGateway,
                 PluginFactory,
                 {
                     provide: getRepositoryToken(ExternalId),
