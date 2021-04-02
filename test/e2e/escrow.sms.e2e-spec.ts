@@ -80,7 +80,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         nationalId = 'N' + voterId;
         const nationalIdHash = pepperHash(nationalId);
         otp = 123456;
-        did = 'agentid123';
+        did = 'agentId123';
         phoneNumber = '+14151234567';
         pluginType = 'SMS_OTP';
 

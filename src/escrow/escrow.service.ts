@@ -36,7 +36,7 @@ export class EscrowService {
         // TODO we may want to update the verify result to include the connectionData even if null
         const result: any = await plugin.verify(filters, params);
         if (result.status === 'matched') {
-            const did = result.id.toLowerCase();
+            const did = result.id;
             const walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(did);
 
             const response = await this.agencyService.registerMultitenantAgent(
@@ -61,7 +61,7 @@ export class EscrowService {
         const externalIds: Array<ExternalId> = await this.externalIdDbGateway.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
         let did: string;
         if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.did === externalIds[0].did)) {
-            did = externalIds[0].did.toLowerCase();
+            did = externalIds[0].did;
         } else {
             did = cryptoRandomString({ length: 22, characters: EscrowService.letters });
             await this.externalIdDbGateway.createExternalIds(did, filters);
@@ -93,7 +93,7 @@ export class EscrowService {
      * TODO we may want error handling if the plugin row already exists and we attempt to save again
      */
     public async add(pluginType: string, did: string, filters: CreateFiltersDto, params: any): Promise<{ result: string }> {
-        const sanitizedDid = did.toLowerCase();
+        const sanitizedDid = did;
         const walletCredentialsExist = await this.walletCredentialsDbGateway.walletCredentialsExist(sanitizedDid);
         if (!walletCredentialsExist) {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
