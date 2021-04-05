@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber, IsPhoneNumber } from 'class-validator';
+import { IsOptional, IsPhoneNumber, IsInt, Min, Max, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
@@ -9,13 +9,13 @@ export class SmsParamsDto {
     @ApiPropertyOptional({
         description: 'Phone number including country code, eg +14151234567'
     })
-    @IsOptional() @IsPhoneNumber('US') readonly phoneNumber: string;
+    @IsOptional() @IsPhoneNumber() readonly phoneNumber: string;
 
     @ApiPropertyOptional({
         description: '6-digit One Time Password, eg 123456'
     })
-    @IsOptional() @IsNumber() readonly otp: number;
+    @IsOptional() @IsInt() @Min(111111) @Max(999999) readonly otp: number;
 
-    @IsOptional() readonly authorization: string;
+    @IsOptional() @IsString() readonly authorization: string;
 
 }

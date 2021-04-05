@@ -30,11 +30,11 @@ export class EscrowService {
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, filters: VerifyFiltersDto, params: any) {
+    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto) {
         const plugin = this.pluginFactory.create(pluginType);
 
         // TODO we may want to update the verify result to include the connectionData even if null
-        const result: any = await plugin.verify(filters, params);
+        const result: any = await plugin.verify(params, filters);
         if (result.status === 'matched') {
             const walletCredentials = await this.fetchWalletCredentials(result.id);
 
@@ -83,7 +83,11 @@ export class EscrowService {
             await plugin.save(walletCredentials.did, params);
             Logger.log(`Saved to plugin ${pluginType}`);
         } catch (e) {
-            throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+            if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
+                throw e;
+            } else {
+                throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+            }
         }
 
         await this.walletCredentialsRepository.save(walletCredentials);
@@ -139,7 +143,11 @@ export class EscrowService {
             await plugin.save(id, params);
             Logger.log(`Saved to plugin ${pluginType}`);
         } catch (e) {
-            throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+            if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
+                throw e;
+            } else {
+                throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+            }
         }
         return { result: 'success' };
     }
