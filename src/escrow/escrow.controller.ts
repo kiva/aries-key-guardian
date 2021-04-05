@@ -31,7 +31,7 @@ export class EscrowController {
             ...body.params,
             authorization: authHeader
         };
-        return await this.escrowService.verify(body.pluginType, body.filters, params);
+        return await this.escrowService.verify(body.pluginType, params, body.filters);
     }
 
     /**

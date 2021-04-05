@@ -1,7 +1,8 @@
-import { IsNotEmptyObject, IsEnum, IsObject } from 'class-validator';
+import { IsNotEmptyObject, IsEnum, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
 import { VerifyFiltersDto } from '../../plugins/dto/verify.filters.dto';
+import { Optional } from '@nestjs/common';
 
 /**
  * DTO for the verify endpoint
@@ -19,7 +20,7 @@ export class VerifyDto {
     @ApiProperty({
         description: 'JSON filters object to identify a specific entity, eg government id'
     })
-    @IsObject() readonly filters: VerifyFiltersDto;
+    @Optional() @ValidateNested() readonly filters: VerifyFiltersDto;
 
     @ApiProperty({
         description: 'JSON params object used to authenticate the identified entity, eg fingerprint template and finger position'

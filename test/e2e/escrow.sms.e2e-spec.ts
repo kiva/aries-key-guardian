@@ -81,7 +81,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         const nationalIdHash = pepperHash(nationalId);
         otp = 123456;
         did = 'agentId123';
-        phoneNumber = '+14151234567';
+        phoneNumber = '+12025550114';
         pluginType = 'SMS_OTP';
 
         // Set up ExternalId repository
@@ -198,9 +198,21 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         await app.init();
     });
 
-    it('Create endpoint', () => {
+    it('Create endpoint fails with invalid parameters', () => {
         const data = buildCreateRequest();
-        data.params.phoneNumber = '+14153456789'; // Will be overwritten by the next test
+        data.params.phoneNumber = 'foobar'; // invalid
+        return request(app.getHttpServer())
+            .post('/v1/escrow/create')
+            .send(data)
+            .expect(400)
+            .then((res) => {
+                expect(res.body.code).toBe(ProtocolErrorCode.VALIDATION_EXCEPTION);
+            });
+    });
+
+    it('Create endpoint succeeds with valid parameters', () => {
+        const data = buildCreateRequest();
+        data.params.phoneNumber = '+12025550156'; // Will be overwritten by the next test
         return request(app.getHttpServer())
             .post('/v1/escrow/create')
             .send(data)

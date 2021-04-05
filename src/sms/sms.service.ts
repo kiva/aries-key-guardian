@@ -30,7 +30,7 @@ export class SmsService {
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(filters: VerifyFiltersDto, params: SmsParamsDto): Promise<{ status, id }> {
+    public async verify(params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         if (externalIds.some((id: ExternalId) => id.did !== externalIds[0].did)) {
