@@ -40,8 +40,7 @@ class MockEntityManager<Entity> {
     constructor(private readonly repository: MockRepository<Entity>) {}
 
     async findOne(entityClass: EntityTarget<Entity>, conditions?: FindConditions<Entity>): Promise<Entity | undefined> {
-        const result = await this.repository.findOne(conditions);
-        return result;
+        return await this.repository.findOne(conditions);
     }
 
     save(entityClass: EntityTarget<Entity>, entity: Entity) {
