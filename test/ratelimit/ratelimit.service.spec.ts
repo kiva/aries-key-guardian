@@ -1,6 +1,6 @@
 import { RateLimitService } from '../../src/ratelimit/ratelimit.service';
 import cacheManager from 'cache-manager';
-import { randomString } from '../support/generators';
+import { randomString } from '../../src/support/random.string.generator';
 import { RateLimitBucket } from '../../src/ratelimit/ratelimit.bucket';
 import data from '../support/ratelimit.config.test.json';
 import { RateLimitConfigService } from '../../src/ratelimit/ratelimit.config.service';

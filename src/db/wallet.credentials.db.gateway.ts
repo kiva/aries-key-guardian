@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WalletCredentials } from './entity/wallet.credentials';
 import { Repository } from 'typeorm';
-import cryptoRandomString from 'crypto-random-string';
 import { Logger } from 'protocol-common/logger';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { LOWER_CASE_LETTERS, NUMBERS, randomString } from '../support/random.string.generator';
 
 @Injectable()
 export class WalletCredentialsDbGateway {
@@ -28,8 +28,6 @@ export class WalletCredentialsDbGateway {
         return walletCredentials;
     }
 
-    private static readonly chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-
     /**
      * Create wallet credentials with the provided did, but otherwise random values, and attempt to save it to the db. This may fail due to there
      * being a uniqueness constraint on the did at the db level.
@@ -37,9 +35,9 @@ export class WalletCredentialsDbGateway {
     public async createWalletCredentials(did: string): Promise<WalletCredentials> {
 
         // Wallet id should be lower case when using DB per wallet mode, since we use multiwallet mode it matters less
-        const walletId = cryptoRandomString({ length: 32, characters: WalletCredentialsDbGateway.chars }).toLowerCase();
-        const walletKey = cryptoRandomString({ length: 32, characters: WalletCredentialsDbGateway.chars });
-        const walletSeed = cryptoRandomString({ length: 32, characters: WalletCredentialsDbGateway.chars });
+        const walletId = randomString(32, LOWER_CASE_LETTERS + NUMBERS);
+        const walletKey = randomString(32);
+        const walletSeed = randomString(32);
         const walletCredentials = new WalletCredentials();
         walletCredentials.did = did;
         walletCredentials.wallet_id = walletId;

@@ -58,15 +58,14 @@ export class AgencyService implements IAgencyService {
      * Note that the label will be automatically lower-cased
      */
     public async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
-        const sanitizedLabel = label.toLowerCase();
-        Logger.debug(`Registering multitenant agent ${sanitizedLabel}`);
+        Logger.debug(`Registering multitenant agent ${label}`);
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v2/multitenant',
             data: {
                 walletName,
                 walletKey,
-                label: sanitizedLabel
+                label
             }
         };
         return await this.http.requestWithRetry(request);

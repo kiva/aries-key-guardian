@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Logger } from 'protocol-common/logger';
-import cryptoRandomString from 'crypto-random-string';
 import { WalletCredentials } from '../db/entity/wallet.credentials';
 import { PluginFactory } from '../plugins/plugin.factory';
 import { IAgencyService } from '../remote/agency.service.interface';
@@ -11,14 +10,13 @@ import { CreateFiltersDto } from './dto/create.filters.dto';
 import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
 import { ExternalId } from '../db/entity/external.id';
 import { WalletCredentialsDbGateway } from '../db/wallet.credentials.db.gateway';
+import { LOWER_CASE_LETTERS, randomString } from '../support/random.string.generator';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
  */
 @Injectable()
 export class EscrowService {
-
-    private static readonly letters = 'abcdefghijklmnopqrstuvwxyz';
 
     constructor(
         private readonly agencyService: IAgencyService,
@@ -63,7 +61,7 @@ export class EscrowService {
         if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.did === externalIds[0].did)) {
             did = externalIds[0].did;
         } else {
-            did = cryptoRandomString({ length: 22, characters: EscrowService.letters });
+            did = randomString(22, LOWER_CASE_LETTERS);
             await this.externalIdDbGateway.createExternalIds(did, filters);
         }
 
