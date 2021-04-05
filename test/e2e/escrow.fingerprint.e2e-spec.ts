@@ -15,7 +15,7 @@ import { MockIdentityService } from '../mock/mock.identity.service';
 import { MockRepository } from '../mock/mock.repository';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
-import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway';
+import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
 
 /**
  * This mocks out external dependencies (e.g. Db)

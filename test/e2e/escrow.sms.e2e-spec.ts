@@ -26,7 +26,7 @@ import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { FindOperator } from 'typeorm';
 import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
-import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway';
+import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)

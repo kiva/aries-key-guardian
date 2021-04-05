@@ -19,7 +19,7 @@ import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
-import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway';
+import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
