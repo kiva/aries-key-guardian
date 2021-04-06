@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EscrowService } from './escrow.service';
 import { EscrowController } from './escrow.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { WalletCredentials } from '../db/entity/wallet.credentials';
 import { PluginModule } from '../plugins/plugin.module';
 import { RemoteModule } from '../remote/remote.module';
 import { DbModule } from '../db/db.module';
@@ -12,7 +10,6 @@ import { DbModule } from '../db/db.module';
  */
 @Module({
     imports: [
-        TypeOrmModule.forFeature([WalletCredentials]),
         DbModule,
         PluginModule,
         RemoteModule,

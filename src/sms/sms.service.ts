@@ -82,8 +82,8 @@ export class SmsService {
     /**
      * Check if the passed in otp matches the stored one and clear out if needed
      */
-    private async verifyOtp(id: string, otp: number) {
-        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(id));
+    private async verifyOtp(did: string, otp: number) {
+        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(did));
         const otpMatches: boolean = smsOtp.otp === otp;
         const otpExpired: boolean = !smsOtp.otp_expiration_time || smsOtp.otp_expiration_time.valueOf() < Date.now();
         if (!otpMatches || otpExpired) {

@@ -15,6 +15,7 @@ import { MockIdentityService } from '../mock/mock.identity.service';
 import { MockRepository } from '../mock/mock.repository';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
+import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -68,6 +69,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             providers: [
                 EscrowService,
                 ExternalIdDbGateway,
+                WalletCredentialsDbGateway,
                 {
                     provide: getRepositoryToken(ExternalId),
                     useValue: mockExternalIdRepository
@@ -101,7 +103,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
-                assert.equal(res.body.id, 'agentId123');
+                assert.equal(res.body.id, did);
             });
     });
 
@@ -119,7 +121,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
-                assert.equal(res.body.id, 'agentId123');
+                assert.equal(res.body.id, did);
             });
     });
 

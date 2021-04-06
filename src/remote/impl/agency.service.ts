@@ -19,8 +19,10 @@ export class AgencyService implements IAgencyService {
      * Note that we are using multitenant agents as the default now, but leaving around the single agent spin up to provide the option
      * This combines a call to spin up the agent and get it's connection data
      * Note there's an issue with the autoConnect which is why this is broken into 2 calls
+     * Note also that because we use k8s pods to spin up agents, agentId will be automatically lower-cased to deal with k8s pod naming rules.
      */
     public async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, agentId: string): Promise<any> {
+        const sanitizedAgentId = agentId.toLowerCase();
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v1/manager',
@@ -29,21 +31,21 @@ export class AgencyService implements IAgencyService {
                 walletKey,
                 adminApiKey,
                 seed,
-                agentId,
+                agentId: sanitizedAgentId,
                 autoConnect: false,
             }
         };
         await this.http.requestWithRetry(request);
-        Logger.debug(`Spun up agent ${agentId}`);
+        Logger.debug(`Spun up agent ${sanitizedAgentId}`);
         const requestConnect: AxiosRequestConfig = {
             method: 'POST',
             url: this.baseUrl + '/v1/manager/connect',
             data: {
-                agentId,
+                agentId: sanitizedAgentId,
                 adminApiKey,
             }
         };
-        Logger.debug(`Connecting to agent ${agentId}`);
+        Logger.debug(`Connecting to agent ${sanitizedAgentId}`);
         return await this.http.requestWithRetry(requestConnect);
     }
 
@@ -53,6 +55,7 @@ export class AgencyService implements IAgencyService {
      *   walletName instead of walletId
      *   label instead of agentId
      * The return object includes a invitation arg
+     * Note that the label will be automatically lower-cased
      */
     public async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
         Logger.debug(`Registering multitenant agent ${label}`);
