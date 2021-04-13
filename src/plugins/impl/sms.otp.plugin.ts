@@ -1,8 +1,8 @@
 import { IPlugin } from '../plugin.interface';
 import { SmsService } from 'sms/sms.service';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
-import { IsValidInstance } from 'protocol-common/validation/decorator/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorator/function/validate.params.decorator';
+import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
 import { SmsParamsDto } from '../../sms/dto/sms.params.dto';
 
 /**

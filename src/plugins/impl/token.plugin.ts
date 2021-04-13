@@ -1,8 +1,8 @@
 import { IPlugin } from '../plugin.interface';
 import { TokenParamsDto } from '../../token/dto/token.params.dto';
 import { TokenService } from '../../token/token.service';
-import { IsValidInstance } from 'protocol-common/validation/decorator/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorator/function/validate.params.decorator';
+import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 
