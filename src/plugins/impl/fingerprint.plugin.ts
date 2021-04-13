@@ -8,8 +8,9 @@ import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 import { ExternalId } from '../../db/entity/external.id';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
-import { IsValidInstance } from 'protocol-common/validation/decorator/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorator/function/validate.params.decorator';
+import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
+import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -25,11 +26,10 @@ export class FingerprintPlugin implements IPlugin {
      * The verify logic involves calling verify against the identity service, and then handling certain error codes
      * by asking the identity service for the positions with the highest image quality
      * TODO identity service could just handle both these tasks in one call.
-     * TODO Add @IsValidInstance validation to params once it supports union types
      */
     @ValidateParams
     public async verify(
-        params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto,
+        @IsValidInstanceOf(VerifyFingerprintImageDto, VerifyFingerprintTemplateDto) params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto,
         @IsValidInstance filters: VerifyFiltersDto
     ) {
 

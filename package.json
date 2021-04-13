@@ -40,7 +40,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.12.3",
     "pg": "^8.5.1",
-    "protocol-common": "^0.1.33",
+    "protocol-common": "^0.1.36",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.6",
     "swagger-ui-express": "^4.1.6",
