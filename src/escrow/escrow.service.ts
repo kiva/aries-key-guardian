@@ -74,7 +74,7 @@ export class EscrowService {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
                 throw e;
             } else {
-                throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message}`);
             }
         }
 
@@ -111,7 +111,7 @@ export class EscrowService {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
                 throw e;
             } else {
-                throw new ProtocolException('PluginError', `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message}`);
             }
         }
         return { result: 'success' };

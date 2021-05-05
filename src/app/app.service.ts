@@ -9,7 +9,7 @@ import { HttpConstants } from 'protocol-common/http-context/http.constants';
 import { Constants } from 'protocol-common/constants';
 
 /**
- * The Root Application Service
+ * All external traffic will be routed through gateway so no need for things like rate-limiting here
  */
 @Injectable()
 export class AppService {
@@ -20,7 +20,7 @@ export class AppService {
     public static async setup(app: INestApplication): Promise<void> {
         const logger = new Logger(DatadogLogger.getLogger());
         app.useLogger(logger);
-        app.use(traceware('aries-key-guardian'));
+        app.use(traceware(process.env.SERVICE_NAME));
 
         app.useGlobalFilters(new ProtocolExceptionFilter());
 
