@@ -17,6 +17,6 @@ export class JwksService implements IJwksService {
 
     public async getKey(token: string): Promise<SigningKey> {
         const decoded: any = jwt.decode(token, {complete: true}) as any;
-        return await this.client.getSigningKeyAsync(decoded.header.kid);
+        return await this.client.getSigningKey(decoded.header.kid);
     }
 }
