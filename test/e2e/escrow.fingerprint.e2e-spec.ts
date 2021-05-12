@@ -9,9 +9,9 @@ import { EscrowService } from '../../src/escrow/escrow.service';
 import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
 import { PluginFactory } from '../../src/plugins/plugin.factory';
 import { IAgencyService } from '../../src/remote/agency.service.interface';
-import { IIdentityService } from '../../src/remote/identity.service.interface';
+import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
 import { MockAgencyService } from '../mock/mock.agency.service';
-import { MockIdentityService } from '../mock/mock.identity.service';
+import { MockBioAuthService } from '../mock/mock.bio.auth.service';
 import { MockRepository } from '../mock/mock.repository';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
@@ -33,7 +33,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
         did = 'agentId123'; // Right now identity service returns did, eventually it will return agentId
 
         const mockAgencyService = new MockAgencyService('foo');
-        const mockIdentityService = new MockIdentityService(status, did);
+        const mockBioAuthService = new MockBioAuthService(status, did);
 
         // Set up ExternalId repository
         const mockExternalId = new ExternalId();
@@ -83,8 +83,8 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                     useValue: mockAgencyService,
                 },
                 {
-                    provide: IIdentityService,
-                    useValue: mockIdentityService
+                    provide: IBioAuthService,
+                    useValue: mockBioAuthService
                 },
                 PluginFactory,
             ],
