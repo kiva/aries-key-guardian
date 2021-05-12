@@ -1,7 +1,7 @@
 import { HttpModule, Module } from '@nestjs/common';
-import { IdentityService } from './impl/identity.service';
+import { BioAuthService } from './impl/bio.auth.service';
 import { AgencyService } from './impl/agency.service';
-import { IIdentityService } from './identity.service.interface';
+import { IBioAuthService } from './bio.auth.service.interface';
 import { IAgencyService } from './agency.service.interface';
 import { SmsTwillioService } from './impl/sms.twillio.service';
 import { ISmsService } from './sms.service.interface';
@@ -12,8 +12,8 @@ import { JwksService } from './impl/jwks.service';
 @Module({
     imports: [HttpModule],
     providers: [{
-        provide: IIdentityService,
-        useClass: IdentityService
+        provide: IBioAuthService,
+        useClass: BioAuthService
     }, {
         provide: IAgencyService,
         useClass: AgencyService
@@ -26,6 +26,6 @@ import { JwksService } from './impl/jwks.service';
         provide: IJwksService,
         useClass: JwksService
     }],
-    exports: [IIdentityService, IAgencyService, ISmsService, IJwksService]
+    exports: [IBioAuthService, IAgencyService, ISmsService, IJwksService]
 })
 export class RemoteModule {}

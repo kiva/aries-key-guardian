@@ -7,7 +7,6 @@ export class MockJwksService implements IJwksService {
 
     private readonly certSigningKey: CertSigningKey = {
         kid: 'abcd',
-        nbf: 'efgh',
         alg: 'RS256',
         publicKey: this.publicKey,
         getPublicKey(): string {

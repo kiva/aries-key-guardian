@@ -1,6 +1,6 @@
-import { IIdentityService } from '../../src/remote/identity.service.interface';
+import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
 
-export class MockIdentityService implements IIdentityService {
+export class MockBioAuthService implements IBioAuthService {
 
     constructor(private readonly status: string, private readonly did: string) {}
 

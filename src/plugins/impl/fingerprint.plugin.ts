@@ -1,7 +1,7 @@
 import { IPlugin } from '../plugin.interface';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { IIdentityService } from '../../remote/identity.service.interface';
+import { IBioAuthService } from '../../remote/bio.auth.service.interface';
 import { Logger } from 'protocol-common/logger';
 import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
@@ -18,7 +18,7 @@ export class FingerprintPlugin implements IPlugin {
      * We pass in the parent class as context so we can access the sms module
      */
     constructor(
-        private readonly identityService: IIdentityService,
+        private readonly bioAuthService: IBioAuthService,
         private readonly externalIdDbGateway: ExternalIdDbGateway
     ) { }
 
@@ -39,9 +39,9 @@ export class FingerprintPlugin implements IPlugin {
         let response;
         try {
             if (VerifyFingerprintImageDto.isInstance(params)) {
-                response = await this.identityService.verifyFingerprint(params.position, params.image, dids);
+                response = await this.bioAuthService.verifyFingerprint(params.position, params.image, dids);
             } else {
-                response = await this.identityService.verifyFingerprintTemplate(params.position, params.template, dids);
+                response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, dids);
             }
         } catch(e) {
             // Handle specific error codes
@@ -73,7 +73,7 @@ export class FingerprintPlugin implements IPlugin {
 
     private async fingerprintQualityCheck(e: any, dids: string): Promise<any> {
         try {
-            const response = await this.identityService.qualityCheck(dids);
+            const response = await this.bioAuthService.qualityCheck(dids);
             e.details = e.details || {};
             e.details.bestPositions = response.data;
         } catch (ex) {
@@ -88,6 +88,6 @@ export class FingerprintPlugin implements IPlugin {
         for (const datum of data) {
             datum.did = id;
         }
-        await this.identityService.templatize(data);
+        await this.bioAuthService.templatize(data);
     }
 }
