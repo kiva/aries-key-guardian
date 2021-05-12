@@ -3,6 +3,7 @@ import { RateLimitBucket } from './ratelimit.bucket';
 import { RateLimitConfig } from './ratelimit.config';
 import { Logger } from 'protocol-common/logger';
 import { ProtocolException } from 'protocol-common/protocol.exception';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 
 @Injectable()
 export class RateLimitConfigService {
@@ -31,7 +32,7 @@ export class RateLimitConfigService {
         const config = this.configs.get(bucket);
         if (!config) {
             Logger.warn(`No suitable configuration found for ${bucket}`);
-            throw new ProtocolException('RateLimitConfiguration', `No suitable configuration found for '${bucket}'`);
+            throw new ProtocolException(ProtocolErrorCode.RATE_LIMIT_CONFIGURATION, `No suitable configuration found for '${bucket}'`);
         } else {
             return config;
         }
