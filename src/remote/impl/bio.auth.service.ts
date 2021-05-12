@@ -1,7 +1,7 @@
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { AxiosRequestConfig } from 'axios';
 import { HttpService, Injectable } from '@nestjs/common';
-import { IIdentityService } from '../identity.service.interface';
+import { IBioAuthService } from '../bio.auth.service.interface';
 
 /**
  * This service class is a facade for the IdentityService HTTP API.
@@ -10,16 +10,14 @@ import { IIdentityService } from '../identity.service.interface';
  * be set in a country profile, so the process of setting the backend will change.
  */
 @Injectable()
-export class IdentityService implements IIdentityService {
+export class BioAuthService implements IBioAuthService {
 
-    private readonly backend: string;
     private readonly baseUrl: string;
     private readonly http: ProtocolHttpService;
 
     constructor(httpService: HttpService) {
         this.http = new ProtocolHttpService(httpService);
-        this.backend = process.env.IDENTITY_SERVICE_BACKEND;
-        this.baseUrl = process.env.IDENTITY_SERVICE_URL;
+        this.baseUrl = process.env.BIO_AUTH_SERVICE_URL;
     }
 
     /**
@@ -33,9 +31,9 @@ export class IdentityService implements IIdentityService {
     public async verifyFingerprint(position: number, image: string, dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
-            url: this.baseUrl + '/api/v1/verify',
+            url: `${this.baseUrl}/api/v1/verify`,
             data: {
-                backend: this.backend,
+                backend: 'template',
                 position,
                 image,
                 filters: {
@@ -56,9 +54,9 @@ export class IdentityService implements IIdentityService {
     public async verifyFingerprintTemplate(position: number, template: string, dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
-            url: this.baseUrl + '/api/v1/verify',
+            url: `${this.baseUrl}/api/v1/verify`,
             data: {
-                backend: this.backend,
+                backend: 'template',
                 position,
                 image: template,
                 filters: {
@@ -77,7 +75,7 @@ export class IdentityService implements IIdentityService {
     public async templatize(data: any): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
-            url: this.baseUrl + '/api/v1/templatizer/bulk/' + this.backend,
+            url: `${this.baseUrl}/api/v1/templatizer/bulk/template`,
             data,
         };
         return this.http.requestWithRetry(request);
@@ -90,7 +88,7 @@ export class IdentityService implements IIdentityService {
     public async qualityCheck(dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'GET',
-            url: this.baseUrl + '/api/v1/positions/' + this.backend + `/dids=${dids}`,
+            url: `${this.baseUrl}/api/v1/positions/template/dids=${dids}`,
         };
         return this.http.requestWithRetry(request);
     }
