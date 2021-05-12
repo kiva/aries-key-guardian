@@ -30,7 +30,11 @@ describe('EscrowController (e2e) using token plugin', () => {
     function data(token: string): object {
         return {
             pluginType: PluginTypeEnum.TOKEN,
-            filters: {},
+            filters: {
+                externalIds: {
+                    test: 'test'
+                }
+            },
             params: {
                 token
             }
