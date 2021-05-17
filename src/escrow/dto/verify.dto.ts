@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
 import { VerifyFiltersDto } from '../../plugins/dto/verify.filters.dto';
 import { Optional } from '@nestjs/common';
+import { Type } from 'class-transformer';
 
 /**
  * DTO for the verify endpoint
@@ -20,7 +21,7 @@ export class VerifyDto {
     @ApiProperty({
         description: 'JSON filters object to identify a specific entity, eg government id'
     })
-    @Optional() @ValidateNested() readonly filters: VerifyFiltersDto;
+    @Optional() @ValidateNested() @Type(() => VerifyFiltersDto) readonly filters: VerifyFiltersDto;
 
     @ApiProperty({
         description: 'JSON params object used to authenticate the identified entity, eg fingerprint template and finger position'
