@@ -8,9 +8,9 @@ import * as fsStore from 'cache-manager-fs-hash';
 @Module({
     imports: [CacheModule.register({
         store: fsStore,
-        path:'/tmp/diskcache',
-        ttl: 60, // 1 minute // TODO make these configs
-        max: 1000000 // Seems unlikely in the short term that we'd need > 1 million entries in 1 minute
+        path: process.env.FILESYSTEM_CACHE_PATH,
+        ttl: parseInt(process.env.GLOBAL_CACHE_TTL, 10),
+        max: parseInt(process.env.GLOBAL_CACHE_MAX, 10),
     })],
     exports: [CacheModule]
 })
