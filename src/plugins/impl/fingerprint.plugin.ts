@@ -87,7 +87,7 @@ export class FingerprintPlugin implements IPlugin {
     public async save(id: string, params: BioAuthSaveParamsDto | BioAuthSaveParamsDto[]) {
         const data = Array.isArray(params) ? params : [params];
         const fingerprints: BioAuthSaveDto[] = data.map((param: BioAuthSaveParamsDto) => {
-            return {did: id, params: param};
+            return {id, params: param};
         });
         await this.bioAuthService.bulkSave({fingerprints});
     }
