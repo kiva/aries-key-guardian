@@ -11,6 +11,8 @@ import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
 import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
 import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
 import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
+import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto';
+import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto';
 
 export class FingerprintPlugin implements IPlugin {
 
@@ -23,9 +25,9 @@ export class FingerprintPlugin implements IPlugin {
     ) { }
 
     /**
-     * The verify logic involves calling verify against the identity service, and then handling certain error codes
-     * by asking the identity service for the positions with the highest image quality
-     * TODO identity service could just handle both these tasks in one call.
+     * The verify logic involves calling verify against the Bio Auth Service, and then handling certain error codes by asking the Bio Auth Service for
+     * the positions with the highest image quality
+     * TODO - PRO-3134: Update this after Bio Auth Service handles both these tasks in one call.
      */
     @ValidateParams
     public async verify(
@@ -59,12 +61,12 @@ export class FingerprintPlugin implements IPlugin {
             }
         }
 
-        //  The identity service should throw this error on no match, but just to be safe double check it and throw here
+        //  Bio Auth Service should throw this error on no match, but just to be safe double check it and throw here
         if (response.data.status !== 'matched') {
             throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
         }
 
-        // TODO right now the data we get from identity service uses did we should change it to agent id and then we don't need this conversion
+        // TODO right now the data we get from Bio Auth Service uses did we should change it to agent id and then we don't need this conversion
         return {
             status: response.data.status,
             id: response.data.did
@@ -77,17 +79,16 @@ export class FingerprintPlugin implements IPlugin {
             e.details = e.details || {};
             e.details.bestPositions = response.data;
         } catch (ex) {
-            Logger.error('Error calling identity service position quality check', ex);
+            Logger.error('Error calling Bio Auth Service position quality check', ex);
         }
         return e;
     }
 
-    public async save(id: string, params: any) {
-        // TEMP until the identity service is updated
+    public async save(id: string, params: BioAuthSaveParamsDto | BioAuthSaveParamsDto[]) {
         const data = Array.isArray(params) ? params : [params];
-        for (const datum of data) {
-            datum.did = id;
-        }
-        await this.bioAuthService.templatize(data);
+        const fingerprints: BioAuthSaveDto[] = data.map((param: BioAuthSaveParamsDto) => {
+            return {did: id, params: param};
+        });
+        await this.bioAuthService.bulkSave({fingerprints});
     }
 }

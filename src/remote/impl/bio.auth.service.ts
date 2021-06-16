@@ -2,12 +2,11 @@ import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { AxiosRequestConfig } from 'axios';
 import { HttpService, Injectable } from '@nestjs/common';
 import { IBioAuthService } from '../bio.auth.service.interface';
+import { BioAuthBulkSaveDto } from '../dto/bio.auth.bulk.save.dto';
+import { FingerprintTypeEnum } from '../fingerprint.type.enum';
 
 /**
- * This service class is a facade for the IdentityService HTTP API.
- *
- * Right now the backend (ie which fingerprint template db to connect to) is defined by an environment variable, eventually we'll want this to
- * be set in a country profile, so the process of setting the backend will change.
+ * This service class is a facade for the Bio Auth Service HTTP API.
  */
 @Injectable()
 export class BioAuthService implements IBioAuthService {
@@ -21,12 +20,11 @@ export class BioAuthService implements IBioAuthService {
     }
 
     /**
-     * Send a request to IdentityService to verify a fingerprint image.
-     * TODO right now this keeps the identity service url the same, we probably want to change that so it better matches our plugin pattern
+     * Send a request to Bio Auth Service to verify a fingerprint image.
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param image The image of the fingerprint.
-     * @param dids A comma-separated list of dids that the fingerprint template may correspond to.
+     * @param dids A comma-separated list of dids that the fingerprint may correspond to.
      */
     public async verifyFingerprint(position: number, image: string, dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
@@ -45,7 +43,7 @@ export class BioAuthService implements IBioAuthService {
     }
 
     /**
-     * Send a request to IdentityService to verify a fingerprint template.
+     * Send a request to Bio Auth Service to verify a fingerprint template.
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param template The template of the fingerprint.
@@ -62,28 +60,29 @@ export class BioAuthService implements IBioAuthService {
                 filters: {
                     dids
                 },
-                imageType: 'TEMPLATE',
+                imageType: FingerprintTypeEnum.TEMPLATE,
             },
         };
         return this.http.requestWithRetry(request);
     }
 
     /**
-     * TODO the identity service should update the templatizer endpoint to accept data in the format { id, filters, params }
-     *   Until it does, we just forward the params as the data it's currently expecting
+     * Send a request to Bio Auth Service to save one or more fingerprints. They may be fingerprint templates or images.
+     *
+     * @param dto Body of the request to be sent to Bio Auth Service. See the class definition for the shape.
      */
-    public async templatize(data: any): Promise<any> {
+    public async bulkSave(dto: BioAuthBulkSaveDto): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
-            url: `${this.baseUrl}/api/v1/templatizer/bulk/template`,
-            data,
+            url: `${this.baseUrl}/api/v1/save`,
+            data: dto,
         };
         return this.http.requestWithRetry(request);
     }
 
     /**
-     * Queries the identity service to get the finger positions with the best quality scores
-     * TODO the identity service should update the positions endpoint to accept data in the body instead of via url params
+     * Queries the Bio Auth Service to get the finger positions with the best quality scores
+     * TODO PRO-3084: use the Bio Auth Service POST /positions endpoint to accept data in the body instead of via url params
      */
     public async qualityCheck(dids: string): Promise<any> {
         const request: AxiosRequestConfig = {
