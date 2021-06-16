@@ -6,11 +6,13 @@ import * as fsStore from 'cache-manager-fs-hash';
  */
 @Global()
 @Module({
-    imports: [CacheModule.register({
-        store: fsStore,
-        path: process.env.FILESYSTEM_CACHE_PATH,
-        ttl: parseInt(process.env.GLOBAL_CACHE_TTL, 10),
-        max: parseInt(process.env.GLOBAL_CACHE_MAX, 10),
+    imports: [CacheModule.registerAsync({
+        useFactory: () => ({
+            store: fsStore,
+            path: process.env.FILESYSTEM_CACHE_PATH,
+            ttl: parseInt(process.env.GLOBAL_CACHE_TTL, 10),
+            max: parseInt(process.env.GLOBAL_CACHE_MAX, 10),
+        }),
     })],
     exports: [CacheModule]
 })
