@@ -73,6 +73,9 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     beforeAll(async () => {
         jest.setTimeout(10000);
         process.env.OTP_EXPIRE_MS = '10000';
+        process.env.FILESYSTEM_CACHE_PATH =  '/tmp/diskcache';
+        process.env.GLOBAL_CACHE_TTL = '60';
+        process.env.GLOBAL_CACHE_MAX = '1000000';
 
         // Constants for use throughout the test suite
         voterId = `${1000000 + parseInt(now().toString().substr(7, 6), 10)}`; // Unique 7 digit number that doesn't start with 0
