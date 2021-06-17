@@ -34,7 +34,7 @@ export class SmsService {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         if (externalIds.some((id: ExternalId) => id.did !== externalIds[0].did)) {
-            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identity a did');
+            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify a did');
         }
         const did: string = externalIds[0].did;
 

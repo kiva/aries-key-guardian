@@ -1,10 +1,11 @@
 import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
+import { BioAuthBulkSaveDto } from '../../src/remote/dto/bio.auth.bulk.save.dto';
 
 export class MockBioAuthService implements IBioAuthService {
 
     constructor(private readonly status: string, private readonly did: string) {}
 
-    async templatize(data: any): Promise<any> {
+    async bulkSave(dto: BioAuthBulkSaveDto): Promise<any> {
         return Promise.resolve(undefined);
     }
 

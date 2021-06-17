@@ -30,7 +30,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
         jest.setTimeout(10000);
 
         status = 'matched';
-        did = 'agentId123'; // Right now identity service returns did, eventually it will return agentId
+        did = 'agentId123'; // Right now Bio Auth Service returns did, eventually it will return agentId
 
         const mockAgencyService = new MockAgencyService('foo');
         const mockBioAuthService = new MockBioAuthService(status, did);
