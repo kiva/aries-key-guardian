@@ -3,31 +3,31 @@ import { BioAuthBulkSaveDto } from '../../src/remote/dto/bio.auth.bulk.save.dto'
 
 export class MockBioAuthService implements IBioAuthService {
 
-    constructor(private readonly status: string, private readonly did: string) {}
+    constructor(private readonly status: string, private readonly agentId: string) {}
 
     async bulkSave(dto: BioAuthBulkSaveDto): Promise<any> {
         return Promise.resolve(undefined);
     }
 
-    async verifyFingerprint(position: number, image: string, dids: string): Promise<any> {
+    async verifyFingerprint(position: number, image: string, agentIds: string): Promise<any> {
         return Promise.resolve({
             data: {
                 status: this.status,
-                did: this.did,
+                agentId: this.agentId,
             },
         });
     }
 
-    async verifyFingerprintTemplate(position: number, template: string, dids: string): Promise<any> {
+    async verifyFingerprintTemplate(position: number, template: string, agentIds: string): Promise<any> {
         return Promise.resolve({
             data: {
                 status: this.status,
-                did: this.did,
+                agentId: this.agentId,
             },
         });
     }
 
-    async qualityCheck(dids: string): Promise<any> {
+    async qualityCheck(agentIds: string): Promise<any> {
         return Promise.resolve({
             data: [1]
         });

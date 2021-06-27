@@ -16,47 +16,47 @@ export class WalletCredentialsDbGateway {
     ) {}
 
     /**
-     * Retrieve the wallet credentials that correspond to the provided did.
+     * Retrieve the wallet credentials that correspond to the provided agentId.
      *
-     * @throws ProtocolException with NOT_FOUND error code if there is currently no entry for the provided did
+     * @throws ProtocolException with NOT_FOUND error code if there is currently no entry for the provided agentId
      */
-    public async fetchWalletCredentials(did: string): Promise<WalletCredentials> {
-        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ did });
+    public async fetchWalletCredentials(agentId: string): Promise<WalletCredentials> {
+        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ agentId });
         if (!walletCredentials) {
-            throw new ProtocolException(ProtocolErrorCode.NOT_FOUND, `No wallet credentials found for "${did}"`);
+            throw new ProtocolException(ProtocolErrorCode.NOT_FOUND, `No wallet credentials found for "${agentId}"`);
         }
         return walletCredentials;
     }
 
     /**
-     * Create wallet credentials with the provided did, but otherwise random values, and attempt to save it to the db. This may fail due to there
-     * being a uniqueness constraint on the did at the db level.
+     * Create wallet credentials with the provided agentId, but otherwise random values, and attempt to save it to the db. This may fail due to there
+     * being a uniqueness constraint on the agentId at the db level.
      */
-    public async createWalletCredentials(did: string): Promise<WalletCredentials> {
+    public async createWalletCredentials(agentId: string): Promise<WalletCredentials> {
 
         // Wallet id should be lower case when using DB per wallet mode, since we use multiwallet mode it matters less
         const walletId = randomString(32, LOWER_CASE_LETTERS + NUMBERS);
         const walletKey = randomString(32);
         const walletSeed = randomString(32);
         const walletCredentials = new WalletCredentials();
-        walletCredentials.did = did;
+        walletCredentials.agentId = agentId;
         walletCredentials.wallet_id = walletId;
         walletCredentials.wallet_key = walletKey;
         walletCredentials.seed = walletSeed;
 
         try {
             await this.walletCredentialsRepository.save(walletCredentials);
-            Logger.log(`Saved wallet credentials for did ${walletCredentials.did}`);
+            Logger.log(`Saved wallet credentials for agentId ${walletCredentials.agentId}`);
             return walletCredentials;
         } catch (e) {
-            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Wallet credentials already exist for did ${did}`);
+            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Wallet credentials already exist for agentId ${agentId}`);
         }
     }
 
     /**
-     * Check if any wallet credentials exist for the given did.
+     * Check if any wallet credentials exist for the given agentId.
      */
-    public async walletCredentialsExist(did: string): Promise<boolean> {
-        return (await this.walletCredentialsRepository.count({did})) > 0;
+    public async walletCredentialsExist(agentId: string): Promise<boolean> {
+        return (await this.walletCredentialsRepository.count({agentId})) > 0;
     }
 }

@@ -24,9 +24,9 @@ export class BioAuthService implements IBioAuthService {
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param image The image of the fingerprint.
-     * @param dids A comma-separated list of dids that the fingerprint may correspond to.
+     * @param agentIds A comma-separated list of agentIds that the fingerprint may correspond to.
      */
-    public async verifyFingerprint(position: number, image: string, dids: string): Promise<any> {
+    public async verifyFingerprint(position: number, image: string, agentIds: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
@@ -35,7 +35,7 @@ export class BioAuthService implements IBioAuthService {
                 position,
                 image,
                 filters: {
-                    dids
+                    agentIds
                 },
             },
         };
@@ -47,9 +47,9 @@ export class BioAuthService implements IBioAuthService {
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param template The template of the fingerprint.
-     * @param dids A comma-separated list of dids that the fingerprint template may correspond to.
+     * @param agentIds A comma-separated list of agentIds that the fingerprint template may correspond to.
      */
-    public async verifyFingerprintTemplate(position: number, template: string, dids: string): Promise<any> {
+    public async verifyFingerprintTemplate(position: number, template: string, agentIds: string): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
@@ -58,7 +58,7 @@ export class BioAuthService implements IBioAuthService {
                 position,
                 image: template,
                 filters: {
-                    dids
+                    agentIds
                 },
                 imageType: FingerprintTypeEnum.TEMPLATE,
             },
@@ -82,12 +82,14 @@ export class BioAuthService implements IBioAuthService {
 
     /**
      * Queries the Bio Auth Service to get the finger positions with the best quality scores
-     * TODO PRO-3084: use the Bio Auth Service POST /positions endpoint to accept data in the body instead of via url params
      */
-    public async qualityCheck(dids: string): Promise<any> {
+    public async qualityCheck(agentIds: string): Promise<any> {
         const request: AxiosRequestConfig = {
-            method: 'GET',
-            url: `${this.baseUrl}/api/v1/positions/template/dids=${dids}`,
+            method: 'POST',
+            url: `${this.baseUrl}/api/v1/positions`,
+            data: {
+                agentIds
+            }
         };
         return this.http.requestWithRetry(request);
     }

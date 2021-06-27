@@ -24,27 +24,27 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     let app: INestApplication;
     let body: any;
     let status: string;
-    let did: string;
+    let agentId: string;
 
     beforeAll(async () => {
         jest.setTimeout(10000);
 
         status = 'matched';
-        did = 'agentId123'; // Right now Bio Auth Service returns did, eventually it will return agentId
+        agentId = 'agentId123'; // Right now Bio Auth Service returns agentId, eventually it will return agentId
 
         const mockAgencyService = new MockAgencyService('foo');
-        const mockBioAuthService = new MockBioAuthService(status, did);
+        const mockBioAuthService = new MockBioAuthService(status, agentId);
 
         // Set up ExternalId repository
         const mockExternalId = new ExternalId();
-        mockExternalId.did = did;
+        mockExternalId.agentId = agentId;
         mockExternalId.external_id = 'abc123';
         mockExternalId.external_id_type = 'sl_national_id';
         const mockExternalIdRepository = new MockRepository<ExternalId>([mockExternalId]);
 
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
-        mockWalletCredentials.did = did;
+        mockWalletCredentials.agentId = agentId;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
         mockWalletCredentials.seed = '';
@@ -103,7 +103,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
-                assert.equal(res.body.id, did);
+                assert.equal(res.body.id, agentId);
             });
     });
 
@@ -121,7 +121,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .expect(201)
             .then((res) => {
                 assert.equal(res.body.status, 'matched');
-                assert.equal(res.body.id, did);
+                assert.equal(res.body.id, agentId);
             });
     });
 
