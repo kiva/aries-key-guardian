@@ -31,9 +31,10 @@ export class BioAuthService implements IBioAuthService {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
             data: {
-                backend: 'template',
-                position,
-                image,
+                params: {
+                    position,
+                    image
+                },
                 filters: {
                     agentIds
                 },
@@ -54,9 +55,10 @@ export class BioAuthService implements IBioAuthService {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
             data: {
-                backend: 'template',
-                position,
-                image: template,
+                params: {
+                    position,
+                    image: template
+                },
                 filters: {
                     agentIds
                 },
