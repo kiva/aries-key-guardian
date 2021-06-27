@@ -89,11 +89,11 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Set up ExternalId repository
         const mockExternalId1 = new ExternalId();
-        mockExternalId1.agentId = agentId;
+        mockExternalId1.agent_id = agentId;
         mockExternalId1.external_id = nationalIdHash;
         mockExternalId1.external_id_type = 'sl_national_id';
         const mockExternalId2 = new ExternalId();
-        mockExternalId2.agentId = agentId;
+        mockExternalId2.agent_id = agentId;
         mockExternalId2.external_id = voterIdHash;
         mockExternalId2.external_id_type = 'sl_voter_id';
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
@@ -120,7 +120,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
-        mockWalletCredentials.agentId = agentId;
+        mockWalletCredentials.agent_id = agentId;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
         const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>([mockWalletCredentials]);
@@ -131,7 +131,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
             async findOne(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp | undefined> {
                 const smsOtp = await super.findOne(conditions);
-                const agentIdMatches: boolean = !conditions.agentId || smsOtp.agentId === conditions.agentId;
+                const agentIdMatches: boolean = !conditions.agent_id || smsOtp.agent_id === conditions.agent_id;
                 const phoneNumberHashMatches: boolean = !conditions.phone_number_hash || smsOtp.phone_number_hash === conditions.phone_number_hash;
                 if (agentIdMatches && phoneNumberHashMatches) {
                     return smsOtp;

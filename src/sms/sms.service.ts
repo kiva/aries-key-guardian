@@ -33,10 +33,10 @@ export class SmsService {
     public async verify(params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        if (externalIds.some((id: ExternalId) => id.agentId !== externalIds[0].agentId)) {
+        if (externalIds.some((id: ExternalId) => id.agent_id !== externalIds[0].agent_id)) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify an agentId');
         }
-        const agentId: string = externalIds[0].agentId;
+        const agentId: string = externalIds[0].agent_id;
 
         await this.rateLimit(agentId, params);
 
@@ -94,7 +94,7 @@ export class SmsService {
 
         return {
             status: 'matched',
-            id: smsOtp.agentId,
+            id: smsOtp.agent_id,
         };
     }
 

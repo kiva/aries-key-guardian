@@ -65,7 +65,7 @@ export class ExternalIdDbGateway {
     private buildExternalIds(agentId: string, filters: CreateFiltersDto): Array<ExternalId> {
         return Array.from(CreateFiltersDto.getIds(filters).entries()).map((entry: [string, string]) => {
             const externalId = new ExternalId();
-            externalId.agentId = agentId;
+            externalId.agent_id = agentId;
             externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
@@ -95,7 +95,7 @@ export class ExternalIdDbGateway {
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
         return this.externalIdRepository.manager.transaction(async (entityManager: EntityManager) => {
             const dbExternalId: ExternalId | undefined = await entityManager.findOne(ExternalId, {
-                agentId: externalId.agentId,
+                agent_id: externalId.agent_id,
                 external_id: externalId.external_id,
                 external_id_type: externalId.external_id_type
             });

@@ -42,7 +42,7 @@ export class EscrowService {
                 walletCredentials.wallet_key,
                 agentId,
             );
-            Logger.log(`Register agent for agentId ${walletCredentials.agentId}`);
+            Logger.log(`Register agent for agentId ${walletCredentials.agent_id}`);
             // Append the connection data onto the result
             result.connectionData = response.data.invitation;
         }
@@ -58,8 +58,8 @@ export class EscrowService {
         // ID, indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as the first attempt.
         const externalIds: Array<ExternalId> = await this.externalIdDbGateway.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
         let agentId: string;
-        if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.agentId === externalIds[0].agentId)) {
-            agentId = externalIds[0].agentId;
+        if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.agent_id === externalIds[0].agent_id)) {
+            agentId = externalIds[0].agent_id;
         } else {
             agentId = randomString(22, LOWER_CASE_LETTERS);
             await this.externalIdDbGateway.createExternalIds(agentId, filters);
@@ -85,9 +85,9 @@ export class EscrowService {
             walletCredentials.wallet_key,
             agentId,
         );
-        Logger.log(`Register agent for agentId ${walletCredentials.agentId}`);
+        Logger.log(`Register agent for agentId ${walletCredentials.agent_id}`);
 
-        return { id: walletCredentials.agentId, connectionData: response.data.invitation };
+        return { id: walletCredentials.agent_id, connectionData: response.data.invitation };
     }
 
     /**

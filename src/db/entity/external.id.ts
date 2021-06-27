@@ -16,7 +16,7 @@ export class ExternalId {
      */
     @Index()
     @Column({ length: 32, unique: true })
-    agentId: string;
+    agent_id: string;
 
     /**
      * The value of the external id referenced by this row (e.g. NIN55555).

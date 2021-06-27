@@ -37,14 +37,14 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         // Set up ExternalId repository
         const mockExternalId = new ExternalId();
-        mockExternalId.agentId = agentId;
+        mockExternalId.agent_id = agentId;
         mockExternalId.external_id = 'abc123';
         mockExternalId.external_id_type = 'sl_national_id';
         const mockExternalIdRepository = new MockRepository<ExternalId>([mockExternalId]);
 
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
-        mockWalletCredentials.agentId = agentId;
+        mockWalletCredentials.agent_id = agentId;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
         mockWalletCredentials.seed = '';

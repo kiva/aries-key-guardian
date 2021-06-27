@@ -21,7 +21,7 @@ export class WalletCredentialsDbGateway {
      * @throws ProtocolException with NOT_FOUND error code if there is currently no entry for the provided agentId
      */
     public async fetchWalletCredentials(agentId: string): Promise<WalletCredentials> {
-        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ agentId });
+        const walletCredentials: WalletCredentials = await this.walletCredentialsRepository.findOne({ agent_id: agentId });
         if (!walletCredentials) {
             throw new ProtocolException(ProtocolErrorCode.NOT_FOUND, `No wallet credentials found for "${agentId}"`);
         }
@@ -39,14 +39,14 @@ export class WalletCredentialsDbGateway {
         const walletKey = randomString(32);
         const walletSeed = randomString(32);
         const walletCredentials = new WalletCredentials();
-        walletCredentials.agentId = agentId;
+        walletCredentials.agent_id = agentId;
         walletCredentials.wallet_id = walletId;
         walletCredentials.wallet_key = walletKey;
         walletCredentials.seed = walletSeed;
 
         try {
             await this.walletCredentialsRepository.save(walletCredentials);
-            Logger.log(`Saved wallet credentials for agentId ${walletCredentials.agentId}`);
+            Logger.log(`Saved wallet credentials for agentId ${walletCredentials.agent_id}`);
             return walletCredentials;
         } catch (e) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, `Wallet credentials already exist for agentId ${agentId}`);
@@ -57,6 +57,6 @@ export class WalletCredentialsDbGateway {
      * Check if any wallet credentials exist for the given agentId.
      */
     public async walletCredentialsExist(agentId: string): Promise<boolean> {
-        return (await this.walletCredentialsRepository.count({agentId})) > 0;
+        return (await this.walletCredentialsRepository.count({agent_id: agentId})) > 0;
     }
 }

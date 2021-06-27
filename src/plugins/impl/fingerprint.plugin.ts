@@ -36,7 +36,7 @@ export class FingerprintPlugin implements IPlugin {
     ) {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agentId).join(',');
+        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
 
         let response;
         try {
