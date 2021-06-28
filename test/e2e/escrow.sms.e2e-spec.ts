@@ -35,8 +35,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     let app: INestApplication;
     let responseId: string;
     let otp: number;
-    let nationalId: string;
-    let voterId: string;
+    let id1: string;
+    let id2: number;
     let agentId: string;
     let phoneNumber: string;
     let pluginType: string;
@@ -46,8 +46,8 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             pluginType,
             filters: {
                 externalIds: {
-                    sl_national_id: nationalId,
-                    sl_voter_id: voterId
+                    id_1: id1,
+                    id_2: id2
                 }
             },
             params: {
@@ -61,7 +61,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             pluginType,
             filters: {
                 externalIds: {
-                    sl_national_id: nationalId
+                    id_1: id1
                 }
             },
             params: {
@@ -78,10 +78,10 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         process.env.GLOBAL_CACHE_MAX = '1000000';
 
         // Constants for use throughout the test suite
-        voterId = `${1000000 + parseInt(now().toString().substr(7, 6), 10)}`; // Unique 7 digit number that doesn't start with 0
-        const voterIdHash = pepperHash(`${voterId}`);
-        nationalId = 'N' + voterId;
-        const nationalIdHash = pepperHash(nationalId);
+        id2 = 1000000 + parseInt(now().toString().substr(7, 6), 10); // Unique 7 digit number that doesn't start with 0
+        const id2Hash = pepperHash(`${id2}`);
+        id1 = 'N' + id2;
+        const id1Hash = pepperHash(id1);
         otp = 123456;
         agentId = 'agentId123';
         phoneNumber = '+12025550114';
@@ -90,12 +90,12 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         // Set up ExternalId repository
         const mockExternalId1 = new ExternalId();
         mockExternalId1.agent_id = agentId;
-        mockExternalId1.external_id = nationalIdHash;
-        mockExternalId1.external_id_type = 'sl_national_id';
+        mockExternalId1.external_id = id1Hash;
+        mockExternalId1.external_id_type = 'id_1';
         const mockExternalId2 = new ExternalId();
         mockExternalId2.agent_id = agentId;
-        mockExternalId2.external_id = voterIdHash;
-        mockExternalId2.external_id_type = 'sl_voter_id';
+        mockExternalId2.external_id = id2Hash;
+        mockExternalId2.external_id_type = 'id_2';
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
 
             externalIdFilter(externalId: ExternalId, conditions?: FindConditions<ExternalId>): boolean {
@@ -213,6 +213,18 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             });
     });
 
+    it('Create endpoint fails with invalid filters', () => {
+        const data = buildCreateRequest();
+        data.filters.externalIds.id_1 = {'foo': 'bar'};
+        return request(app.getHttpServer())
+            .post('/v1/escrow/create')
+            .send(data)
+            .expect(400)
+            .then((res) => {
+                expect(res.body.code).toBe(ProtocolErrorCode.VALIDATION_EXCEPTION);
+            });
+    });
+
     it('Create endpoint succeeds with valid parameters', () => {
         const data = buildCreateRequest();
         data.params.phoneNumber = '+12025550156'; // Will be overwritten by the next test
@@ -255,7 +267,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
     it('Error case: Invalid ID leads to NO_CITIZEN_FOUND', () => {
         const data = buildVerifyRequest();
-        data.filters.externalIds.sl_national_id = 'BAD_ID';
+        data.filters.externalIds.id_1 = 'BAD_ID';
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
             .send(data)
