@@ -7,7 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class TokenParamsDto {
 
     @ApiProperty({
-        description: 'Auth0 token containing a did for an agent'
+        description: 'Auth0 token containing an agentId for an agent'
     })
     @IsOptional() @IsString() readonly token: string;
 

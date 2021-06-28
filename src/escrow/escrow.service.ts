@@ -34,15 +34,15 @@ export class EscrowService {
         // TODO we may want to update the verify result to include the connectionData even if null
         const result: any = await plugin.verify(params, filters);
         if (result.status === 'matched') {
-            const did = result.id;
-            const walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(did);
+            const agentId = result.id;
+            const walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(agentId);
 
             const response = await this.agencyService.registerMultitenantAgent(
                 walletCredentials.wallet_id,
                 walletCredentials.wallet_key,
-                did,
+                agentId,
             );
-            Logger.log(`Register agent for did ${walletCredentials.did}`);
+            Logger.log(`Register agent for agentId ${walletCredentials.agent_id}`);
             // Append the connection data onto the result
             result.connectionData = response.data.invitation;
         }
@@ -54,21 +54,21 @@ export class EscrowService {
      */
     public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string, connectionData: any }> {
 
-        // In case this is a retry (roll-forward case), try to retrieve existing ExternalIds. If any are found, they should all map to the same DID,
-        // indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as the first attempt.
+        // In case this is a retry (roll-forward case), try to retrieve existing ExternalIds. If any are found, they should all map to the same Agent
+        // ID, indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as the first attempt.
         const externalIds: Array<ExternalId> = await this.externalIdDbGateway.fetchExternalIds(CreateFiltersDto.getIds(filters), false);
-        let did: string;
-        if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.did === externalIds[0].did)) {
-            did = externalIds[0].did;
+        let agentId: string;
+        if (externalIds.length > 0 && externalIds.every((externalId: ExternalId) => externalId.agent_id === externalIds[0].agent_id)) {
+            agentId = externalIds[0].agent_id;
         } else {
-            did = randomString(22, LOWER_CASE_LETTERS);
-            await this.externalIdDbGateway.createExternalIds(did, filters);
+            agentId = randomString(22, LOWER_CASE_LETTERS);
+            await this.externalIdDbGateway.createExternalIds(agentId, filters);
         }
 
         const plugin = this.pluginFactory.create(pluginType);
 
         try {
-            await plugin.save(did, params);
+            await plugin.save(agentId, params);
             Logger.log(`Saved to plugin ${pluginType}`);
         } catch (e) {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
@@ -78,34 +78,34 @@ export class EscrowService {
             }
         }
 
-        const walletCredentials: WalletCredentials = await this.walletCredentialsDbGateway.createWalletCredentials(did);
+        const walletCredentials: WalletCredentials = await this.walletCredentialsDbGateway.createWalletCredentials(agentId);
 
         const response = await this.agencyService.registerMultitenantAgent(
             walletCredentials.wallet_id,
             walletCredentials.wallet_key,
-            did,
+            agentId,
         );
-        Logger.log(`Register agent for did ${walletCredentials.did}`);
+        Logger.log(`Register agent for agentId ${walletCredentials.agent_id}`);
 
-        return { id: walletCredentials.did, connectionData: response.data.invitation };
+        return { id: walletCredentials.agent_id, connectionData: response.data.invitation };
     }
 
     /**
      * Assuming there are already wallet credentials this adds support for the new plugin
      * TODO we may want error handling if the plugin row already exists and we attempt to save again
      */
-    public async add(pluginType: string, did: string, filters: CreateFiltersDto, params: any): Promise<{ result: string }> {
-        const sanitizedDid = did;
-        const walletCredentialsExist = await this.walletCredentialsDbGateway.walletCredentialsExist(sanitizedDid);
+    public async add(pluginType: string, agentId: string, filters: CreateFiltersDto, params: any): Promise<{ result: string }> {
+        const sanitizedAgentId = agentId;
+        const walletCredentialsExist = await this.walletCredentialsDbGateway.walletCredentialsExist(sanitizedAgentId);
         if (!walletCredentialsExist) {
             throw new ProtocolException(ProtocolErrorCode.VALIDATION_EXCEPTION, 'Can\'t update escrow service, the id doesn\'t exist');
         }
 
-        await this.externalIdDbGateway.getOrCreateExternalIds(sanitizedDid, filters);
+        await this.externalIdDbGateway.getOrCreateExternalIds(sanitizedAgentId, filters);
 
         const plugin = this.pluginFactory.create(pluginType);
         try {
-            await plugin.save(sanitizedDid, params);
+            await plugin.save(sanitizedAgentId, params);
             Logger.log(`Saved to plugin ${pluginType}`);
         } catch (e) {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {

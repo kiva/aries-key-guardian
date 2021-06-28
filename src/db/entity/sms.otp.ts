@@ -10,10 +10,10 @@ export class SmsOtp {
     id: number;
 
     /**
-     * The did of the entity this record hold the phone number for
+     * The agentId of the entity this record hold the phone number for
      */
     @Column({ length: 32, unique: true })
-    did: string;
+    agent_id: string;
 
     /**
      * First 32 bytes of SHA256 hash of phone number

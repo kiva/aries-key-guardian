@@ -36,14 +36,14 @@ export class FingerprintPlugin implements IPlugin {
     ) {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        const dids: string = externalIds.map((externalId: ExternalId) => externalId.did).join(',');
+        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
 
         let response;
         try {
             if (VerifyFingerprintImageDto.isInstance(params)) {
-                response = await this.bioAuthService.verifyFingerprint(params.position, params.image, dids);
+                response = await this.bioAuthService.verifyFingerprint(params.position, params.image, agentIds);
             } else {
-                response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, dids);
+                response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, agentIds);
             }
         } catch(e) {
             // Handle specific error codes
@@ -53,7 +53,7 @@ export class FingerprintPlugin implements IPlugin {
                 case ProtocolErrorCode.FINGERPRINT_MISSING_AMPUTATION:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_UNABLE_TO_PRINT:
                     if (process.env.QUALITY_CHECK_ENABLED === 'true') {
-                        e = await this.fingerprintQualityCheck(e, dids);
+                        e = await this.fingerprintQualityCheck(e, agentIds);
                     }
                 // no break, fall through
                 default:
@@ -66,16 +66,15 @@ export class FingerprintPlugin implements IPlugin {
             throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
         }
 
-        // TODO right now the data we get from Bio Auth Service uses did we should change it to agent id and then we don't need this conversion
         return {
             status: response.data.status,
-            id: response.data.did
+            id: response.data.agentId
         };
     }
 
-    private async fingerprintQualityCheck(e: any, dids: string): Promise<any> {
+    private async fingerprintQualityCheck(e: any, agentIds: string): Promise<any> {
         try {
-            const response = await this.bioAuthService.qualityCheck(dids);
+            const response = await this.bioAuthService.qualityCheck(agentIds);
             e.details = e.details || {};
             e.details.bestPositions = response.data;
         } catch (ex) {
@@ -84,10 +83,10 @@ export class FingerprintPlugin implements IPlugin {
         return e;
     }
 
-    public async save(id: string, params: BioAuthSaveParamsDto | BioAuthSaveParamsDto[]) {
+    public async save(agentId: string, params: BioAuthSaveParamsDto | BioAuthSaveParamsDto[]) {
         const data = Array.isArray(params) ? params : [params];
         const fingerprints: BioAuthSaveDto[] = data.map((param: BioAuthSaveParamsDto) => {
-            return {id, params: param};
+            return {agentId, params: param};
         });
         await this.bioAuthService.bulkSave({fingerprints});
     }
