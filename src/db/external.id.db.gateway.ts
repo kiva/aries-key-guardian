@@ -44,7 +44,7 @@ export class ExternalIdDbGateway {
                                 external_id_type: idType
                             });
                         } catch (e) {
-                            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Failed to retrieve a DID for provided IDs ${idType}`);
+                            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find an agentId for provided ID ${idType}`);
                         }
                     })
             )
@@ -53,19 +53,19 @@ export class ExternalIdDbGateway {
         // Sometimes it's okay to return an empty array! Let's not be too prescriptive.
         if (throwIfEmpty && externalIds.length === 0) {
             const idTypes: string = Array.from(ids.keys()).join(', ');
-            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find a DID for provided IDs ${idTypes}`);
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find an agentId for provided IDs ${idTypes}`);
         }
 
         return externalIds;
     }
 
     /**
-     * This helper function turns did + filters into an array of ExternalId objects. It's a purely in-memory operation that does not affect the db.
+     * This helper function turns agentId + filters into an array of ExternalId objects. It's just an in-memory operation that does not affect the db.
      */
-    private buildExternalIds(did: string, filters: CreateFiltersDto): Array<ExternalId> {
+    private buildExternalIds(agentId: string, filters: CreateFiltersDto): Array<ExternalId> {
         return Array.from(CreateFiltersDto.getIds(filters).entries()).map((entry: [string, string]) => {
             const externalId = new ExternalId();
-            externalId.did = did;
+            externalId.agent_id = agentId;
             externalId.external_id = SecurityUtility.hash32(entry[1] + process.env.HASH_PEPPER);
             externalId.external_id_type = entry[0];
             return externalId;
@@ -73,10 +73,10 @@ export class ExternalIdDbGateway {
     }
 
     /**
-     * This function will attempt to create an external ID for every did + externalId pair provided.
+     * This function will attempt to create an external ID for every agentId + externalId pair provided.
      */
-    public async createExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
-        const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
+    public async createExternalIds(agentId: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
+        const externalIds: ExternalId[] = this.buildExternalIds(agentId, filters);
         let results: ExternalId[] = [];
         try {
             results = await this.externalIdRepository.save(externalIds);
@@ -88,14 +88,14 @@ export class ExternalIdDbGateway {
     }
 
     /**
-     * This function will attempt to retrieve an external ID that matches the provided externalId (same did, external_id, and external_id_type). If no
-     * such match exists, then it will attempt to create one. If an entry with the same did and type (but different value) already exists, then it
-     * will throw a ProtocolException.
+     * This function will attempt to retrieve an external ID that matches the provided externalId (same agentId, external_id, and external_id_type).
+     * If no such match exists, then it will attempt to create one. If an entry with the same agentId and type (but different value) already exists,
+     * then it will throw a ProtocolException.
      */
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
         return this.externalIdRepository.manager.transaction(async (entityManager: EntityManager) => {
             const dbExternalId: ExternalId | undefined = await entityManager.findOne(ExternalId, {
-                did: externalId.did,
+                agent_id: externalId.agent_id,
                 external_id: externalId.external_id,
                 external_id_type: externalId.external_id_type
             });
@@ -111,8 +111,8 @@ export class ExternalIdDbGateway {
         });
     }
 
-    public async getOrCreateExternalIds(did: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
-        const externalIds: ExternalId[] = this.buildExternalIds(did, filters);
+    public async getOrCreateExternalIds(agentId: string, filters: CreateFiltersDto): Promise<Array<ExternalId>> {
+        const externalIds: ExternalId[] = this.buildExternalIds(agentId, filters);
         return Promise.all(externalIds.map((externalId: ExternalId) => this.getOrCreateExternalId(externalId)));
     }
 }

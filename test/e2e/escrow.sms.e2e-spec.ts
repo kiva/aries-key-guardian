@@ -33,11 +33,11 @@ import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.g
  */
 describe('EscrowController (e2e) using SMS plugin', () => {
     let app: INestApplication;
-    let agentId: string;
+    let responseId: string;
     let otp: number;
     let id1: string;
     let id2: number;
-    let did: string;
+    let agentId: string;
     let phoneNumber: string;
     let pluginType: string;
 
@@ -79,22 +79,22 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Constants for use throughout the test suite
         id2 = 1000000 + parseInt(now().toString().substr(7, 6), 10); // Unique 7 digit number that doesn't start with 0
-        const voterIdHash = pepperHash(`${id2}`);
+        const id2Hash = pepperHash(`${id2}`);
         id1 = 'N' + id2;
-        const nationalIdHash = pepperHash(id1);
+        const id1Hash = pepperHash(id1);
         otp = 123456;
-        did = 'agentId123';
+        agentId = 'agentId123';
         phoneNumber = '+12025550114';
         pluginType = 'SMS_OTP';
 
         // Set up ExternalId repository
         const mockExternalId1 = new ExternalId();
-        mockExternalId1.did = did;
-        mockExternalId1.external_id = nationalIdHash;
+        mockExternalId1.agent_id = agentId;
+        mockExternalId1.external_id = id1Hash;
         mockExternalId1.external_id_type = 'id_1';
         const mockExternalId2 = new ExternalId();
-        mockExternalId2.did = did;
-        mockExternalId2.external_id = voterIdHash;
+        mockExternalId2.agent_id = agentId;
+        mockExternalId2.external_id = id2Hash;
         mockExternalId2.external_id_type = 'id_2';
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
 
@@ -120,7 +120,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
         // Set up WalletCredentials repository
         const mockWalletCredentials = new WalletCredentials();
-        mockWalletCredentials.did = did;
+        mockWalletCredentials.agent_id = agentId;
         mockWalletCredentials.wallet_id = 'abc';
         mockWalletCredentials.wallet_key = '123';
         const mockWalletCredentialsRepository = new MockRepository<WalletCredentials>([mockWalletCredentials]);
@@ -131,9 +131,9 @@ describe('EscrowController (e2e) using SMS plugin', () => {
 
             async findOne(conditions?: FindConditions<SmsOtp>): Promise<SmsOtp | undefined> {
                 const smsOtp = await super.findOne(conditions);
-                const didMatches: boolean = !conditions.did || smsOtp.did === conditions.did;
+                const agentIdMatches: boolean = !conditions.agent_id || smsOtp.agent_id === conditions.agent_id;
                 const phoneNumberHashMatches: boolean = !conditions.phone_number_hash || smsOtp.phone_number_hash === conditions.phone_number_hash;
-                if (didMatches && phoneNumberHashMatches) {
+                if (agentIdMatches && phoneNumberHashMatches) {
                     return smsOtp;
                 } else {
                     return undefined;
@@ -235,7 +235,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .then((res) => {
                 // We can't predict the exact value since it will be random
                 expect(res.body.id).toBeDefined();
-                agentId = res.body.id;
+                responseId = res.body.id;
             });
     });
 
@@ -247,7 +247,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .expect(201)
             .then((res) => {
                 expect(res.body.id).toBeDefined();
-                expect(res.body.id).toEqual(agentId);
+                expect(res.body.id).toEqual(responseId);
             });
     });
 
@@ -326,7 +326,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             .expect(201)
             .then((res) => {
                 expect(res.body.status).toBe('matched');
-                expect(res.body.id).toBe(agentId);
+                expect(res.body.id).toBe(responseId);
             });
     }, 10000);
 

@@ -33,17 +33,17 @@ export class SmsService {
     public async verify(params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        if (externalIds.some((id: ExternalId) => id.did !== externalIds[0].did)) {
-            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify a did');
+        if (externalIds.some((id: ExternalId) => id.agent_id !== externalIds[0].agent_id)) {
+            throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify an agentId');
         }
-        const did: string = externalIds[0].did;
+        const agentId: string = externalIds[0].agent_id;
 
-        await this.rateLimit(did, params);
+        await this.rateLimit(agentId, params);
 
         if (params.phoneNumber) {
-            return await this.sendSmsOtp(did, params.phoneNumber);
+            return await this.sendSmsOtp(agentId, params.phoneNumber);
         } else {
-            return await this.verifyOtp(did, params.otp);
+            return await this.verifyOtp(agentId, params.otp);
         }
     }
 
@@ -69,9 +69,9 @@ export class SmsService {
     /**
      * Checks the phone number against stored records, generates an OTP and sends it
      */
-    private async sendSmsOtp(did: string, phoneNumber: string) {
+    private async sendSmsOtp(agentId: string, phoneNumber: string) {
         const otp = this.smsHelperService.generateRandomOtp();
-        await this.smsOtpDbGateway.saveOtp(did, phoneNumber, otp);
+        await this.smsOtpDbGateway.saveOtp(agentId, phoneNumber, otp);
         await this.smsService.sendOtp(phoneNumber, otp);
         return {
             status: 'sent',
@@ -82,8 +82,8 @@ export class SmsService {
     /**
      * Check if the passed in otp matches the stored one and clear out if needed
      */
-    private async verifyOtp(did: string, otp: number) {
-        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(did));
+    private async verifyOtp(agentId: string, otp: number) {
+        const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(agentId));
         const otpMatches: boolean = smsOtp.otp === otp;
         const otpExpired: boolean = !smsOtp.otp_expiration_time || smsOtp.otp_expiration_time.valueOf() < Date.now();
         if (!otpMatches || otpExpired) {
@@ -94,7 +94,7 @@ export class SmsService {
 
         return {
             status: 'matched',
-            id: smsOtp.did,
+            id: smsOtp.agent_id,
         };
     }
 
