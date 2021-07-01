@@ -36,9 +36,9 @@ jobs:
           name: Start docker compose and wait for readiness
           command: |
             docker network prune -f
-            docker-compose -f docker-compose.ci.yml build
+            docker-compose -f docker-compose.ci.yml build --no-cache
             set -x
-            docker-compose -f docker-compose.ci.yml up -d
+            docker-compose -f docker-compose.ci.yml up --force-recreate -d
             sleep 15
             docker-compose -f docker-compose.ci.yml logs
       - run:
