@@ -1,8 +1,3 @@
-//import { Verify } from 'crypto';
-//import { IPlugin } from '../../src/plugins/plugin.interface';
-//import {ExternalIdDbGateway} from '../../src/db/external.id.db.gateway';
-//import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
-//import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 import { VerifyFiltersDto } from '../../src/plugins/dto/verify.filters.dto';
 import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
 import { MockBioAuthService } from '../mock/mock.bio.auth.service';
@@ -73,16 +68,13 @@ describe('Fingerprint Plugin is valid', () => {
 
         const agentId = 'agentId123';
         const mockExternalId = new ExternalId();
-         
         const bioAuthService = new class extends MockBioAuthService {
             async verifyFingerprint(position: number, image: string, agentIds: string): Promise<any> {
                 throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'msg');
             }
         }('matched', agentId);
         const mockExternalIdRespository: any = new MockRepository<ExternalId>([mockExternalId]);
-
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRespository);
-
         const params = {
             position: 1,
             image: 'some image'
