@@ -8,65 +8,30 @@ import { VerifyFingerprintImageDto } from '../../src/plugins/dto/verify.fingerpr
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 
-export class MockFingerpintPlugin implements VerifyFiltersDto {
-
-    constructor(private readonly status: string, private readonly id: string, private readonly agentId: string) {}
-
-    externalIds: object;
-    async getIds(filters: VerifyFiltersDto): Promise<Map<string, string>> {
-        return new Map<string, string>(Object.entries(filters.externalIds));
+const params = {
+    position: 1,
+    image: 'some image'
+} as VerifyFingerprintImageDto;
+const filters = {
+    externalIds: {
+        key: 'value'
     }
+} as VerifyFiltersDto;
+const agentId = 'agentId123';
 
-    async verify(params: any, filters: VerifyFiltersDto): Promise<{}> {
-        return Promise.resolve({
-            data: {
-                status: this.status,
-                did: this.id,
-            },
-        });
-    }
-
-    async verifyFingerprint(params: any, position: number, image: string, agentId: string): Promise<any> {
-        return Promise.resolve({
-            data: {
-                status: this.status,
-                agentId: this.agentId,
-            },
-        });
-    }
-}
-describe('Fingerprint Plugin is valid', () => {
+describe('Test to see if test status is other than "matched" will cause ProtocolException to throw', () => {
     //const fingerprintVerifySpec = new VerifyFiltersDto ;
     it('Plugin is not empty', async () => {
-        const agentId = 'agentId123';
         const bioAuthService = new MockBioAuthService('not_matched', agentId);
-
-        const id2 = 1000000 + parseInt(now().toString().substr(7,6), 10);
-        const id1 = 'N' + id2;
-        const id1Hash = pepperHash(id1);
         const mockExternalId = new ExternalId();
         mockExternalId.agent_id = agentId;
-        mockExternalId.external_id = id1Hash;
+        mockExternalId.external_id = "foobar";
         mockExternalId.external_id_type = 'id_1';
         const mockExternalIdRepository: any = new MockRepository<ExternalId>([mockExternalId]);
-        
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRepository);
-
-        const params = {
-            position: 1,
-            image: 'some image'
-        } as VerifyFingerprintImageDto;
-        const filters = {
-            externalIds: {
-                key: 'value'
-            }
-        } as VerifyFiltersDto;
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
-
     });
-    it('If fingerpirnt no match is thrown should throw a Protocol exception', async () => {
-
-        const agentId = 'agentId123';
+    it('If fingerprint "FINGERPRINT_NO_MATCH" is thrown should throw a "ProtocolException"', async () => {
         const mockExternalId = new ExternalId();
         const bioAuthService = new class extends MockBioAuthService {
             async verifyFingerprint(position: number, image: string, agentIds: string): Promise<any> {
@@ -75,19 +40,7 @@ describe('Fingerprint Plugin is valid', () => {
         }('matched', agentId);
         const mockExternalIdRespository: any = new MockRepository<ExternalId>([mockExternalId]);
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRespository);
-        const params = {
-            position: 1,
-            image: 'some image'
-        } as VerifyFingerprintImageDto;
-        const filters = {
-            externalIds: {
-                key: 'value'
-            }
-        } as VerifyFiltersDto;
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
-       
-
- 
     });
  });
     
