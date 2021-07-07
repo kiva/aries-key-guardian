@@ -3,7 +3,6 @@ import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
 import { MockBioAuthService } from '../mock/mock.bio.auth.service';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { MockRepository } from '../mock/mock.repository';
-import { now, pepperHash } from '../support/functions';
 import { VerifyFingerprintImageDto } from '../../src/plugins/dto/verify.fingerprint.image.dto';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
