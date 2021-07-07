@@ -17,14 +17,12 @@ const filters = {
     }
 } as VerifyFiltersDto;
 const agentId = 'agentId123';
-
 describe('Test to see if test status is other than "matched" will cause ProtocolException to throw', () => {
-    //const fingerprintVerifySpec = new VerifyFiltersDto ;
-    it('Plugin is not empty', async () => {
+    it('If status is other than "matched" ProtocolException will be thrown ', async () => {
         const bioAuthService = new MockBioAuthService('not_matched', agentId);
         const mockExternalId = new ExternalId();
         mockExternalId.agent_id = agentId;
-        mockExternalId.external_id = "foobar";
+        mockExternalId.external_id = 'foobar';
         mockExternalId.external_id_type = 'id_1';
         const mockExternalIdRepository: any = new MockRepository<ExternalId>([mockExternalId]);
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRepository);
