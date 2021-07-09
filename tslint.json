@@ -20,7 +20,7 @@
         ],
         "member-access": false,
         "member-ordering": false,
-        "no-consecutive-blank-lines": false,
+        "no-consecutive-blank-lines": true,
         "no-empty": false,
         "no-empty-interface": false,
         "no-unused-expression": false,
