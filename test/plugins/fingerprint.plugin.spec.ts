@@ -17,7 +17,9 @@ const filters = {
     }
 } as VerifyFiltersDto;
 const agentId = 'agentId123';
-describe('Test to see if test status is other than "matched" will cause ProtocolException to throw', () => {
+
+describe('Fingerprint Plugin', () => {
+
     it('If status is other than "matched" ProtocolException will be thrown ', async () => {
         const bioAuthService = new MockBioAuthService('not_matched', agentId);
         const mockExternalId = new ExternalId();
@@ -28,6 +30,7 @@ describe('Test to see if test status is other than "matched" will cause Protocol
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRepository);
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
     });
+    
     it('If fingerprint "FINGERPRINT_NO_MATCH" is thrown should throw a "ProtocolException"', async () => {
         const mockExternalId = new ExternalId();
         const bioAuthService = new class extends MockBioAuthService {
