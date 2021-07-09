@@ -42,4 +42,4 @@ describe('Fingerprint Plugin', () => {
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRespository);
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
     });
- });
+});
