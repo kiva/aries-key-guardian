@@ -30,7 +30,7 @@ describe('Fingerprint Plugin', () => {
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRepository);
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
     });
-    
+
     it('If fingerprint "FINGERPRINT_NO_MATCH" is thrown should throw a "ProtocolException"', async () => {
         const mockExternalId = new ExternalId();
         const bioAuthService = new class extends MockBioAuthService {
@@ -42,14 +42,4 @@ describe('Fingerprint Plugin', () => {
         const fpPlugin = new FingerprintPlugin(bioAuthService, mockExternalIdRespository);
         (await expect(fpPlugin.verify(params, filters))).rejects.toThrow(ProtocolException);
     });
- });
-    
-
-    
-
-
-
-
-
-
-
+});

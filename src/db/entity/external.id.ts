@@ -1,6 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-
 @Unique(['external_id', 'external_id_type'])
 @Entity()
 export class ExternalId {
