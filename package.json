@@ -12,7 +12,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "rm -rf dist/ && tsc && node -r dotenv/config src/main.js",
+    "start": "rm -rf dist/ && tsc && node -r dotenv/config dist/main.js",
     "start:debug": "nodemon --legacy-watch",
     "lint": "tslint -p tsconfig-lint.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig-lint.json -c tslint.json --fix",
