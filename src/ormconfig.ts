@@ -8,7 +8,7 @@ export function OrmConfig(): DynamicModule {
     type: 'postgres',
     synchronize: false,
     migrationsRun: true,
-    entities: ['src/db/entity/**/*.ts', 'dist/db/entity/**/*.js'],
+    entities: ['dist/db/entity/**/*.js'],
     migrations: ['dist/db/migration/**/*.js'],
     host: process.env.POSTGRES_HOST,
     username: process.env.POSTGRES_USER,
