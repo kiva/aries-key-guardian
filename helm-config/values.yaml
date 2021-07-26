@@ -1,19 +1,22 @@
 # Default values for helm-config.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+#
+# Update these when you copy the chart to your own repo so they match your
+# service's specifics.
 
 replicaCount: 1
 
 image:
-  repository: aries-key-guardian
-  tag: latest
+  repository: kivaprotocol/aries-key-guardian
+  tag: latest # leave this as latest. CICD will set a specific version tag.
   pullPolicy: Always
   imagePullSecrets:
     - name: "regcred"
 
 nameOverride: "aries-key-guardian"
 fullnameOverride: "aries-key-guardian"
-secrets: "aries-key-guardian-secrets"
+secrets: "aries-key-guardian"
 
 strategy:
   type: "RollingUpdate"
@@ -33,6 +36,29 @@ resources:
     cpu: 1100m
     memory: 607164212
 
+readiness:
+  initialDelaySeconds: 20
+  timeoutSeconds: 1
+  path: /healthz
+
+liveness:
+  initialDelaySeconds: 20
+  timeoutSeconds: 10
+  path: /healthz
+
+ingress:
+  enabled: false # set to true if component needs ingress
+  host: "replaceme.replacethisdomain"
+  class: nginx-ingress-external
+  secret: "replaceme-tls"
+
+# By default services should disable this option as it is used to give the pod
+# elevated k8s privileges
+serviceAccount:
+  enabled: false
+
+# Uncomment below to allocate pods to a specific node type.
+#
 #tolerations:
 #  - effect: NoSchedule
 #    key: crypto
