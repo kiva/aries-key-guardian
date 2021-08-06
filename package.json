@@ -13,6 +13,7 @@
     "build": "rm -rf dist/ && tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "rm -rf dist/ && tsc && node -r dotenv/config dist/main.js",
+    "consumer": "ts-node src/consumer.ts",
     "start:debug": "nodemon --legacy-watch",
     "lint": "tslint -p tsconfig-lint.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig-lint.json -c tslint.json --fix",
@@ -24,6 +25,7 @@
   "dependencies": {
     "@nestjs/common": "^7.6.15",
     "@nestjs/core": "^7.6.15",
+    "@nestjs/microservices": "^7.6.15",
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/swagger": "^4.8.0",
     "@nestjs/typeorm": "^7.1.5",
@@ -36,6 +38,7 @@
     "crypto-random-string": "^3.3.1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
+    "kafkajs": "^1.15.0",
     "pg": "^8.6.0",
     "protocol-common": "^0.1.40",
     "reflect-metadata": "^0.1.13",

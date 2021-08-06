@@ -43,6 +43,17 @@ services:
     tty: true
     depends_on:
       - escrow-db
+  
+  consumer:
+    container_name: consumer-container
+    image: aries-key-guardian
+    build:
+      context: ./
+      dockerfile: Dockerfile.consumer
+    tty: true
+    depends_on: 
+      - kafka
+      - zookeeper
 
   escrow-db:
     image: postgres:11
