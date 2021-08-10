@@ -46,14 +46,18 @@ services:
   
   consumer:
     container_name: consumer-container
-    image: aries-key-guardian
+    image: aries-key-guardian-consumer
     build:
       context: ./
       dockerfile: Dockerfile.consumer
     tty: true
+    networks: 
+      - agency-network
     depends_on: 
       - kafka
       - zookeeper
+      - escrow-db
+      
 
   escrow-db:
     image: postgres:11

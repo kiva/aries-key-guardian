@@ -6,7 +6,7 @@ import { kafkaConfig } from '../kafkaConfig';
 
 @Controller('posts')
 export class ConsumerController {
-    @MessagePattern('quickstart-events')
+    @MessagePattern('escrow-create')
     getKafka(@Payload() message) {
         console.log(message.value);
         return 'Hello World';
