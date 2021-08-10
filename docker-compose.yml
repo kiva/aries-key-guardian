@@ -12,6 +12,9 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - agency-network
+      
   kafka:
     image: wurstmeister/kafka
     hostname: kafka
@@ -21,6 +24,8 @@ services:
       KAFKA_ADVERTISED_PORT: "9092"
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - agency-network
     depends_on:
       - zookeeper 
 
