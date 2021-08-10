@@ -1,10 +1,8 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateConsumerDto } from './create-consumer.dto';
 import { Client, ClientKafka } from '@nestjs/microservices';
 import { kafkaConfig } from '../kafkaConfig';
 import { Logger } from 'protocol-common/logger';
-
 
 @Controller('posts')
 export class ConsumerController {
@@ -12,21 +10,6 @@ export class ConsumerController {
     getKafka(@Payload() message) {
         Logger.log(message.value);
         return 'Hello World';
-    }
-    
-    @Get()
-    getPosts() {
-        let posts = {
-            id: 1,
-            foo: "bar"
-        }
-        return posts;
-    }
-
-    @Post()
-    create(@Body() createConsumerDto: CreateConsumerDto){
-        console.log(createConsumerDto);
-        return createConsumerDto;
     }
 
     @Client(kafkaConfig)
