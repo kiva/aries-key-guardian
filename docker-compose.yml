@@ -12,6 +12,9 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - agency-network
+      
   kafka:
     image: wurstmeister/kafka
     hostname: kafka
@@ -21,6 +24,8 @@ services:
       KAFKA_ADVERTISED_PORT: "9092"
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - agency-network
     depends_on:
       - zookeeper 
 
@@ -43,6 +48,21 @@ services:
     tty: true
     depends_on:
       - escrow-db
+  
+  consumer:
+    container_name: consumer-container
+    image: aries-key-guardian-consumer
+    build:
+      context: ./
+      dockerfile: Dockerfile.consumer
+    tty: true
+    networks: 
+      - agency-network
+    depends_on: 
+      - kafka
+      - zookeeper
+      - escrow-db
+      
 
   escrow-db:
     image: postgres:11
