@@ -77,3 +77,24 @@ If you see any errors or the migration doesn't do what you expect, go back to st
 
 ### Epic
 There is still a lot of work to do in this repo as described in the epic PRO-1892
+
+### Testing the Producer
+
+Here is a sample curl request you can use to test that the Producer produces an event:
+
+```
+curl --location --request POST 'http://localhost:3999/produce' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+   "pluginType": "FINGERPRINT",
+   "filters": {
+      "externalIds": {
+         "company_email": "jeffk@kiva.org"
+      }
+   },
+   "params": {
+      "fingerprintTemplate": "p2d2ZXJzaW9uZjMuMTMuMGV3aWR0aBi0ZmhlaWdodBkBXmpwb3NpdGlvbnNYmCgYNBhQGEwYYhhKGF4YdhiQGEAYPRhAGGgYgxhuGGQYXxiIGIwYHRhYGHgYoxQYNhg4GEAYOBhNGFcYVhiQGFgYQhg0GGIYXRhoGFkYXBiBanBvc2l0aW9uc1mYKBhUGDwYlBhAGNgYkBhIGMQYShigGPoYwhg8GM4ZAQoZATQYchhiGJsY9Rj9GKcYoBiMGJgYeBioGH4YWhj8GOAY0xhiGK4YqhkBLBkBHhhnGHEYZ2pkaXJlY3Rpb25zmCj7QBUC4DnyQ277P6mUJZeSnyb7QACW0FNxscX7QAi7qr3l4pz7QAqHtd32QzL7P/3Lye3L2Nr7P/Jd+NnIjqn7P/q6OXxyWd37QBcatn+zUFL7QBSKfR3SCW77QAt24qEIAvj7P/6FAHbuno77QA7EyRz1WQX7P/0NahNpvTT7QAfxDh3GsEj7QBgnH6R6yRH7P/bAIOdJM3j7P/bAIOdJM3j7P/MLbXlqTaj7QBTcZdPa7277QBWg5fexTyP7P/eJvSwWAFT7P/O+9jGZu6P7QBM/jAk+rQP7QBQD8CWVDML7QBOjno762wL7QBIPWm9raKL7QBNx8xpx4Dr7QABGiorOTfb7QAhV3EAtFrb7QBNx8xpx4Dr7QAKNq0tbWdD7P/uD1cE/Jrn7QBDAGG8h3e/7P/84iS8eDIj7QAbNFAeAVzj7P+Cc2E/RGPP7P/xKg5NjEdr7P/uD1cE/Jrn7P/eJvSwWAFRldHlwZXN4KEJCQkJFQkVCQkVFRUVFQkVCQkVCRUVFQkJFQkJFRUJFQkVCQkVFRUU=",
+      "position": 1
+   }
+}'
+```

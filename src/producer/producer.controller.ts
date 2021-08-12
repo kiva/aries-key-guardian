@@ -1,7 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { Client, ClientKafka } from '@nestjs/microservices';
 import { kafkaConfig } from '../kafkaConfig';
 import { Observable } from 'rxjs';
+import { ProtocolValidationPipe } from 'protocol-common/validation/protocol.validation.pipe';
+import { CreateDto } from '../escrow/dto/create.dto';
 
 @Controller('/produce')
 export class ProducerController {
@@ -15,8 +17,8 @@ export class ProducerController {
         await this.client.connect();
     }
 
-    @Get()
-    produce(): Observable<any> {
-        return this.client.send(ProducerController.TOPIC_NAME, {'id': 1, 'foo': 'bar'});
+    @Post()
+    produce(@Body(new ProtocolValidationPipe()) body: CreateDto): Observable<any> {
+        return this.client.send(ProducerController.TOPIC_NAME, body);
     }
 }
