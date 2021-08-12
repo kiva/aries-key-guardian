@@ -48,7 +48,7 @@ services:
     tty: true
     depends_on:
       - escrow-db
-  
+
   consumer:
     container_name: consumer-container
     image: aries-key-guardian-consumer
@@ -56,13 +56,29 @@ services:
       context: ./
       dockerfile: Dockerfile.consumer
     tty: true
-    networks: 
+    networks:
       - agency-network
-    depends_on: 
+    depends_on:
       - kafka
       - zookeeper
       - escrow-db
-      
+
+  producer:
+    container_name: producer-container
+    image: aries-key-guardian-producer
+    ports:
+      - "3999:3999"
+    expose:
+      - "3999"
+    build:
+      context: ./
+      dockerfile: Dockerfile.producer
+    tty: true
+    networks:
+      - agency-network
+    depends_on:
+      - kafka
+      - zookeeper
 
   escrow-db:
     image: postgres:11

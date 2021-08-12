@@ -14,6 +14,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "rm -rf dist/ && tsc && node -r dotenv/config dist/main.js",
     "consumer": "ts-node src/consumer.ts",
+    "producer": "rm -rf dist/ && tsc && node -r dotenv/config dist/producer.js",
     "start:debug": "nodemon --legacy-watch",
     "lint": "tslint -p tsconfig-lint.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig-lint.json -c tslint.json --fix",

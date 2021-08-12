@@ -1,0 +1,51 @@
+# Spin up the Aries Key Guardian service locally with DB
+#
+version: '3.5'
+
+networks:
+  agency-network:
+    name: agency-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/24
+
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    expose:
+      - 2181
+    networks:
+      - agency-network
+      
+  kafka:
+    image: wurstmeister/kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
+    environment:
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - agency-network
+    depends_on:
+      - zookeeper
+
+  escrow-db:
+    image: postgres:11
+    container_name: escrow-db
+    command: postgres
+    env_file:
+      - .env
+    tty: true
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
