@@ -137,6 +137,18 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             });
     });
 
+    it('Recreate same endpoint', () => {
+        body.id = 'agentIdxyz';
+        return request(app.getHttpServer())
+            .post('/v1/escrow/create')
+            .send(body)
+            .expect(201)
+            .then((res) => {
+                // We can't predict the exact value since it will be random
+                expect(res.body.id).toBeDefined();
+            });
+    });
+
     it('Add endpoint', () => {
         return request(app.getHttpServer())
             .post('/v1/escrow/add')

@@ -78,7 +78,12 @@ export class EscrowService {
             }
         }
 
-        const walletCredentials: WalletCredentials = await this.walletCredentialsDbGateway.createWalletCredentials(agentId);
+        let walletCredentials: WalletCredentials;
+        if (await this.walletCredentialsDbGateway.walletCredentialsExist(agentId)) {
+            walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(agentId);
+        } else {
+            walletCredentials = await this.walletCredentialsDbGateway.createWalletCredentials(agentId);
+        }
 
         const response = await this.agencyService.registerMultitenantAgent(
             walletCredentials.wallet_id,
