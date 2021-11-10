@@ -23,6 +23,7 @@ import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.g
 describe('EscrowController (e2e) using fingerprint plugin', () => {
     let app: INestApplication;
     let body: any;
+    let createdId: any;
     let status: string;
     let agentId: string;
 
@@ -134,6 +135,20 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
             .then((res) => {
                 // We can't predict the exact value since it will be random
                 expect(res.body.id).toBeDefined();
+                createdId = res.body.id;
+            });
+    });
+
+    it('Recreate same endpoint', () => {
+         // reusing the same id as in 'create endpoint' test
+        return request(app.getHttpServer())
+            .post('/v1/escrow/create')
+            .send(body)
+            .expect(201)
+            .then((res) => {
+                expect(res.body.id).toBeDefined();
+                // we are saving the id returned from 'create endpoint' and it should match
+                expect(createdId).toEqual(res.body.id);
             });
     });
 
