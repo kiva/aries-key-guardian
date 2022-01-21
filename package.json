@@ -40,7 +40,7 @@
     "protocol-common": "^0.1.40",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.7",
-    "swagger-ui-express": "^4.1.6",
+    "swagger-ui-express": "^4.3.0",
     "twilio": "^3.62.0",
     "typeorm": "^0.2.32",
     "typescript": "^4.2.4"
