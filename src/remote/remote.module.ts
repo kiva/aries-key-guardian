@@ -19,9 +19,7 @@ import { JwksService } from './impl/jwks.service';
         useClass: AgencyService
     }, {
         provide: ISmsService,
-        useFactory: () => {
-            return process.env.TWILLIO_ENABLED === 'true' ? new SmsTwillioService() : new SmsDisabledService();
-        }
+        useClass: process.env.TWILLIO_ENABLED === 'true' ? SmsTwillioService : SmsDisabledService
     }, {
         provide: IJwksService,
         useClass: JwksService
