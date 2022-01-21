@@ -33,16 +33,16 @@ export class FingerprintPlugin implements IPlugin {
         }
     }
 
-    private async fingerprintQualityCheck(e: any, agentIds: string): Promise<any> {
+    private async fingerprintQualityCheck(protocolException: ProtocolException, agentIds: string): Promise<ProtocolException> {
         this.restrictToInternal('fingerprint quality check');
         try {
             const response = await this.bioAuthService.qualityCheck(agentIds);
-            e.details = e.details || {};
-            e.details.bestPositions = response.data;
+            protocolException.details = protocolException.details || {};
+            protocolException.details.bestPositions = response.data;
         } catch (ex) {
             Logger.error('Error calling Bio Auth Service fingerprint quality check', ex);
         }
-        return e;
+        return protocolException;
     }
 
     /**
@@ -67,19 +67,19 @@ export class FingerprintPlugin implements IPlugin {
                 this.restrictToInternal('template-based fingerprint verification');
                 response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, externalIds);
             }
-        } catch(e) {
+        } catch(ex) {
             // Handle specific error codes
-            switch (e.code) {
+            switch (ex.code) {
                 case ProtocolErrorCode.FINGERPRINT_NO_MATCH:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_NOT_CAPTURED:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_AMPUTATION:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_UNABLE_TO_PRINT:
                     if (process.env.QUALITY_CHECK_ENABLED === 'true' && !this.isExternal) {
-                        e = await this.fingerprintQualityCheck(e, agentIds);
+                        ex = await this.fingerprintQualityCheck(ex, agentIds);
                     }
                 // no break, fall through
                 default:
-                    throw e;
+                    throw ex;
             }
         }
 
