@@ -57,7 +57,11 @@ export class FingerprintPlugin implements IPlugin {
     ) {
 
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
+        let agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
+
+        if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === "true"))  {
+            agentIds = await this.callExternalWalletCreate('NumeroIdentidad');
+        }
 
         let response;
         try {
@@ -109,4 +113,10 @@ export class FingerprintPlugin implements IPlugin {
         });
         await this.bioAuthService.bulkSave({fingerprints});
     }
+
+    private async callExternalWalletCreate(identityNumber : string): Promise<string> {
+        // for honduras this is NumeroIdentidad
+        throw new ProtocolException('todo', 'this function is not implemented');
+    }
+
 }
