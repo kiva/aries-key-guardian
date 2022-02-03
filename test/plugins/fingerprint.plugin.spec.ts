@@ -46,7 +46,7 @@ describe('Fingerprint Plugin', () => {
 
         it('should be able to verify an image', async () => {
             const bioAuthService = new MockBioAuthService('matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway, undefined);
             const result = await fpPlugin.verify(verifyImageParams, verifyFilters);
             expect(result.status).toBe('matched');
             expect(result.id).toBe(agentId);
@@ -54,7 +54,7 @@ describe('Fingerprint Plugin', () => {
 
         it('should be able to verify a template', async () => {
             const bioAuthService = new MockBioAuthService('matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway,undefined);
             const result = await fpPlugin.verify(verifyTemplateParams, verifyFilters);
             expect(result.status).toBe('matched');
             expect(result.id).toBe(agentId);
@@ -62,7 +62,7 @@ describe('Fingerprint Plugin', () => {
 
         it('If status is other than "matched" ProtocolException will be thrown ', async () => {
             const bioAuthService = new MockBioAuthService('not_matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway,undefined);
             try {
                 await fpPlugin.verify(verifyImageParams, verifyFilters);
                 fail('Expected a ProtocolException to be thrown.');
@@ -77,7 +77,7 @@ describe('Fingerprint Plugin', () => {
                     throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'msg');
                 }
             }('matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway,undefined);
             try {
                 await fpPlugin.verify(verifyImageParams, verifyFilters);
                 fail('Expected a ProtocolException to be thrown.');
@@ -92,7 +92,7 @@ describe('Fingerprint Plugin', () => {
 
         it('should be able to verify an image', async () => {
             const bioAuthService = new MockBioAuthService('matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway,undefined);
             const result = await fpPlugin.verify(verifyImageParams, verifyFilters);
             expect(result.status).toBe('matched');
             expect(result.id).toBe(agentId);
@@ -100,7 +100,7 @@ describe('Fingerprint Plugin', () => {
 
         it('should fail to verify a template', async () => {
             const bioAuthService = new MockBioAuthService('matched', agentId);
-            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway);
+            const fpPlugin = new FingerprintPlugin(bioAuthService, externalIdDbGateway,undefined);
             try {
                 await fpPlugin.verify(verifyTemplateParams, verifyFilters);
                 fail('Expected a ProtocolException to be thrown.');
