@@ -1,5 +1,3 @@
-import { HttpService } from '@nestjs/common';
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
 import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
@@ -124,7 +122,7 @@ export class FingerprintPlugin implements IPlugin {
     private async callExternalWalletCreate(externalIds: ExternalId[]): Promise<string> {
         const identityNumber: string = externalIds[0].external_id;
 
-        this.externalController.callExternalWalletCreate(externalIds);
+        this.externalController.callExternalWalletCreate(identityNumber);
 
         const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
         return agentIds;

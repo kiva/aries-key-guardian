@@ -1,4 +1,4 @@
-import { Injectable, Optional, HttpService } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { IPlugin } from './plugin.interface';
