@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@nestjs/common';
+import { Injectable, Optional, HttpService } from '@nestjs/common';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { IPlugin } from './plugin.interface';
@@ -22,6 +22,7 @@ export class PluginFactory {
      * These are set as optional so that in testing we can only inject the specific dependencies we need
      */
     constructor(
+        private readonly httpService: HttpService,
         @Optional() private readonly bioAuthService?: IBioAuthService,
         @Optional() private readonly tokenService?: TokenService,
         @Optional() private readonly smsService?: SmsService,
@@ -31,7 +32,7 @@ export class PluginFactory {
     public create(pluginType: string): IPlugin {
         switch (pluginType) {
             case PluginTypeEnum.FINGERPRINT:
-                return new FingerprintPlugin(this.bioAuthService, this.externalIdDbGateway);
+                return new FingerprintPlugin(this.bioAuthService, this.externalIdDbGateway, this.httpService);
             case PluginTypeEnum.SMS_OTP:
                 return new SmsOtpPlugin(this.smsService);
             case PluginTypeEnum.TOKEN:

@@ -1,30 +1,35 @@
-import { IPlugin } from '../plugin.interface';
+import { HttpService } from '@nestjs/common';
+import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { ProtocolException } from 'protocol-common/protocol.exception';
+import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
+import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
+import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
+import { Logger } from 'protocol-common/logger';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { IBioAuthService } from '../../remote/bio.auth.service.interface';
-import { Logger } from 'protocol-common/logger';
+import { IPlugin } from '../plugin.interface';
 import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
 import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
 import { ExternalId } from '../../db/entity/external.id';
 import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
-import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
-import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
 import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto';
 import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto';
 
 export class FingerprintPlugin implements IPlugin {
     private readonly isExternal: boolean;
+    private readonly http: ProtocolHttpService;
 
     /**
      * We pass in the parent class as context so we can access the sms module
      */
     constructor(
         private readonly bioAuthService: IBioAuthService,
-        private readonly externalIdDbGateway: ExternalIdDbGateway
+        private readonly externalIdDbGateway: ExternalIdDbGateway,
+        httpService: HttpService,
     ) {
         this.isExternal = process.env.EXTERNAL_BIO_AUTH === 'true';
+        this.http = new ProtocolHttpService(httpService);
     }
 
     private restrictToInternal(operation: string) {
@@ -60,7 +65,7 @@ export class FingerprintPlugin implements IPlugin {
         let agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
 
         if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === "true"))  {
-            agentIds = await this.callExternalWalletCreate('NumeroIdentidad');
+            agentIds = await this.callExternalWalletCreate(externalIds);
         }
 
         let response;
@@ -114,9 +119,25 @@ export class FingerprintPlugin implements IPlugin {
         await this.bioAuthService.bulkSave({fingerprints});
     }
 
-    private async callExternalWalletCreate(identityNumber : string): Promise<string> {
+    private async callExternalWalletCreate(externalIds: ExternalId[]): Promise<string> {
+        const identityNumber: string = externalIds[0].external_id;
         // for honduras this is NumeroIdentidad
-        throw new ProtocolException('todo', 'this function is not implemented');
+        const data = {
+            citizenIdentifier: identityNumber
+        };
+
+        const url = `http://${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard/createVerifyCitizen`;
+        const req: any = {
+            method: 'POST',
+            url,
+            data
+        };
+        Logger.debug(`onboard/createVerifyCitizen ${url}`);
+        const res = await this.http.requestWithRetry(req);
+        Logger.debug(`onboard/createVerifyCitizen results`, res.data);
+
+        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
+        return agentIds;
     }
 
 }
