@@ -15,10 +15,10 @@ import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
 import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto';
 import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto';
+import { IExternalControllerService } from '../../remote/external.controller.service.interface';
 
 export class FingerprintPlugin implements IPlugin {
     private readonly isExternal: boolean;
-    private readonly http: ProtocolHttpService;
 
     /**
      * We pass in the parent class as context so we can access the sms module
@@ -26,10 +26,9 @@ export class FingerprintPlugin implements IPlugin {
     constructor(
         private readonly bioAuthService: IBioAuthService,
         private readonly externalIdDbGateway: ExternalIdDbGateway,
-        httpService: HttpService,
+        private readonly externalController: IExternalControllerService,
     ) {
         this.isExternal = process.env.EXTERNAL_BIO_AUTH === 'true';
-        this.http = new ProtocolHttpService(httpService);
     }
 
     private restrictToInternal(operation: string) {
@@ -124,20 +123,8 @@ export class FingerprintPlugin implements IPlugin {
 
     private async callExternalWalletCreate(externalIds: ExternalId[]): Promise<string> {
         const identityNumber: string = externalIds[0].external_id;
-        // for honduras this is NumeroIdentidad
-        const data = {
-            citizenIdentifier: identityNumber
-        };
 
-        const url = `http://${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard/createVerifyCitizen`;
-        const req: any = {
-            method: 'POST',
-            url,
-            data
-        };
-        Logger.debug(`onboard/createVerifyCitizen ${url}`);
-        const res = await this.http.requestWithRetry(req);
-        Logger.debug(`onboard/createVerifyCitizen results`, res.data);
+        this.externalController.callExternalWalletCreate(externalIds);
 
         const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
         return agentIds;
