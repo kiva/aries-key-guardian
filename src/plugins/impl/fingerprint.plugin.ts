@@ -64,8 +64,11 @@ export class FingerprintPlugin implements IPlugin {
         const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         let agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
 
-        if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === "true"))  {
+        if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === 'true'))  {
             agentIds = await this.callExternalWalletCreate(externalIds);
+            if (agentIds.length === 0) {
+                throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'citizen or fingerprint not found.');
+            }
         }
 
         let response;
