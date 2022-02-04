@@ -9,7 +9,7 @@ import { SmsDisabledService } from './impl/sms.disabled.service';
 import { IJwksService } from './jwks.service.interface';
 import { JwksService } from './impl/jwks.service';
 import { IExternalControllerService } from './external.controller.service.interface';
-import { RmsExternalControllerService } from './impl/rms.external.controller.service';
+import { RnpExternalControllerService } from './impl/rnp.external.controller.service';
 
 @Module({
     imports: [HttpModule],
@@ -27,7 +27,7 @@ import { RmsExternalControllerService } from './impl/rms.external.controller.ser
         useClass: JwksService
     }, {
         provide: IExternalControllerService,
-        useClass: RmsExternalControllerService
+        useClass: RnpExternalControllerService
     }],
     exports: [IBioAuthService, IAgencyService, ISmsService, IJwksService, IExternalControllerService]
 })

@@ -120,7 +120,7 @@ export class FingerprintPlugin implements IPlugin {
     }
 
     private async callExternalWalletCreate(externalIds: ExternalId[]): Promise<string> {
-        this.externalController.callExternalWalletCreate(externalIds[0].external_id);
+        await this.externalController.callExternalWalletCreate(externalIds[0].external_id);
 
         const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
         return agentIds;

@@ -3,13 +3,13 @@ import { Logger } from 'protocol-common/logger';
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { IExternalControllerService } from '../external.controller.service.interface';
 
-export class RmsExternalControllerService implements IExternalControllerService {
+/*
+    Controller Service for honduras implementation
+*/
+export class RnpExternalControllerService implements IExternalControllerService {
 
     private readonly http: ProtocolHttpService;
 
-    /**
-     * We pass in the parent class as context so we can access the sms module
-     */
     constructor(
         httpService: HttpService,
     ) {
@@ -17,7 +17,6 @@ export class RmsExternalControllerService implements IExternalControllerService 
     }
 
     public async callExternalWalletCreate(identityNumber: string): Promise<string> {
-        // for honduras this is NumeroIdentidad
         const data = {
             citizenIdentifier: identityNumber
         };
