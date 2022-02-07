@@ -4,9 +4,9 @@ import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { IExternalControllerService } from '../external.controller.service.interface';
 
 /*
-    Controller Service for honduras implementation
+    Controller Service for an external source using restful API
 */
-export class RnpExternalControllerService implements IExternalControllerService {
+export class ExternalControllerService implements IExternalControllerService {
 
     private readonly http: ProtocolHttpService;
 
