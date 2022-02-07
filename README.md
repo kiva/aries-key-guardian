@@ -16,6 +16,23 @@ Interoperable key guardian and recovery system for self sovereign identity walle
    docker-compose up
    ```
 
+#### Just-in-Time Wallets
+
+"Just-in-Time Wallets" refers to the ability to create a wallet for a given ID if one is missing. While you can always
+do this by hitting the /v1/escrow/create route, you might also want this to happen automatically if you instead hit the
+/v1/escrow/verify route and discover that you don't have a wallet to verify access to.
+
+To enable Just-in-Time Wallets, you need to set 2 environment variables:
+1. `JIT_WALLETS_ENABLED` should be set to `true`. This enabled the Just-in-Time wallet flow.
+2. `INTEGRATION_CONTROLLER` should be set to the address of the Controller which is responsible for coordinating access
+   to the guardianship system. This controller is expected to have a `/v1/api/onboard` route which accepts a base ID and
+   returns the ID of the agent that was created. This route should be responsible for coordinating the onboarding of new
+   users of the system. Typically, this means creating a new wallet, configuring an access mechanism, and issuing a 
+   credential to that new wallet. As an example, it might be set to `"kiva-controller:8081"`.
+
+You can set these environment variables locally in your generated .env file, using kubernetes secrets, or in whichever
+manner works best for your deployment.
+
 ### Testing
 
 To run tests, you can either run them from inside a docker container or locally from your Mac.
@@ -73,7 +90,3 @@ The Process:
 6. Test out your migration: `npm run start:debug`
 
 If you see any errors or the migration doesn't do what you expect, go back to step 4. Rinse, repeat.
-
-
-### Epic
-There is still a lot of work to do in this repo as described in the epic PRO-1892
