@@ -21,7 +21,7 @@ export class ExternalIdDbGateway {
      */
     public async fetchExternalIds(ids: Map<string, string>, throwIfEmpty: boolean = true): Promise<ExternalId[]> {
 
-        // For each id, split the id by by comma (in case it's a comma separated list of id values) and hash them, then return a new map of the same
+        // For each id, split the id by comma (in case it's a comma-separated list of id values) and hash them, then return a new map of the same
         // id type to the array of hashed values
         const hashedIds: Map<string, string[]> = new Map(
             Array.from(ids.entries()).map(([idType, idValues]: [string, string]) => {

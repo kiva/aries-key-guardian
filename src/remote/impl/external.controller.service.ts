@@ -1,27 +1,26 @@
-import { HttpService } from '@nestjs/common';
+import { HttpService, Injectable } from '@nestjs/common';
 import { Logger } from 'protocol-common/logger';
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { IExternalControllerService } from '../external.controller.service.interface';
 
 /*
-    Controller Service for an external source using restful API
-*/
+ * Controller Service for an external source using restful API
+ */
+@Injectable()
 export class ExternalControllerService implements IExternalControllerService {
 
     private readonly http: ProtocolHttpService;
 
-    constructor(
-        httpService: HttpService,
-    ) {
+    constructor(httpService: HttpService) {
         this.http = new ProtocolHttpService(httpService);
     }
 
-    public async callExternalWalletCreate(identityNumber: string): Promise<string> {
+    public async callExternalWalletCreate(id: string): Promise<string> {
         const data = {
-            citizenIdentifier: identityNumber
+            NumeroIdentidad: id // TODO: Change this to something more generic
         };
 
-        const url = `http://${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard/createVerifyCitizen`;
+        const url = `http://${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard`;
         const req: any = {
             method: 'POST',
             url,

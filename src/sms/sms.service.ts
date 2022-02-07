@@ -9,7 +9,6 @@ import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
 import { ExternalId } from '../db/entity/external.id';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
-import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
 import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
 
 /**
@@ -22,7 +21,6 @@ export class SmsService {
         private readonly smsService: ISmsService,
         private readonly rateLimitService: RateLimitService,
         private readonly smsHelperService: SmsHelperService,
-        private readonly externalIdDbGateway: ExternalIdDbGateway,
         private readonly smsOtpDbGateway: SmsOtpDbGateway
     ) {}
 
@@ -30,9 +28,8 @@ export class SmsService {
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
+    public async verify(externalIds: ExternalId[], params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
 
-        const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
         if (externalIds.some((id: ExternalId) => id.agent_id !== externalIds[0].agent_id)) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify an agentId');
         }

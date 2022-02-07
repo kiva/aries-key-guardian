@@ -27,6 +27,8 @@ import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { FindOperator } from 'typeorm';
 import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
 import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
+import { MockExternalControllerService } from '../mock/mock.external.controller.service';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -192,6 +194,10 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     provide: SmsHelperService,
                     useValue: mockSmsHelperService
                 },
+                {
+                    provide: IExternalControllerService,
+                    useClass: MockExternalControllerService
+                }
             ]
         }).compile();
 

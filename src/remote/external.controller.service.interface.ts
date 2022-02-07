@@ -1,4 +1,3 @@
-
 export abstract class IExternalControllerService {
-    abstract callExternalWalletCreate(identityNumber: string): Promise<string>;
+    abstract callExternalWalletCreate(id: string): Promise<string>;
 }

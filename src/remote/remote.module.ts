@@ -9,7 +9,7 @@ import { SmsDisabledService } from './impl/sms.disabled.service';
 import { IJwksService } from './jwks.service.interface';
 import { JwksService } from './impl/jwks.service';
 import { IExternalControllerService } from './external.controller.service.interface';
-import { ExternalControllerService } from './impl/externalControllerService';
+import { ExternalControllerService } from './impl/external.controller.service';
 
 @Module({
     imports: [HttpModule],

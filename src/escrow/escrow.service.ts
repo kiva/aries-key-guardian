@@ -11,6 +11,7 @@ import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
 import { ExternalId } from '../db/entity/external.id';
 import { WalletCredentialsDbGateway } from '../db/wallet.credentials.db.gateway';
 import { LOWER_CASE_LETTERS, randomString } from '../support/random.string.generator';
+import { IExternalControllerService } from '../remote/external.controller.service.interface';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -22,7 +23,8 @@ export class EscrowService {
         private readonly agencyService: IAgencyService,
         private readonly externalIdDbGateway: ExternalIdDbGateway,
         private readonly walletCredentialsDbGateway: WalletCredentialsDbGateway,
-        private readonly pluginFactory: PluginFactory
+        private readonly pluginFactory: PluginFactory,
+        private readonly externalController: IExternalControllerService
     ) { }
 
     /**
@@ -31,8 +33,21 @@ export class EscrowService {
     public async verify(pluginType: string, params: any, filters: VerifyFiltersDto) {
         const plugin = this.pluginFactory.create(pluginType);
 
+        const filterIds = VerifyFiltersDto.getIds(filters);
+        let externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
+
+        // If there is no external ID, then there is no wallet. If the Just-In-Time Wallet flow is enabled for this deployment, create the wallet now.
+        if ((externalIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === 'true'))  {
+            if (filterIds.size > 1) {
+                throw new ProtocolException(ProtocolErrorCode.INVALID_FILTERS, 'May only create a wallet for a single ID');
+            }
+            const externalId: string = Array.from(filterIds.values())[0];
+            await this.externalController.callExternalWalletCreate(externalId);
+            externalIds = await this.externalIdDbGateway.fetchExternalIds(filterIds);
+        }
+
         // TODO we may want to update the verify result to include the connectionData even if null
-        const result: any = await plugin.verify(params, filters);
+        const result: any = await plugin.verify(externalIds, params, filters);
         if (result.status === 'matched') {
             const agentId = result.id;
             const walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(agentId);

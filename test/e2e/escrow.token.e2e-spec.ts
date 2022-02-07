@@ -20,6 +20,8 @@ import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface';
+import { MockExternalControllerService } from '../mock/mock.external.controller.service';
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -91,6 +93,10 @@ describe('EscrowController (e2e) using token plugin', () => {
                 {
                     provide: IAgencyService,
                     useValue: mockAgencyService
+                },
+                {
+                    provide: IExternalControllerService,
+                    useClass: MockExternalControllerService
                 }
             ]
         }).compile();
