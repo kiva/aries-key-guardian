@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { EscrowService } from './escrow.service';
 import { EscrowController } from './escrow.controller';
 import { PluginModule } from '../plugins/plugin.module';
@@ -12,8 +12,7 @@ import { DbModule } from '../db/db.module';
     imports: [
         DbModule,
         PluginModule,
-        RemoteModule,
-        HttpModule
+        RemoteModule
     ],
     controllers: [EscrowController],
     providers: [EscrowService],

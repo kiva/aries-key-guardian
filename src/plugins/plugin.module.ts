@@ -1,4 +1,4 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { SmsModule } from '../sms/sms.module';
 import { PluginFactory } from './plugin.factory';
 import { RemoteModule } from '../remote/remote.module';
@@ -13,8 +13,7 @@ import { DbModule } from '../db/db.module';
         DbModule,
         RemoteModule,
         SmsModule,
-        TokenModule,
-        HttpModule
+        TokenModule
     ],
     providers: [PluginFactory],
     exports: [PluginFactory],
