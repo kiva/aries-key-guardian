@@ -28,7 +28,7 @@ import { FindOperator } from 'typeorm';
 import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
 import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
 import { MockExternalControllerService } from '../mock/mock.external.controller.service';
-import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface';
+import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
