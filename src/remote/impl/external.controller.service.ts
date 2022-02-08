@@ -17,10 +17,10 @@ export class ExternalControllerService implements IExternalControllerService {
 
     public async callExternalWalletCreate(id: string): Promise<string> {
         const data = {
-            NumeroIdentidad: id // TODO: Change this to something more generic
+            citizenIdentifier: id
         };
 
-        const url = `http://${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard`;
+        const url = `${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard`;
         const req: any = {
             method: 'POST',
             url,

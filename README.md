@@ -28,7 +28,7 @@ To enable Just-in-Time Wallets, you need to set 2 environment variables:
    to the guardianship system. This controller is expected to have a `/v1/api/onboard` route which accepts a base ID and
    returns the ID of the agent that was created. This route should be responsible for coordinating the onboarding of new
    users of the system. Typically, this means creating a new wallet, configuring an access mechanism, and issuing a 
-   credential to that new wallet. As an example, it might be set to `"kiva-controller:8081"`.
+   credential to that new wallet. As an example, it might be set to `"http://kiva-controller:8081"`.
 
 You can set these environment variables locally in your generated .env file, using kubernetes secrets, or in whichever
 manner works best for your deployment.
