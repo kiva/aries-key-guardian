@@ -32,7 +32,7 @@ export class EscrowService {
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto): Promise<any> {
+    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto): Promise<VerifyResultDto> {
         const plugin = this.pluginFactory.create(pluginType);
 
         const filterIds = VerifyFiltersDto.getIds(filters);
