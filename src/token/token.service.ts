@@ -6,7 +6,6 @@ import * as jwt from 'jsonwebtoken';
 import { IJwksService } from '../remote/jwks.service.interface';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { Logger } from 'protocol-common/logger';
-import { ExternalId } from '../db/entity/external.id';
 
 @Injectable()
 export class TokenService {
@@ -16,7 +15,7 @@ export class TokenService {
     /**
      * Verify the signature on the token and check for an id for the agent within the token.
      */
-    public async verify(externalIds: ExternalId[], params: TokenParamsDto): Promise<string> {
+    public async verify(agentIds: string[], params: TokenParamsDto): Promise<string> {
         let agentId: string;
 
         // Decode & Verify the token
@@ -40,7 +39,7 @@ export class TokenService {
         // Verify the token's content actually contains an id for the agent and also contains the right id
         if (agentId == null) {
             throw new ProtocolException(ProtocolErrorCode.MISSING_AGENT_ID, 'Token does not contain an agentId');
-        } else if (!externalIds.some((externalId: ExternalId) => externalId.agent_id === agentId)) {
+        } else if (!agentIds.some((id: string) => id === agentId)) {
             throw new ProtocolException(ProtocolErrorCode.INVALID_TOKEN, 'Token does not contain a valid agentId');
         } else {
             return agentId;

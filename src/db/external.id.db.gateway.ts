@@ -6,6 +6,7 @@ import { SecurityUtility } from 'protocol-common/security.utility';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
+import { FindConditions } from 'typeorm/find-options/FindConditions';
 
 @Injectable()
 export class ExternalIdDbGateway {
@@ -14,6 +15,27 @@ export class ExternalIdDbGateway {
         @InjectRepository(ExternalId)
         private readonly externalIdRepository: Repository<ExternalId>
     ) { }
+
+    /**
+     * This function will attempt to retrieve a single external IDs that corresponds to an id type and value. If the throwIfEmpty flag is set, then
+     * the function will throw an error if there are no results.
+     */
+    public fetchExternalId(externalIdType: string, externalIdValue: string, throwIfEmpty: boolean = true): Promise<ExternalId | undefined> {
+        const hashedId = SecurityUtility.hash32(externalIdValue + process.env.HASH_PEPPER);
+        const findConditions: FindConditions<ExternalId> = {
+            external_id: hashedId,
+            external_id_type: externalIdType
+        };
+        try {
+            if (throwIfEmpty) {
+                return this.externalIdRepository.findOneOrFail(findConditions);
+            } else {
+                return this.externalIdRepository.findOne(findConditions);
+            }
+        } catch (e) {
+            throw new ProtocolException(ProtocolErrorCode.NO_CITIZEN_FOUND, `Cannot find an agentId for provided ID ${externalIdType}`);
+        }
+    }
 
     /**
      * This function will attempt to retrieve all external IDs that correspond to an id type -> value entry in the ids map. If the throwIfEmpty flag

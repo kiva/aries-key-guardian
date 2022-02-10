@@ -37,6 +37,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         const mockAgencyService = new MockAgencyService('foo');
         const mockBioAuthService = new MockBioAuthService(status, agentId);
+        const mockExternalControllerService = new MockExternalControllerService(agentId);
 
         // Set up ExternalId repository
         const mockExternalId = new ExternalId();
@@ -91,7 +92,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                 },
                 {
                     provide: IExternalControllerService,
-                    useValue: MockExternalControllerService
+                    useValue: mockExternalControllerService
                 },
                 PluginFactory,
             ],

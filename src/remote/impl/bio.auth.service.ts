@@ -4,7 +4,6 @@ import { HttpService, Injectable } from '@nestjs/common';
 import { IBioAuthService } from '../bio.auth.service.interface';
 import { BioAuthBulkSaveDto } from '../dto/bio.auth.bulk.save.dto';
 import { FingerprintTypeEnum } from '../fingerprint.type.enum';
-import { ExternalId } from '../../db/entity/external.id';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 
@@ -24,10 +23,6 @@ export class BioAuthService implements IBioAuthService {
         this.isExternal = process.env.EXTERNAL_BIO_AUTH === 'true';
     }
 
-    private getIds(externalIds: ExternalId[]): string {
-        return externalIds.map((externalId: ExternalId) => this.isExternal ? externalId.external_id : externalId.agent_id).join(',');
-    }
-
     private restrictToInternal(operation: string) {
         if (this.isExternal) {
             throw new ProtocolException(ProtocolErrorCode.NOT_IMPLEMENTED, `External Bio Auth implementations do not support ${operation}`);
@@ -36,14 +31,13 @@ export class BioAuthService implements IBioAuthService {
 
     /**
      * Send a request to Bio Auth Service to verify a fingerprint image.
-     * TODO: Update the request to Bio Auth Service to accept "ids" instead of "agentIds"
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param image The image of the fingerprint.
-     * @param externalIds The ID(s) that the fingerprint may correspond to.
+     * @param agentIds The set of agent ID(s) that the fingerprint may correspond to.
+     * @param externalIds The set of "real world" ID(s) that the fingerprint may correspond to. This is expected to be a map of idType -> idValue.
      */
-    public async verifyFingerprint(position: number, image: string, externalIds: ExternalId[]): Promise<any> {
-        const ids: string = this.getIds(externalIds);
+    public async verifyFingerprint(position: number, image: string, agentIds: string[], externalIds: object): Promise<any> {
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
@@ -52,7 +46,7 @@ export class BioAuthService implements IBioAuthService {
                     position,
                     image
                 },
-                filters: this.isExternal ? {ids} : {agentIds: ids}
+                filters: this.isExternal ? {ids: externalIds} : {agentIds: agentIds.join(',')}
             },
         };
         return this.http.requestWithRetry(request);
@@ -63,11 +57,10 @@ export class BioAuthService implements IBioAuthService {
      *
      * @param position The position of the finger that the fingerprint template refers to.
      * @param template The template of the fingerprint.
-     * @param externalIds The ID(s) that the fingerprint may correspond to.
+     * @param agentIds The set of agent ID(s) that the fingerprint may correspond to.
      */
-    public async verifyFingerprintTemplate(position: number, template: string, externalIds: ExternalId[]): Promise<any> {
+    public async verifyFingerprintTemplate(position: number, template: string, agentIds: string[]): Promise<any> {
         this.restrictToInternal('template-based fingerprint verification');
-        const ids: string = this.getIds(externalIds);
         const request: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/api/v1/verify`,
@@ -77,7 +70,7 @@ export class BioAuthService implements IBioAuthService {
                     image: template
                 },
                 filters: {
-                    agentIds: ids
+                    agentIds: agentIds.join(',')
                 },
                 imageType: FingerprintTypeEnum.TEMPLATE,
             },

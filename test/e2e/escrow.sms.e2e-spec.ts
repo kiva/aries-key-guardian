@@ -154,6 +154,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
         const mockSmsHelperService = new MockSmsHelperService(otp);
+        const mockExternalControllerService = new MockExternalControllerService(agentId);
 
         // Tie together application with mocked and actual dependencies
         const moduleFixture = await Test.createTestingModule({
@@ -196,7 +197,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                 },
                 {
                     provide: IExternalControllerService,
-                    useClass: MockExternalControllerService
+                    useValue: mockExternalControllerService
                 }
             ]
         }).compile();

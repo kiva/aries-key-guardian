@@ -12,6 +12,8 @@ import { ExternalId } from '../db/entity/external.id';
 import { WalletCredentialsDbGateway } from '../db/wallet.credentials.db.gateway';
 import { LOWER_CASE_LETTERS, randomString } from '../support/random.string.generator';
 import { IExternalControllerService } from '../remote/external.controller.service.interface';
+import { OnboardResponseDto } from '../remote/dto/onboard.response.dto';
+import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -30,26 +32,32 @@ export class EscrowService {
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto) {
+    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto): Promise<any> {
         const plugin = this.pluginFactory.create(pluginType);
 
         const filterIds = VerifyFiltersDto.getIds(filters);
-        let externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
+        let agentIds: string[] = (await this.externalIdDbGateway.fetchExternalIds(filterIds)).map((externalId: ExternalId) => externalId.agent_id);
 
-        // If there is no external ID, then there is no wallet. If the Just-In-Time Wallet flow is enabled for this deployment, create the wallet now.
-        if ((externalIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === 'true'))  {
+        // If there are no agentIds, then there is no wallet. If the Just-In-Time Wallet flow is enabled for this deployment, create the wallet now.
+        if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === 'true'))  {
             if (filterIds.size > 1) {
                 throw new ProtocolException(ProtocolErrorCode.INVALID_FILTERS, 'May only create a wallet for a single ID');
             }
-            const externalId: string = Array.from(filterIds.values())[0];
-            await this.externalController.callExternalWalletCreate(externalId);
-            externalIds = await this.externalIdDbGateway.fetchExternalIds(filterIds);
+            const externalIdValue: string = Array.from(filterIds.values())[0];
+            const onboardResult: OnboardResponseDto = await this.externalController.callExternalWalletCreate(externalIdValue);
+            if (!onboardResult.success) {
+                throw new ProtocolException(ProtocolErrorCode.INTERNAL_SERVER_ERROR, 'Failed to onboard citizen. The wallet may already exist.');
+            }
+            agentIds = [onboardResult.agentId];
         }
 
         // TODO we may want to update the verify result to include the connectionData even if null
-        const result: any = await plugin.verify(externalIds, params, filters);
-        if (result.status === 'matched') {
-            const agentId = result.id;
+        const verifyResult: VerifyResultDto = await plugin.verify(agentIds, params, filters);
+        if (verifyResult.status === 'matched') {
+            let agentId: string = verifyResult.id;
+            if (verifyResult.idType) { // indicates this is not an agentId, but rather an externalId
+                agentId = (await this.externalIdDbGateway.fetchExternalId(verifyResult.idType, verifyResult.id)).agent_id;
+            }
             const walletCredentials = await this.walletCredentialsDbGateway.fetchWalletCredentials(agentId);
 
             const response = await this.agencyService.registerMultitenantAgent(
@@ -59,9 +67,9 @@ export class EscrowService {
             );
             Logger.log(`Register agent for agentId ${walletCredentials.agent_id}`);
             // Append the connection data onto the result
-            result.connectionData = response.data.invitation;
+            verifyResult.connectionData = response.data.invitation;
         }
-        return result;
+        return verifyResult;
     }
 
     /**

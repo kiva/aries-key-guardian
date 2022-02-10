@@ -69,6 +69,7 @@ describe('EscrowController (e2e) using token plugin', () => {
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
         const mockJwksService = new MockJwksService(publicKey1);
+        const mockExternalControllerService = new MockExternalControllerService(agentId);
 
         const moduleFixture = await Test.createTestingModule({
             controllers: [EscrowController],
@@ -96,7 +97,7 @@ describe('EscrowController (e2e) using token plugin', () => {
                 },
                 {
                     provide: IExternalControllerService,
-                    useClass: MockExternalControllerService
+                    useValue: mockExternalControllerService
                 }
             ]
         }).compile();

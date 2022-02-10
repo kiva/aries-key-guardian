@@ -1,6 +1,5 @@
 import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
 import { BioAuthBulkSaveDto } from '../../src/remote/dto/bio.auth.bulk.save.dto';
-import { ExternalId } from '../../dist/db/entity/external.id';
 
 export class MockBioAuthService implements IBioAuthService {
 
@@ -10,7 +9,7 @@ export class MockBioAuthService implements IBioAuthService {
         return Promise.resolve(undefined);
     }
 
-    async verifyFingerprint(position: number, image: string, externalIds: ExternalId[]): Promise<any> {
+    async verifyFingerprint(position: number, image: string, agentIds: string[], externalIds: object): Promise<any> {
         return Promise.resolve({
             data: {
                 status: this.status,
@@ -19,7 +18,7 @@ export class MockBioAuthService implements IBioAuthService {
         });
     }
 
-    async verifyFingerprintTemplate(position: number, template: string, externalIds: ExternalId[]): Promise<any> {
+    async verifyFingerprintTemplate(position: number, template: string, agentIds: string[]): Promise<any> {
         return Promise.resolve({
             data: {
                 status: this.status,

@@ -7,9 +7,9 @@ import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
-import { ExternalId } from '../db/entity/external.id';
 import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
+import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
 
 /**
  * Service to send an OTP via SMS and verify it
@@ -28,12 +28,12 @@ export class SmsService {
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(externalIds: ExternalId[], params: SmsParamsDto, filters: VerifyFiltersDto): Promise<{ status, id }> {
+    public async verify(agentIds: string[], params: SmsParamsDto, filters: VerifyFiltersDto): Promise<VerifyResultDto> {
 
-        if (externalIds.some((id: ExternalId) => id.agent_id !== externalIds[0].agent_id)) {
+        if (agentIds.some((id: string) => id !== agentIds[0])) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify an agentId');
         }
-        const agentId: string = externalIds[0].agent_id;
+        const agentId: string = agentIds[0];
 
         await this.rateLimit(agentId, params);
 
@@ -66,7 +66,7 @@ export class SmsService {
     /**
      * Checks the phone number against stored records, generates an OTP and sends it
      */
-    private async sendSmsOtp(agentId: string, phoneNumber: string) {
+    private async sendSmsOtp(agentId: string, phoneNumber: string): Promise<VerifyResultDto> {
         const otp = this.smsHelperService.generateRandomOtp();
         await this.smsOtpDbGateway.saveOtp(agentId, phoneNumber, otp);
         await this.smsService.sendOtp(phoneNumber, otp);
@@ -79,7 +79,7 @@ export class SmsService {
     /**
      * Check if the passed in otp matches the stored one and clear out if needed
      */
-    private async verifyOtp(agentId: string, otp: number) {
+    private async verifyOtp(agentId: string, otp: number): Promise<VerifyResultDto> {
         const smsOtp: SmsOtp  = (await this.smsOtpDbGateway.fetchSmsOtp(agentId));
         const otpMatches: boolean = smsOtp.otp === otp;
         const otpExpired: boolean = !smsOtp.otp_expiration_time || smsOtp.otp_expiration_time.valueOf() < Date.now();
