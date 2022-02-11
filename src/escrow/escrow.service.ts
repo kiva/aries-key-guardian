@@ -33,13 +33,15 @@ export class EscrowService {
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
     public async verify(pluginType: string, params: any, filters: VerifyFiltersDto): Promise<VerifyResultDto> {
+        const justInTimeWalletsEnabled: boolean = process.env.JIT_WALLETS_ENABLED === 'true';
         const plugin = this.pluginFactory.create(pluginType);
 
         const filterIds = VerifyFiltersDto.getIds(filters);
-        let agentIds: string[] = (await this.externalIdDbGateway.fetchExternalIds(filterIds)).map((externalId: ExternalId) => externalId.agent_id);
+        let agentIds: string[] = (await this.externalIdDbGateway.fetchExternalIds(filterIds, !justInTimeWalletsEnabled))
+            .map((externalId: ExternalId) => externalId.agent_id);
 
         // If there are no agentIds, then there is no wallet. If the Just-In-Time Wallet flow is enabled for this deployment, create the wallet now.
-        if ((agentIds.length === 0) && (process.env.JIT_WALLETS_ENABLED === 'true'))  {
+        if ((agentIds.length === 0))  {
             if (filterIds.size > 1) {
                 throw new ProtocolException(ProtocolErrorCode.INVALID_FILTERS, 'May only create a wallet for a single ID');
             }
