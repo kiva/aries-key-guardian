@@ -16,6 +16,8 @@ import { MockRepository } from '../mock/mock.repository';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
+import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
+import { MockExternalControllerService } from '../mock/mock.external.controller.service';
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -35,6 +37,7 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
 
         const mockAgencyService = new MockAgencyService('foo');
         const mockBioAuthService = new MockBioAuthService(status, agentId);
+        const mockExternalControllerService = new MockExternalControllerService(agentId);
 
         // Set up ExternalId repository
         const mockExternalId = new ExternalId();
@@ -86,6 +89,10 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
                 {
                     provide: IBioAuthService,
                     useValue: mockBioAuthService
+                },
+                {
+                    provide: IExternalControllerService,
+                    useValue: mockExternalControllerService
                 },
                 PluginFactory,
             ],

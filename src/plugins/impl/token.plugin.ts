@@ -5,6 +5,7 @@ import { IsValidInstance } from 'protocol-common/validation/decorators/parameter
 import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { VerifyResultDto } from '../dto/verify.result.dto';
 
 export class TokenPlugin implements IPlugin {
 
@@ -17,8 +18,8 @@ export class TokenPlugin implements IPlugin {
      * Pass call on to TokenService
      */
     @ValidateParams
-    public async verify(@IsValidInstance params: TokenParamsDto): Promise<{ status, id }> {
-        const id: string = await this.tokenService.verify(params);
+    public async verify(agentIds: string[], @IsValidInstance params: TokenParamsDto): Promise<VerifyResultDto> {
+        const id: string = await this.tokenService.verify(agentIds, params);
         return {
             status: 'matched',
             id,

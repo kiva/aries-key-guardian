@@ -15,7 +15,7 @@ export class TokenService {
     /**
      * Verify the signature on the token and check for an id for the agent within the token.
      */
-    public async verify(params: TokenParamsDto): Promise<string> {
+    public async verify(agentIds: string[], params: TokenParamsDto): Promise<string> {
         let agentId: string;
 
         // Decode & Verify the token
@@ -39,6 +39,8 @@ export class TokenService {
         // Verify the token's content actually contains an id for the agent and also contains the right id
         if (agentId == null) {
             throw new ProtocolException(ProtocolErrorCode.MISSING_AGENT_ID, 'Token does not contain an agentId');
+        } else if (!agentIds.some((id: string) => id === agentId)) {
+            throw new ProtocolException(ProtocolErrorCode.INVALID_TOKEN, 'Token does not contain a valid agentId');
         } else {
             return agentId;
         }

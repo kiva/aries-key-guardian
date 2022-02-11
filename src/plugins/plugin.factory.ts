@@ -9,7 +9,6 @@ import { SmsService } from '../sms/sms.service';
 import { IBioAuthService } from '../remote/bio.auth.service.interface';
 import { TokenPlugin } from './impl/token.plugin';
 import { TokenService } from '../token/token.service';
-import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
 
 /**
  * Creates the specific plugin based on plugin type and handles passing in dependencies
@@ -24,14 +23,13 @@ export class PluginFactory {
     constructor(
         @Optional() private readonly bioAuthService?: IBioAuthService,
         @Optional() private readonly tokenService?: TokenService,
-        @Optional() private readonly smsService?: SmsService,
-        @Optional() private readonly externalIdDbGateway?: ExternalIdDbGateway
+        @Optional() private readonly smsService?: SmsService
     ) {}
 
     public create(pluginType: string): IPlugin {
         switch (pluginType) {
             case PluginTypeEnum.FINGERPRINT:
-                return new FingerprintPlugin(this.bioAuthService, this.externalIdDbGateway);
+                return new FingerprintPlugin(this.bioAuthService);
             case PluginTypeEnum.SMS_OTP:
                 return new SmsOtpPlugin(this.smsService);
             case PluginTypeEnum.TOKEN:

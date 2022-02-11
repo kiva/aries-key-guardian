@@ -12,7 +12,7 @@ import { DbModule } from '../db/db.module';
     imports: [
         DbModule,
         PluginModule,
-        RemoteModule,
+        RemoteModule
     ],
     controllers: [EscrowController],
     providers: [EscrowService],

@@ -8,6 +8,8 @@ import { ISmsService } from './sms.service.interface';
 import { SmsDisabledService } from './impl/sms.disabled.service';
 import { IJwksService } from './jwks.service.interface';
 import { JwksService } from './impl/jwks.service';
+import { IExternalControllerService } from './external.controller.service.interface';
+import { ExternalControllerService } from './impl/external.controller.service';
 
 @Module({
     imports: [HttpModule],
@@ -23,7 +25,10 @@ import { JwksService } from './impl/jwks.service';
     }, {
         provide: IJwksService,
         useClass: JwksService
+    }, {
+        provide: IExternalControllerService,
+        useClass: ExternalControllerService
     }],
-    exports: [IBioAuthService, IAgencyService, ISmsService, IJwksService]
+    exports: [IBioAuthService, IAgencyService, ISmsService, IJwksService, IExternalControllerService]
 })
 export class RemoteModule {}

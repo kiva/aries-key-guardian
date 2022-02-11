@@ -13,7 +13,7 @@ import { DbModule } from '../db/db.module';
         DbModule,
         RemoteModule,
         SmsModule,
-        TokenModule,
+        TokenModule
     ],
     providers: [PluginFactory],
     exports: [PluginFactory],

@@ -1,40 +1,39 @@
-import { IPlugin } from '../plugin.interface';
 import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { IBioAuthService } from '../../remote/bio.auth.service.interface';
-import { Logger } from 'protocol-common/logger';
-import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
-import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
-import { ExternalId } from '../../db/entity/external.id';
-import { VerifyFiltersDto } from '../dto/verify.filters.dto';
-import { ExternalIdDbGateway } from '../../db/external.id.db.gateway';
 import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
 import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
 import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
+import { Logger } from 'protocol-common/logger';
+import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { IBioAuthService } from '../../remote/bio.auth.service.interface';
+import { IPlugin } from '../plugin.interface';
+import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
+import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
+import { VerifyFiltersDto } from '../dto/verify.filters.dto';
 import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto';
 import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto';
+import { VerifyResultDto } from '../dto/verify.result.dto';
 
 export class FingerprintPlugin implements IPlugin {
-    private readonly isExternal: boolean;
+
+    private readonly usingExternalBioAuth: boolean;
 
     /**
      * We pass in the parent class as context so we can access the sms module
      */
     constructor(
-        private readonly bioAuthService: IBioAuthService,
-        private readonly externalIdDbGateway: ExternalIdDbGateway
+        private readonly bioAuthService: IBioAuthService
     ) {
-        this.isExternal = process.env.EXTERNAL_BIO_AUTH === 'true';
-    }
-
-    private restrictToInternal(operation: string) {
-        if (this.isExternal) {
-            throw new ProtocolException(ProtocolErrorCode.NOT_IMPLEMENTED, `External Bio Auth implementations do not support ${operation}`);
-        }
+        this.usingExternalBioAuth = process.env.EXTERNAL_BIO_AUTH === 'true';
     }
 
     private async fingerprintQualityCheck(protocolException: ProtocolException, agentIds: string): Promise<ProtocolException> {
-        this.restrictToInternal('fingerprint quality check');
+        if (this.usingExternalBioAuth) {
+            throw new ProtocolException(
+                ProtocolErrorCode.NOT_IMPLEMENTED,
+                `External Bio Auth implementations do not support fingerprint quality checks`
+            );
+        }
+
         try {
             const response = await this.bioAuthService.qualityCheck(agentIds);
             protocolException.details = protocolException.details || {};
@@ -46,26 +45,47 @@ export class FingerprintPlugin implements IPlugin {
     }
 
     /**
+     * This verify logic is specific to when the service is configured to use an external Bio Auth Service rather than the one built by Protocol. It
+     * expects that service to provide the externalId and externalIdType that was matched on as part of the response.
+     */
+    @ValidateParams
+    private async verifyUsingExternalBioAuth(
+        agentIds: string[],
+        @IsValidInstance params: VerifyFingerprintImageDto,
+        @IsValidInstance filters: VerifyFiltersDto
+    ): Promise<VerifyResultDto> {
+        const response = await this.bioAuthService.verifyFingerprint(params.position, params.image, agentIds, filters.externalIds);
+        if (response.data.status !== 'matched') {
+            throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
+        }
+        return {
+            status: response.data.status,
+            id: response.data.externalId,
+            idType: response.data.externalIdType
+        };
+    }
+
+    /**
      * The verify logic involves calling verify against the Bio Auth Service, and then handling certain error codes by asking the Bio Auth Service for
      * the positions with the highest image quality
-     * TODO - PRO-3134: Update this after Bio Auth Service handles both these tasks in one call.
+     * TODO - Update this after Bio Auth Service handles both these tasks in one call.
      */
     @ValidateParams
     public async verify(
+        agentIds: string[],
         @IsValidInstanceOf(VerifyFingerprintImageDto, VerifyFingerprintTemplateDto) params: VerifyFingerprintImageDto | VerifyFingerprintTemplateDto,
         @IsValidInstance filters: VerifyFiltersDto
-    ) {
-
-        const externalIds: ExternalId[] = await this.externalIdDbGateway.fetchExternalIds(VerifyFiltersDto.getIds(filters));
-        const agentIds: string = externalIds.map((externalId: ExternalId) => externalId.agent_id).join(',');
+    ): Promise<VerifyResultDto> {
+        if (this.usingExternalBioAuth) {
+            return this.verifyUsingExternalBioAuth(agentIds, params as any, filters);
+        }
 
         let response;
         try {
             if (VerifyFingerprintImageDto.isInstance(params)) {
-                response = await this.bioAuthService.verifyFingerprint(params.position, params.image, externalIds);
+                response = await this.bioAuthService.verifyFingerprint(params.position, params.image, agentIds, filters.externalIds);
             } else {
-                this.restrictToInternal('template-based fingerprint verification');
-                response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, externalIds);
+                response = await this.bioAuthService.verifyFingerprintTemplate(params.position, params.template, agentIds);
             }
         } catch(ex) {
             // Handle specific error codes
@@ -74,8 +94,8 @@ export class FingerprintPlugin implements IPlugin {
                 case ProtocolErrorCode.FINGERPRINT_MISSING_NOT_CAPTURED:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_AMPUTATION:
                 case ProtocolErrorCode.FINGERPRINT_MISSING_UNABLE_TO_PRINT:
-                    if (process.env.QUALITY_CHECK_ENABLED === 'true' && !this.isExternal) {
-                        ex = await this.fingerprintQualityCheck(ex, agentIds);
+                    if (process.env.QUALITY_CHECK_ENABLED === 'true') {
+                        ex = await this.fingerprintQualityCheck(ex, agentIds.join(','));
                     }
                 // no break, fall through
                 default:
@@ -88,25 +108,22 @@ export class FingerprintPlugin implements IPlugin {
             throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
         }
 
-        // If we're dealing with an external verifier, they won't be able to return an agentId. It will be able to return the externalId that matched,
-        // so use that to find the appropriate agentId.
-        let id = response.data.agentId;
-        if (response.data.externalId) {
-            id = externalIds.find((externalId: ExternalId) => externalId.external_id === response.data.externalId);
-        }
-
         return {
             status: response.data.status,
-            id
+            id: response.data.agentId
         };
     }
 
     public async save(agentId: string, params: BioAuthSaveParamsDto | BioAuthSaveParamsDto[]) {
-        this.restrictToInternal('saving new fingerprint(s)');
-        const data = Array.isArray(params) ? params : [params];
-        const fingerprints: BioAuthSaveDto[] = data.map((param: BioAuthSaveParamsDto) => {
-            return {agentId, params: param};
-        });
-        await this.bioAuthService.bulkSave({fingerprints});
+        if (this.usingExternalBioAuth) {
+            Logger.warn('With an external Bio Auth Service, the provided fingerprint is not actually saved.');
+        } else {
+            const data = Array.isArray(params) ? params : [params];
+            const fingerprints: BioAuthSaveDto[] = data.map((param: BioAuthSaveParamsDto) => {
+                return {agentId, params: param};
+            });
+            await this.bioAuthService.bulkSave({fingerprints});
+        }
     }
+
 }
