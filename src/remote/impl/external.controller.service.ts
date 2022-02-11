@@ -17,15 +17,13 @@ export class ExternalControllerService implements IExternalControllerService {
     }
 
     public async callExternalWalletCreate(id: string): Promise<OnboardResponseDto> {
-        const data = {
-            citizenIdentifier: id
-        };
-
         const url = `${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard`;
         const req: any = {
             method: 'POST',
             url,
-            data
+            data: {
+                citizenIdentifier: id
+            }
         };
         const res = await this.http.requestWithRetry(req);
         isValidInstanceOrFail(res.data, OnboardResponseDto);
