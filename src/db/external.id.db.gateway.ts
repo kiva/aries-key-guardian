@@ -20,7 +20,7 @@ export class ExternalIdDbGateway {
      * This function will attempt to retrieve a single external IDs that corresponds to an id type and value. If the throwIfEmpty flag is set, then
      * the function will throw an error if there are no results.
      */
-    public fetchExternalId(externalIdType: string, externalIdValue: string, throwIfEmpty: boolean = true): Promise<ExternalId | undefined> {
+    public fetchExternalId(externalIdType: string, externalIdValue: string, throwIfEmpty = true): Promise<ExternalId | undefined> {
         const hashedId = SecurityUtility.hash32(externalIdValue + process.env.HASH_PEPPER);
         const findConditions: FindConditions<ExternalId> = {
             external_id: hashedId,
@@ -41,7 +41,7 @@ export class ExternalIdDbGateway {
      * This function will attempt to retrieve all external IDs that correspond to an id type -> value entry in the ids map. If the throwIfEmpty flag
      * is set, then the function will throw an error if there are no results.
      */
-    public async fetchExternalIds(ids: Map<string, string>, throwIfEmpty: boolean = true): Promise<ExternalId[]> {
+    public async fetchExternalIds(ids: Map<string, string>, throwIfEmpty = true): Promise<ExternalId[]> {
 
         // For each id, split the id by comma (in case it's a comma-separated list of id values) and hash them, then return a new map of the same
         // id type to the array of hashed values

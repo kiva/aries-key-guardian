@@ -8,6 +8,7 @@ import { ProtocolValidationPipe } from 'protocol-common/validation/protocol.vali
 
 /**
  * Endpoints for our escrow service
+ *
  * @tothink in our AuthService we validated device details so we could know which fingerprint device was being used, we may want
  *          keep that functionality around, but it's fingerprint specific
  */

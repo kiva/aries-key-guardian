@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 import { Injectable } from '@nestjs/common';
 import crypto from 'crypto';
 
@@ -21,7 +22,7 @@ export class SmsHelperService {
         const numBytes = Math.ceil(numBits / 4); // Must use bytes... min number of bytes required
         const mask = (1 << numBits) - 1; // If we get more bits than required, look only at what we need and discard the rest
 
-        let randNum;
+        let randNum: number;
         do {
             randNum = crypto.randomBytes(numBytes).readUIntBE(0, numBytes);
             randNum = randNum & mask;

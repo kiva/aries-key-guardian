@@ -22,7 +22,7 @@ export class CreateFiltersDto {
                     throwValidationException(['All external IDs must have either a string or numeric value']);
                 }
             }
-            return [entry[0], `${entry[1]}`];
+            return [entry[0], `${entry[1].toString()}`];
         }));
     }
 }

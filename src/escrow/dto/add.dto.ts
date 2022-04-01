@@ -26,7 +26,8 @@ export class AddDto {
     @ValidateNested() @Type(() => CreateFiltersDto) readonly filters: CreateFiltersDto;
 
     @ApiProperty({
-        description: 'JSON params object to save so we can authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
+        description:
+            'JSON params object to save so we can authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
     })
     @IsNotEmptyObject() readonly params: any;
 

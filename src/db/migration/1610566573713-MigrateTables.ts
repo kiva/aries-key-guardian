@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class MigrateTables1610566573713 implements MigrationInterface {
@@ -25,15 +26,15 @@ export class MigrateTables1610566573713 implements MigrationInterface {
 
         // Remove unnecessary old indexes from the synchronized version of the database
         await queryRunner.query(
-            `SELECT drop_index('sms_otp', 'agent_id');`
+            'SELECT drop_index(\'sms_otp\', \'agent_id\');'
         );
         await queryRunner.query(
-            `SELECT drop_index('wallet_credentials', 'did');`
+            'SELECT drop_index(\'wallet_credentials\', \'did\');'
         );
 
         // Don't need this function anymore, so delete it
         await queryRunner.query(
-            `DROP FUNCTION drop_index;`
+            'DROP FUNCTION drop_index;'
         );
 
         // Create a function to rename a unique or primary key index whose name we do not know
@@ -66,27 +67,27 @@ export class MigrateTables1610566573713 implements MigrationInterface {
 
         // Give old PKs and Unique Keys a predictable name
         await queryRunner.query(
-            `SELECT rename_constraint('sms_otp', 'id', 'sms_otp_pkey', true);`
+            'SELECT rename_constraint(\'sms_otp\', \'id\', \'sms_otp_pkey\', true);'
         );
         await queryRunner.query(
-            `SELECT rename_constraint('sms_otp', 'agent_id', 'sms_otp_agent_id_key', false);`
+            'SELECT rename_constraint(\'sms_otp\', \'agent_id\', \'sms_otp_agent_id_key\', false);'
         );
         await queryRunner.query(
-            `SELECT rename_constraint('sms_otp', 'gov_id_1', 'sms_otp_gov_id_1_hash_key', false);`
+            'SELECT rename_constraint(\'sms_otp\', \'gov_id_1\', \'sms_otp_gov_id_1_hash_key\', false);'
         );
         await queryRunner.query(
-            `SELECT rename_constraint('sms_otp', 'gov_id_2', 'sms_otp_gov_id_2_hash_key', false);`
+            'SELECT rename_constraint(\'sms_otp\', \'gov_id_2\', \'sms_otp_gov_id_2_hash_key\', false);'
         );
         await queryRunner.query(
-            `SELECT rename_constraint('wallet_credentials', 'id', 'wallet_credentials_pkey', true);`
+            'SELECT rename_constraint(\'wallet_credentials\', \'id\', \'wallet_credentials_pkey\', true);'
         );
         await queryRunner.query(
-            `SELECT rename_constraint('wallet_credentials', 'did', 'wallet_credentials_did_key', false);`
+            'SELECT rename_constraint(\'wallet_credentials\', \'did\', \'wallet_credentials_did_key\', false);'
         );
 
         // Don't need this function anymore, so delete it
         await queryRunner.query(
-            `DROP FUNCTION rename_constraint;`
+            'DROP FUNCTION rename_constraint;'
         );
     }
 

@@ -29,6 +29,7 @@ export class TokenPlugin implements IPlugin {
     /**
      * Not supported for token, would require using the token provider's admin api (e.g. Auth0) to inject the agentId into the user's metadata.
      */
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async save(id: string, params: any) {
         throw new ProtocolException(ProtocolErrorCode.NOT_IMPLEMENTED, 'Save endpoint not supported for tokens');
     }

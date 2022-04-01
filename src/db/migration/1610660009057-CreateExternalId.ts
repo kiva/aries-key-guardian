@@ -6,7 +6,7 @@ export class CreateExternalId1610660009057 implements MigrationInterface {
 
         // Creates primary key + index named "external_id_pkey"
         // Creates a unique constraint named "external_id_external_id_external_id_type_key" and btree index on (external_id, external_id_type)
-        queryRunner.query(
+        await queryRunner.query(
             `CREATE TABLE IF NOT EXISTS external_id (
               id SERIAL PRIMARY KEY,
               did VARCHAR(32) NOT NULL,
@@ -15,16 +15,16 @@ export class CreateExternalId1610660009057 implements MigrationInterface {
               UNIQUE (external_id, external_id_type)
             );`
         );
-        queryRunner.query('CREATE INDEX idx_external_id_did ON external_id(did);');
-        queryRunner.query('CREATE INDEX idx_external_id_external_id ON external_id(external_id);');
-        queryRunner.query('CREATE INDEX idx_external_id_external_id_type ON external_id(external_id_type);');
+        await queryRunner.query('CREATE INDEX idx_external_id_did ON external_id(did);');
+        await queryRunner.query('CREATE INDEX idx_external_id_external_id ON external_id(external_id);');
+        await queryRunner.query('CREATE INDEX idx_external_id_external_id_type ON external_id(external_id_type);');
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id_type;');
-        queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id;');
-        queryRunner.query('DROP INDEX IF EXISTS idx_external_id_did;');
-        queryRunner.query('DROP TABLE IF EXISTS external_id;');
+        await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id_type;');
+        await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id;');
+        await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_did;');
+        await queryRunner.query('DROP TABLE IF EXISTS external_id;');
     }
 
 }

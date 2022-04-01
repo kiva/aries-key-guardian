@@ -77,7 +77,7 @@ export class EscrowService {
     /**
      * Handles create a new agent and saving the verification data to allow later authentication
      */
-    public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string, connectionData: any }> {
+    public async create(pluginType: string, filters: CreateFiltersDto, params: any): Promise<{ id: string; connectionData: any }> {
 
         // In case this is a retry (roll-forward case), try to retrieve existing ExternalIds. If any are found, they should all map to the same Agent
         // ID, indicating that it is from a previous attempt at onboarding. Otherwise, treat this is as the first attempt.
@@ -99,7 +99,7 @@ export class EscrowService {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
                 throw e;
             } else {
-                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message as string}`);
             }
         }
 
@@ -141,7 +141,7 @@ export class EscrowService {
             if (e.code && e.code === ProtocolErrorCode.VALIDATION_EXCEPTION) {
                 throw e;
             } else {
-                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message}`);
+                throw new ProtocolException(ProtocolErrorCode.PLUGIN_ERROR, `Failed to save to plugin of type ${pluginType}: ${e.message as string}`);
             }
         }
         return { result: 'success' };

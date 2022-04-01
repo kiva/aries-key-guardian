@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // @tothink we could also use Typeorm's environment variables feature:
 // https://github.com/typeorm/typeorm/blob/master/docs/using-ormconfig.md#using-environment-variables
-export function OrmConfig(): DynamicModule {
+export const OrmConfig = (): DynamicModule => {
   return TypeOrmModule.forRoot({
     type: 'postgres',
     synchronize: false,
@@ -16,4 +16,4 @@ export function OrmConfig(): DynamicModule {
     database: process.env.POSTGRES_DB,
     port: parseInt(process.env.POSTGRES_PORT, 10),
   });
-}
+};
