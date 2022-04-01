@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
 import { BioAuthBulkSaveDto } from '../../src/remote/dto/bio.auth.bulk.save.dto';
 

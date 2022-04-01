@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IJwksService } from '../../src/remote/jwks.service.interface';
 import { CertSigningKey, SigningKey } from 'jwks-rsa';
 
