@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { EntityTarget } from 'typeorm/common/EntityTarget';
 import { EntityManager } from 'typeorm';

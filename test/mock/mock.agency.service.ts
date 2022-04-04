@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IAgencyService } from '../../src/remote/agency.service.interface';
 
 export class MockAgencyService implements IAgencyService {

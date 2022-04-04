@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/require-await */
 import { VerifyFiltersDto } from '../../src/plugins/dto/verify.filters.dto';
 import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
