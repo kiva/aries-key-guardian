@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IJwksService } from '../../src/remote/jwks.service.interface';
 import { CertSigningKey, SigningKey } from 'jwks-rsa';
 
@@ -15,7 +14,7 @@ export class MockJwksService implements IJwksService {
         }
     };
 
-    async getKey(token: string): Promise<SigningKey> {
+    async getKey(): Promise<SigningKey> {
         return Promise.resolve(this.certSigningKey);
     }
 }
