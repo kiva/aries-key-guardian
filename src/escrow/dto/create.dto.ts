@@ -21,6 +21,7 @@ export class CreateDto {
     @ValidateNested() @Type(() => CreateFiltersDto) readonly filters: CreateFiltersDto;
 
     @ApiProperty({
+        // eslint-disable-next-line max-len
         description: 'JSON params object or array to save so we can authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
     })
     @IsNotEmpty() readonly params: any;

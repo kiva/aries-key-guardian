@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/require-await */
+/**
+ * Can't enable these rules without changing the behavior of the script.
+ */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class PopulateExternalId1610662630571 implements MigrationInterface {

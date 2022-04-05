@@ -30,7 +30,7 @@ export class FingerprintPlugin implements IPlugin {
         if (this.usingExternalBioAuth) {
             throw new ProtocolException(
                 ProtocolErrorCode.NOT_IMPLEMENTED,
-                `External Bio Auth implementations do not support fingerprint quality checks`
+                'External Bio Auth implementations do not support fingerprint quality checks'
             );
         }
 
@@ -56,7 +56,10 @@ export class FingerprintPlugin implements IPlugin {
     ): Promise<VerifyResultDto> {
         const response = await this.bioAuthService.verifyFingerprint(params.position, params.image, agentIds, filters.externalIds);
         if (response.data.status !== 'matched') {
-            throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
+            throw new ProtocolException(
+                ProtocolErrorCode.FINGERPRINT_NO_MATCH,
+                'Fingerprint did not match stored records for citizen supplied through filters'
+            );
         }
         return {
             status: response.data.status,
@@ -105,7 +108,10 @@ export class FingerprintPlugin implements IPlugin {
 
         //  Bio Auth Service should throw this error on no match, but just to be safe double check it and throw here
         if (response.data.status !== 'matched') {
-            throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'Fingerprint did not match stored records for citizen supplied through filters');
+            throw new ProtocolException(
+                ProtocolErrorCode.FINGERPRINT_NO_MATCH,
+                'Fingerprint did not match stored records for citizen supplied through filters'
+            );
         }
 
         return {

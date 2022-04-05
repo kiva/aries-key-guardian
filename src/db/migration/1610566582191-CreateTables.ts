@@ -34,8 +34,8 @@ export class CreateTables1610566582191 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE sms_otp`);
-        await queryRunner.query(`DROP TABLE wallet_credentials`);
+        await queryRunner.query('DROP TABLE sms_otp');
+        await queryRunner.query('DROP TABLE wallet_credentials');
     }
 
 }

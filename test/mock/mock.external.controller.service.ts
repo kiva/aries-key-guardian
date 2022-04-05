@@ -5,10 +5,10 @@ export class MockExternalControllerService implements IExternalControllerService
 
     constructor(private readonly agentId: string) {}
 
-    public async callExternalWalletCreate(id: string): Promise<OnboardResponseDto> {
-        return {
+    public async callExternalWalletCreate(): Promise<OnboardResponseDto> {
+        return Promise.resolve({
             success: true,
             agentId: this.agentId
-        };
+        });
     }
 }

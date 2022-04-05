@@ -14,7 +14,7 @@ export class MockJwksService implements IJwksService {
         }
     };
 
-    async getKey(token: string): Promise<SigningKey> {
+    async getKey(): Promise<SigningKey> {
         return Promise.resolve(this.certSigningKey);
     }
 }

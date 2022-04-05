@@ -25,7 +25,7 @@ export class RateLimitService {
     public async addAttempt(bucket: RateLimitBucket, key: string): Promise<void> {
         const config = this.rateLimitConfigService.getConfig(bucket);
         const baseCacheKey: string = RateLimitService.makeCacheKey(bucket, key);
-        const blockedCacheKey: string = `blocked${baseCacheKey}`;
+        const blockedCacheKey = `blocked${baseCacheKey}`;
         const now = Date.now();
         const oneMinAgo = now - (config.ttl * 1000); // ttl is in seconds, but the timestamp is in milliseconds
 
@@ -46,7 +46,7 @@ export class RateLimitService {
      */
     public async shouldLimit(bucket: RateLimitBucket, key: string): Promise<boolean> {
         const baseCacheKey: string = RateLimitService.makeCacheKey(bucket, key);
-        const blockedCacheKey: string = `blocked${baseCacheKey}`;
+        const blockedCacheKey = `blocked${baseCacheKey}`;
         return (await this.cache.get<boolean>(blockedCacheKey)) || false;
     }
 }

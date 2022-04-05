@@ -53,7 +53,10 @@ export class SmsService {
         const attempt = async (key: string) => {
             await this.rateLimitService.addAttempt(bucket, key);
             if (await this.rateLimitService.shouldLimit(bucket, key)) {
-                throw new ProtocolException(ProtocolErrorCode.TOO_MANY_ATTEMPTS, 'Too many OTP verification attempts. Please wait awhile and try again');
+                throw new ProtocolException(
+                    ProtocolErrorCode.TOO_MANY_ATTEMPTS,
+                    'Too many OTP verification attempts. Please wait awhile and try again'
+                );
             }
         };
 

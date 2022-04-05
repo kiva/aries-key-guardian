@@ -7,6 +7,7 @@ import { Type } from 'class-transformer';
 
 /**
  * DTO for the verify endpoint
+ *
  * @tothink I'm not sure if we should have open endpoints where you can pass in the plugin type, or a bunch of specific endpoints
  * where the plugin type is hard coded in each
  */

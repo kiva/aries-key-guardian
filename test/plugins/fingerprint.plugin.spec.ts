@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { VerifyFiltersDto } from '../../src/plugins/dto/verify.filters.dto';
 import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
 import { MockBioAuthService } from '../mock/mock.bio.auth.service';
@@ -11,8 +12,8 @@ describe('Fingerprint Plugin', () => {
     let verifyTemplateParams: VerifyFingerprintTemplateDto;
     let verifyFilters: VerifyFiltersDto;
     let agentId: string;
-    const externalId: string = 'value';
-    const externalIdType: string = 'key';
+    const externalId = 'value';
+    const externalIdType = 'key';
 
     beforeAll(() => {
         verifyImageParams = {

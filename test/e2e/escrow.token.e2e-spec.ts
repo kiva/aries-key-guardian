@@ -29,7 +29,7 @@ describe('EscrowController (e2e) using token plugin', () => {
     let privateKey1: string;
     let privateKey2: string;
 
-    function data(token: string): object {
+    const data = (token: string): object => {
         return {
             pluginType: PluginTypeEnum.TOKEN,
             filters: {
@@ -41,7 +41,7 @@ describe('EscrowController (e2e) using token plugin', () => {
                 token
             }
         };
-    }
+    };
 
     beforeAll(async () => {
         jest.setTimeout(10000);
@@ -102,7 +102,7 @@ describe('EscrowController (e2e) using token plugin', () => {
             ]
         }).compile();
 
-        app = await moduleFixture.createNestApplication();
+        app = moduleFixture.createNestApplication();
         // Need to apply exception filter for correct error handling
         app.useGlobalFilters(new ProtocolExceptionFilter());
         await app.init();

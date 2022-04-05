@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
@@ -82,7 +83,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         // Constants for use throughout the test suite
         id2 = 1000000 + parseInt(now().toString().substr(7, 6), 10); // Unique 7 digit number that doesn't start with 0
         const id2Hash = pepperHash(`${id2}`);
-        id1 = 'N' + id2;
+        id1 = `N${id2}`;
         const id1Hash = pepperHash(id1);
         otp = 123456;
         agentId = 'agentId123';
@@ -101,11 +102,10 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
 
             externalIdFilter(externalId: ExternalId, conditions?: FindConditions<ExternalId>): boolean {
-                // @ts-ignore
-                const values: string[] = conditions.external_id instanceof FindOperator && conditions.external_id.type === 'in' ?
+                const values = conditions.external_id instanceof FindOperator && conditions.external_id.type === 'in' ?
                     conditions.external_id.value :
                     [conditions.external_id];
-                return values.some((value: string) => value === externalId.external_id) &&
+                return (values as string[]).some((value: string) => value === externalId.external_id) &&
                     conditions.external_id_type === externalId.external_id_type;
             }
 
@@ -149,7 +149,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         }([mockSmsOtp]);
 
         // Cache for rate limiting
-        const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/*seconds*/});
+        const memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 10/* seconds*/});
 
         // Mock Services
         const mockAgencyService = new MockAgencyService('foo');
@@ -202,7 +202,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
             ]
         }).compile();
 
-        app = await moduleFixture.createNestApplication();
+        app = moduleFixture.createNestApplication();
         // Need to apply exception filter for correct error handling
         app.useGlobalFilters(new ProtocolExceptionFilter());
         await app.init();
