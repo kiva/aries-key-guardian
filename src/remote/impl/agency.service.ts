@@ -1,8 +1,9 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { AxiosRequestConfig } from 'axios';
 import { IAgencyService } from '../agency.service.interface';
 import { Logger } from 'protocol-common/logger';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AgencyService implements IAgencyService {

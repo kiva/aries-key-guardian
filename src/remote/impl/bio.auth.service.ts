@@ -1,11 +1,12 @@
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { AxiosRequestConfig } from 'axios';
-import { HttpService, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IBioAuthService } from '../bio.auth.service.interface';
 import { BioAuthBulkSaveDto } from '../dto/bio.auth.bulk.save.dto';
 import { FingerprintTypeEnum } from '../fingerprint.type.enum';
 import { ProtocolException } from 'protocol-common/protocol.exception';
 import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { HttpService } from '@nestjs/axios';
 
 /**
  * This service class is a facade for the Bio Auth Service HTTP API.
