@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
@@ -23,7 +22,6 @@ import { SmsHelperService } from '../../src/sms/sms.helper.service';
 import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
 import { ExternalId } from '../../src/db/entity/external.id';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
-import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
 import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
 import { FindOperator } from 'typeorm';
 import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
@@ -109,7 +107,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
                     conditions.external_id_type === externalId.external_id_type;
             }
 
-            async findOne(conditions?: FindConditions<ExternalId>, options?: FindOneOptions<ExternalId>): Promise<ExternalId | undefined> {
+            async findOne(conditions?: FindConditions<ExternalId>): Promise<ExternalId | undefined> {
                 const externalIds = await super.find(conditions);
                 return externalIds.find((externalId: ExternalId) => this.externalIdFilter(externalId, conditions));
             }

@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class MigrateTables1610566573713 implements MigrationInterface {
@@ -14,7 +13,12 @@ export class MigrateTables1610566573713 implements MigrationInterface {
               i RECORD;
             BEGIN
               FOR i IN
-                (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'idx%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
+                (
+                    SELECT indexname FROM pg_indexes
+                    WHERE tablename = _tablename
+                    AND indexname ILIKE 'idx%'
+                    AND indexdef ILIKE CONCAT('%', _colname, '%')
+                )
               LOOP
                 RAISE INFO 'DROPPING INDEX: %', i.indexname;
                 EXECUTE 'DROP INDEX IF EXISTS "' || i.indexname || '"';
@@ -47,14 +51,24 @@ export class MigrateTables1610566573713 implements MigrationInterface {
             BEGIN
               IF _pk THEN
                   FOR i IN
-                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'pk%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
+                    (
+                        SELECT indexname FROM pg_indexes
+                        WHERE tablename = _tablename
+                        AND indexname ILIKE 'pk%'
+                        AND indexdef ILIKE CONCAT('%', _colname, '%')
+                    )
                   LOOP
                     RAISE INFO 'RENAMING CONSTRAINT % to %', i.indexname, _newname;
                     EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT "' || i.indexname || '" TO "' || _newname || '"';
                   END LOOP;
               ELSE
                   FOR i IN
-                    (SELECT indexname FROM pg_indexes WHERE tablename = _tablename AND indexname ILIKE 'uq%' AND indexdef ILIKE CONCAT('%', _colname, '%'))
+                    (
+                        SELECT indexname FROM pg_indexes
+                        WHERE tablename = _tablename
+                        AND indexname ILIKE 'uq%'
+                        AND indexdef ILIKE CONCAT('%', _colname, '%')
+                    )
                   LOOP
                     RAISE INFO 'RENAMING INDEX % to %', i.indexname, _newname;
                     EXECUTE 'ALTER TABLE IF EXISTS ' || _tablename || ' RENAME CONSTRAINT "' || i.indexname || '" TO "' || _newname || '"';
@@ -91,7 +105,7 @@ export class MigrateTables1610566573713 implements MigrationInterface {
         );
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    public async down(): Promise<void> {
     }
 
 }

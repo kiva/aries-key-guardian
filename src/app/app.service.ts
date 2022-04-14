@@ -17,8 +17,7 @@ export class AppService {
     /**
      * Sets up app in a way that can be used by main.ts and e2e tests
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public static async setup(app: INestApplication): Promise<void> {
+    public static setup(app: INestApplication): void {
         const logger = new Logger(DatadogLogger.getLogger());
         app.useLogger(logger);
         app.use(traceware(process.env.SERVICE_NAME));

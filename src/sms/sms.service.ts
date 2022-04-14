@@ -7,7 +7,6 @@ import { RateLimitService } from '../ratelimit/ratelimit.service';
 import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
 import { ISmsService } from '../remote/sms.service.interface';
 import { SmsHelperService } from './sms.helper.service';
-import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
 import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
 import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
 
@@ -28,7 +27,7 @@ export class SmsService {
      * If passed a phone number send the SMS OTP
      * If passed an otp, verify it
      */
-    public async verify(agentIds: string[], params: SmsParamsDto, filters: VerifyFiltersDto): Promise<VerifyResultDto> {
+    public async verify(agentIds: string[], params: SmsParamsDto): Promise<VerifyResultDto> {
 
         if (agentIds.some((id: string) => id !== agentIds[0])) {
             throw new ProtocolException(ProtocolErrorCode.DUPLICATE_ENTRY, 'Provided filters did not uniquely identify an agentId');
