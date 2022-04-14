@@ -18,13 +18,13 @@ export class MockRepository<Entity> {
     }
 
     // Disabling this below because the conditions param is required for mocking for some reason. This is a good future issue to investigate.
-    /* eslint-disable @typescript-eslint/no-unused-vars */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     findOne(conditions?: FindConditions<Entity>): Promise<Entity | undefined> {
         return Promise.resolve(this.entities[0]);
     }
 
     // Disabling this below because the conditions param is required for mocking for some reason. This is a good future issue to investigate.
-    /* eslint-disable @typescript-eslint/no-unused-vars */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     find(conditions?: FindConditions<Entity>): Promise<Entity[]> {
         return Promise.resolve(this.entities);
     }
