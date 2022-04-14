@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { BioAuthService } from './impl/bio.auth.service';
 import { AgencyService } from './impl/agency.service';
 import { IBioAuthService } from './bio.auth.service.interface';
@@ -10,6 +10,7 @@ import { IJwksService } from './jwks.service.interface';
 import { JwksService } from './impl/jwks.service';
 import { IExternalControllerService } from './external.controller.service.interface';
 import { ExternalControllerService } from './impl/external.controller.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [HttpModule],
