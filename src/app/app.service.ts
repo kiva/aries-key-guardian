@@ -52,7 +52,6 @@ export class AppService {
         report.versions = ['none'];
 
         // TODO: once we determine which items we want to check versions on
-        // TODO: mostly likely we should report db information such as postgres version
         return Promise.resolve(report);
     }
 }
