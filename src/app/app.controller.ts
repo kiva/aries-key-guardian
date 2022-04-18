@@ -30,7 +30,7 @@ export class AppController {
     }
 
     /**
-     * For the uptime statists report (see Uptime feature brief)
+     * For the uptime statistics report (see Uptime feature brief)
      */
     @Get('stats')
     async generateStatsReport() : Promise<ServiceReportDto> {
