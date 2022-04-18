@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import { VerifyFiltersDto } from '../../src/plugins/dto/verify.filters.dto';
 import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
 import { MockBioAuthService } from '../mock/mock.bio.auth.service';
@@ -64,7 +63,7 @@ describe('Fingerprint Plugin', () => {
 
         it('If fingerprint "FINGERPRINT_NO_MATCH" is thrown should throw a "ProtocolException"', async () => {
             const bioAuthService = new class extends MockBioAuthService {
-                async verifyFingerprint(position: number, image: string, agentIds: string[], externalIds: object): Promise<any> {
+                verifyFingerprint(): Promise<any> {
                     throw new ProtocolException(ProtocolErrorCode.FINGERPRINT_NO_MATCH, 'msg');
                 }
             }('matched', agentId);
@@ -84,7 +83,7 @@ describe('Fingerprint Plugin', () => {
         it('should be able to verify an image', async () => {
             const status = 'matched';
             const bioAuthService = new class extends MockBioAuthService {
-                async verifyFingerprint(position: number, image: string, agentIds: string[], externalIds: object): Promise<any> {
+                verifyFingerprint(): Promise<any> {
                     return Promise.resolve({
                         data: {
                             status,

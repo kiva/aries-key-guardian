@@ -1,8 +1,9 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { IExternalControllerService } from '../external.controller.service.interface';
 import { OnboardResponseDto } from '../dto/onboard.response.dto';
 import { isValidInstanceOrFail } from 'protocol-common/validation/validations/is.valid.instance';
+import { HttpService } from '@nestjs/axios';
 
 /*
  * Controller Service for an external source using restful API

@@ -16,13 +16,12 @@ export class CreateDto {
     @IsEnum(PluginTypeEnum) readonly pluginType: string;
 
     @ApiProperty({
-        description: 'JSON filters object to save so we can identify the entity later, depending on plugin type. eg { governmentId: 123 }'
+        description: 'Filters to help identify the entity later. E.g. { externalIds: { governmentId: 123 } }'
     })
     @ValidateNested() @Type(() => CreateFiltersDto) readonly filters: CreateFiltersDto;
 
     @ApiProperty({
-        // eslint-disable-next-line max-len
-        description: 'JSON params object or array to save so we can authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
+        description: 'Parameters used to authenticate the entity, depending on plugin type. eg { fingerprintTemplate: xyz, position: 1 }'
     })
     @IsNotEmpty() readonly params: any;
 

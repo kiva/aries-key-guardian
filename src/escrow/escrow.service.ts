@@ -14,6 +14,7 @@ import { LOWER_CASE_LETTERS, randomString } from '../support/random.string.gener
 import { IExternalControllerService } from '../remote/external.controller.service.interface';
 import { OnboardResponseDto } from '../remote/dto/onboard.response.dto';
 import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
+import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function
@@ -32,7 +33,7 @@ export class EscrowService {
     /**
      * Creates the appropriate plugin and calls verify, if there's a match it calls the agency to spin up an agent and returns connection data
      */
-    public async verify(pluginType: string, params: any, filters: VerifyFiltersDto): Promise<VerifyResultDto> {
+    public async verify(pluginType: string, params: any, @IsValidInstance filters: VerifyFiltersDto): Promise<VerifyResultDto> {
         const justInTimeWalletsEnabled: boolean = process.env.JIT_WALLETS_ENABLED === 'true';
         const plugin = this.pluginFactory.create(pluginType);
 

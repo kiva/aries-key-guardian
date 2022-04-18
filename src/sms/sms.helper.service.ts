@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import { Injectable } from '@nestjs/common';
 import crypto from 'crypto';
 
@@ -14,7 +13,7 @@ export class SmsHelperService {
      * Generate exactly 6 digits so can't start with 0.
      */
     public generateRandomOtp(): number {
-        // tslint:disable:no-bitwise
+        /* eslint-disable no-bitwise */
         const max = 999999;
         const min = 100000;
         const diff = max - min + 1;
@@ -28,5 +27,6 @@ export class SmsHelperService {
             randNum = randNum & mask;
         } while (randNum >= diff);
         return randNum + min;
+        /* eslint-enable no-bitwise */
     }
 }

@@ -4,7 +4,7 @@ export class MockAgencyService implements IAgencyService {
 
     constructor(private readonly connectionData: string) {}
 
-    async spinUpAgent(walletId: string, walletKey: string, adminApiKey: string, seed: string, agentId: string): Promise<any> {
+    public spinUpAgent(): Promise<any> {
         return Promise.resolve({
             data: {
                 connectionData: this.connectionData
@@ -12,7 +12,7 @@ export class MockAgencyService implements IAgencyService {
         });
     }
 
-    async registerMultitenantAgent(walletName: string, walletKey: string, label: string): Promise<any> {
+    public registerMultitenantAgent(): Promise<any> {
         return Promise.resolve({
             data: {
                 invitation: this.connectionData
