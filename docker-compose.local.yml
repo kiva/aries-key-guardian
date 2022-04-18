@@ -1,0 +1,16 @@
+# Spin up a database in docker for use with a locally-available Aries Key Guardian service
+#
+version: '3.5'
+
+services:
+  escrow-db:
+    image: postgres:11
+    container_name: escrow-db
+    command: postgres
+    env_file:
+      - .env
+    tty: true
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
