@@ -17,4 +17,4 @@ COPY --from=dist /tmp/dist ./dist
 COPY --from=dist /tmp/package.json ./
 RUN adduser -S app
 USER app
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]

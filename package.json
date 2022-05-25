@@ -12,6 +12,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc && cp package.json dist/",
     "start": "npm run build && node -r dotenv/config --experimental-json-modules dist/main.js",
+    "start:prod": "node -r dotenv/config --experimental-json-modules dist/main.js",
     "start:debug": "nodemon --legacy-watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
