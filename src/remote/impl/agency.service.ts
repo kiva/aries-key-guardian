@@ -1,18 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
-import { IAgencyService } from '../agency.service.interface';
-import { Logger } from 'protocol-common/logger';
-import { HttpService } from '@nestjs/axios';
+import { IAgencyService } from '../agency.service.interface.js';
+import { ProtocolHttpService } from 'protocol-common';
 
 @Injectable()
 export class AgencyService implements IAgencyService {
 
-    private readonly http: ProtocolHttpService;
     private readonly baseUrl: string;
 
-    constructor(httpService: HttpService) {
-        this.http = new ProtocolHttpService(httpService);
+    constructor(private readonly http: ProtocolHttpService) {
         this.baseUrl = process.env.AGENCY_URL;
     }
 

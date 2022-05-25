@@ -1,10 +1,8 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { SmsOtp } from './entity/sms.otp';
+import { SmsOtp } from './entity/sms.otp.js';
 import { EntityManager, Repository } from 'typeorm';
-import { SecurityUtility } from 'protocol-common/security.utility';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
 import { Injectable } from '@nestjs/common';
+import { ProtocolErrorCode, ProtocolException, SecurityUtility } from 'protocol-common';
 
 @Injectable()
 export class SmsOtpDbGateway {

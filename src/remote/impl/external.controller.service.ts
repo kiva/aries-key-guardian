@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
-import { IExternalControllerService } from '../external.controller.service.interface';
-import { OnboardResponseDto } from '../dto/onboard.response.dto';
-import { isValidInstanceOrFail } from 'protocol-common/validation/validations/is.valid.instance';
-import { HttpService } from '@nestjs/axios';
+import { IExternalControllerService } from '../external.controller.service.interface.js';
+import { OnboardResponseDto } from '../dto/onboard.response.dto.js';
+import { ProtocolHttpService } from 'protocol-common';
+import { isValidInstanceOrFail } from 'protocol-common/validation';
 
 /*
  * Controller Service for an external source using restful API
@@ -11,11 +10,7 @@ import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class ExternalControllerService implements IExternalControllerService {
 
-    private readonly http: ProtocolHttpService;
-
-    constructor(httpService: HttpService) {
-        this.http = new ProtocolHttpService(httpService);
-    }
+    constructor(private readonly http: ProtocolHttpService) {}
 
     public async callExternalWalletCreate(id: string): Promise<OnboardResponseDto> {
         const url = `${process.env.INTEGRATION_CONTROLLER}/v2/api/onboard`;

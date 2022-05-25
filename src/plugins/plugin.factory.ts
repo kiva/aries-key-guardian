@@ -1,14 +1,13 @@
 import { Injectable, Optional } from '@nestjs/common';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { IPlugin } from './plugin.interface';
-import { PluginTypeEnum } from './plugin.type.enum';
-import { FingerprintPlugin } from './impl/fingerprint.plugin';
-import { SmsOtpPlugin } from './impl/sms.otp.plugin';
-import { SmsService } from '../sms/sms.service';
-import { IBioAuthService } from '../remote/bio.auth.service.interface';
-import { TokenPlugin } from './impl/token.plugin';
-import { TokenService } from '../token/token.service';
+import { IPlugin } from './plugin.interface.js';
+import { PluginTypeEnum } from './plugin.type.enum.js';
+import { FingerprintPlugin } from './impl/fingerprint.plugin.js';
+import { SmsOtpPlugin } from './impl/sms.otp.plugin.js';
+import { SmsService } from '../sms/sms.service.js';
+import { IBioAuthService } from '../remote/bio.auth.service.interface.js';
+import { TokenPlugin } from './impl/token.plugin.js';
+import { TokenService } from '../token/token.service.js';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 /**
  * Creates the specific plugin based on plugin type and handles passing in dependencies

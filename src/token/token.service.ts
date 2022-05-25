@@ -1,11 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { TokenParamsDto } from './dto/token.params.dto';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { Injectable, Logger } from '@nestjs/common';
+import { TokenParamsDto } from './dto/token.params.dto.js';
 import * as jwt from 'jsonwebtoken';
-import { IJwksService } from '../remote/jwks.service.interface';
+import { IJwksService } from '../remote/jwks.service.interface.js';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { Logger } from 'protocol-common/logger';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 @Injectable()
 export class TokenService {
@@ -22,7 +20,7 @@ export class TokenService {
         try {
             const key = await this.jwksService.getKey(params.token);
             const pubKey: string = IJwksService.isCertSigningKey(key) ? key.publicKey : key.rsaPublicKey;
-            Logger.info(pubKey);
+            Logger.log(pubKey);
             const token: any = jwt.verify(params.token, Buffer.from(pubKey, 'utf-8'), {
                 algorithms: [process.env.JWT_SIGNATURE_ALGORITHM as any],
                 complete: true

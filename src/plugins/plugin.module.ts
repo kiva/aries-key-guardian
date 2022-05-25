@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { SmsModule } from '../sms/sms.module';
-import { PluginFactory } from './plugin.factory';
-import { RemoteModule } from '../remote/remote.module';
-import { TokenModule } from '../token/token.module';
-import { DbModule } from '../db/db.module';
+import { SmsModule } from '../sms/sms.module.js';
+import { PluginFactory } from './plugin.factory.js';
+import { RemoteModule } from '../remote/remote.module.js';
+import { TokenModule } from '../token/token.module.js';
+import { DbModule } from '../db/db.module.js';
 
 /**
  * Module for our different authentication plugins

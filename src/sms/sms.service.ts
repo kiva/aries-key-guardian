@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { SmsOtp } from '../db/entity/sms.otp';
-import { SmsParamsDto } from './dto/sms.params.dto';
-import { RateLimitService } from '../ratelimit/ratelimit.service';
-import { RateLimitBucket } from '../ratelimit/ratelimit.bucket';
-import { ISmsService } from '../remote/sms.service.interface';
-import { SmsHelperService } from './sms.helper.service';
-import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway';
-import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
+import { SmsOtp } from '../db/entity/sms.otp.js';
+import { SmsParamsDto } from './dto/sms.params.dto.js';
+import { RateLimitService } from '../ratelimit/ratelimit.service.js';
+import { RateLimitBucket } from '../ratelimit/ratelimit.bucket.js';
+import { ISmsService } from '../remote/sms.service.interface.js';
+import { SmsHelperService } from './sms.helper.service.js';
+import { SmsOtpDbGateway } from '../db/sms.otp.db.gateway.js';
+import { VerifyResultDto } from '../plugins/dto/verify.result.dto.js';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 /**
  * Service to send an OTP via SMS and verify it

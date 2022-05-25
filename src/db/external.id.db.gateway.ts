@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ExternalId } from './entity/external.id';
+import { ExternalId } from './entity/external.id.js';
 import { EntityManager, In, Repository } from 'typeorm';
-import { SecurityUtility } from 'protocol-common/security.utility';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { CreateFiltersDto } from '../escrow/dto/create.filters.dto';
+import { CreateFiltersDto } from '../escrow/dto/create.filters.dto.js';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
+import { ProtocolErrorCode, ProtocolException, SecurityUtility } from 'protocol-common';
 
 @Injectable()
 export class ExternalIdDbGateway {

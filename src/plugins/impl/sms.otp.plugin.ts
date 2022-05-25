@@ -1,9 +1,8 @@
-import { IPlugin } from '../plugin.interface';
-import { SmsService } from 'sms/sms.service';
-import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
-import { SmsParamsDto } from '../../sms/dto/sms.params.dto';
-import { VerifyResultDto } from '../dto/verify.result.dto';
+import { IPlugin } from '../plugin.interface.js';
+import { SmsService } from 'sms/sms.service.js';
+import { SmsParamsDto } from '../../sms/dto/sms.params.dto.js';
+import { VerifyResultDto } from '../dto/verify.result.dto.js';
+import { IsValidInstance, ValidateParams } from 'protocol-common/validation';
 
 /**
  * For simplicity the SMS plugin isn't a separate microservice, it's just a module inside this service

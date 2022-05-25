@@ -1,10 +1,9 @@
-import { VerifyFiltersDto } from '../../src/plugins/dto/verify.filters.dto';
-import { FingerprintPlugin } from '../../src/plugins/impl/fingerprint.plugin';
+import { VerifyFiltersDto } from '../../dist/plugins/dto/verify.filters.dto.js';
+import { FingerprintPlugin } from '../../dist/plugins/impl/fingerprint.plugin.js';
 import { MockBioAuthService } from '../mock/mock.bio.auth.service';
-import { VerifyFingerprintImageDto } from '../../src/plugins/dto/verify.fingerprint.image.dto';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { VerifyFingerprintTemplateDto } from '../../src/plugins/dto/verify.fingerprint.template.dto';
+import { VerifyFingerprintImageDto } from '../../dist/plugins/dto/verify.fingerprint.image.dto.js';
+import { VerifyFingerprintTemplateDto } from '../../dist/plugins/dto/verify.fingerprint.template.dto.js';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 describe('Fingerprint Plugin', () => {
     let verifyImageParams: VerifyFingerprintImageDto;

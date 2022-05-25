@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, CacheStore, Inject, Injectable } from '@nestjs/common';
-import { RateLimitBucket } from './ratelimit.bucket';
-import { RateLimitConfigService } from './ratelimit.config.service';
-import { SecurityUtility } from 'protocol-common/security.utility';
+import { RateLimitBucket } from './ratelimit.bucket.js';
+import { RateLimitConfigService } from './ratelimit.config.service.js';
+import { SecurityUtility } from 'protocol-common';
 
 @Injectable()
 export class RateLimitService {

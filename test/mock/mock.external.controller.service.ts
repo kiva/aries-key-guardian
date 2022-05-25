@@ -1,5 +1,5 @@
-import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
-import { OnboardResponseDto } from '../../src/remote/dto/onboard.response.dto';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface.js';
+import { OnboardResponseDto } from '../../dist/remote/dto/onboard.response.dto.js';
 
 export class MockExternalControllerService implements IExternalControllerService {
 

@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
-import { BioAuthService } from './impl/bio.auth.service';
-import { AgencyService } from './impl/agency.service';
-import { IBioAuthService } from './bio.auth.service.interface';
-import { IAgencyService } from './agency.service.interface';
-import { SmsTwillioService } from './impl/sms.twillio.service';
-import { ISmsService } from './sms.service.interface';
-import { SmsDisabledService } from './impl/sms.disabled.service';
-import { IJwksService } from './jwks.service.interface';
-import { JwksService } from './impl/jwks.service';
-import { IExternalControllerService } from './external.controller.service.interface';
-import { ExternalControllerService } from './impl/external.controller.service';
-import { HttpModule } from '@nestjs/axios';
+import { BioAuthService } from './impl/bio.auth.service.js';
+import { AgencyService } from './impl/agency.service.js';
+import { IBioAuthService } from './bio.auth.service.interface.js';
+import { IAgencyService } from './agency.service.interface.js';
+import { SmsTwillioService } from './impl/sms.twillio.service.js';
+import { ISmsService } from './sms.service.interface.js';
+import { SmsDisabledService } from './impl/sms.disabled.service.js';
+import { IJwksService } from './jwks.service.interface.js';
+import { JwksService } from './impl/jwks.service.js';
+import { IExternalControllerService } from './external.controller.service.interface.js';
+import { ExternalControllerService } from './impl/external.controller.service.js';
+import { ProtocolHttpModule } from 'protocol-common';
 
 @Module({
-    imports: [HttpModule],
+    imports: [ProtocolHttpModule],
     providers: [{
         provide: IBioAuthService,
         useClass: BioAuthService

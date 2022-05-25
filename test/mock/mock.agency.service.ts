@@ -1,4 +1,4 @@
-import { IAgencyService } from '../../src/remote/agency.service.interface';
+import { IAgencyService } from '../../dist/remote/agency.service.interface.js';
 
 export class MockAgencyService implements IAgencyService {
 

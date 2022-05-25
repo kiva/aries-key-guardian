@@ -1,4 +1,4 @@
-import { BioAuthSaveParamsDto } from './bio.auth.save.params.dto';
+import { BioAuthSaveParamsDto } from './bio.auth.save.params.dto.js';
 import { IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 

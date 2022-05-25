@@ -1,9 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RateLimitBucket } from './ratelimit.bucket';
-import { RateLimitConfig } from './ratelimit.config';
-import { Logger } from 'protocol-common/logger';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { RateLimitBucket } from './ratelimit.bucket.js';
+import { RateLimitConfig } from './ratelimit.config.js';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 @Injectable()
 export class RateLimitConfigService {

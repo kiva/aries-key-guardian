@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IJwksService } from '../jwks.service.interface';
+import { IJwksService } from '../jwks.service.interface.js';
 import jwksClient, { JwksClient, SigningKey } from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
 

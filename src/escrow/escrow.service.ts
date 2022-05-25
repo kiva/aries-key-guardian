@@ -1,20 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { Logger } from 'protocol-common/logger';
-import { WalletCredentials } from '../db/entity/wallet.credentials';
-import { PluginFactory } from '../plugins/plugin.factory';
-import { IAgencyService } from '../remote/agency.service.interface';
-import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto';
-import { CreateFiltersDto } from './dto/create.filters.dto';
-import { ExternalIdDbGateway } from '../db/external.id.db.gateway';
-import { ExternalId } from '../db/entity/external.id';
-import { WalletCredentialsDbGateway } from '../db/wallet.credentials.db.gateway';
-import { LOWER_CASE_LETTERS, randomString } from '../support/random.string.generator';
-import { IExternalControllerService } from '../remote/external.controller.service.interface';
-import { OnboardResponseDto } from '../remote/dto/onboard.response.dto';
-import { VerifyResultDto } from '../plugins/dto/verify.result.dto';
-import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
+import { Injectable, Logger } from '@nestjs/common';
+import { WalletCredentials } from '../db/entity/wallet.credentials.js';
+import { PluginFactory } from '../plugins/plugin.factory.js';
+import { IAgencyService } from '../remote/agency.service.interface.js';
+import { VerifyFiltersDto } from '../plugins/dto/verify.filters.dto.js';
+import { CreateFiltersDto } from './dto/create.filters.dto.js';
+import { ExternalIdDbGateway } from '../db/external.id.db.gateway.js';
+import { ExternalId } from '../db/entity/external.id.js';
+import { WalletCredentialsDbGateway } from '../db/wallet.credentials.db.gateway.js';
+import { IExternalControllerService } from '../remote/external.controller.service.interface.js';
+import { OnboardResponseDto } from '../remote/dto/onboard.response.dto.js';
+import { VerifyResultDto } from '../plugins/dto/verify.result.dto.js';
+import { IsValidInstance } from 'protocol-common/validation';
+import { LOWER_CASE_LETTERS, ProtocolErrorCode, ProtocolException, randomString } from 'protocol-common';
 
 /**
  * The escrow system determines which plugin to use and calls the appropriate function

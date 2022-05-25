@@ -1,13 +1,8 @@
-import { Injectable, INestApplication } from '@nestjs/common';
+import { Injectable, INestApplication, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json } from 'body-parser';
-import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { DatadogLogger } from 'protocol-common/datadog.logger';
-import { Logger } from 'protocol-common/logger';
-import { traceware } from 'protocol-common/tracer';
-import { HttpConstants } from 'protocol-common/http-context/http.constants';
-import { Constants } from 'protocol-common/constants';
-import { ServiceReportDto } from './dtos/service.report.dto';
+import { ServiceReportDto } from './dtos/service.report.dto.js';
+import { Constants, HttpConstants, ProtocolExceptionFilter, ProtocolLogger, traceware } from 'protocol-common';
 
 /**
  * All external traffic will be routed through gateway so no need for things like rate-limiting here
@@ -20,7 +15,7 @@ export class AppService {
      * Sets up app in a way that can be used by main.ts and e2e tests
      */
     public static setup(app: INestApplication): void {
-        const logger = new Logger(DatadogLogger.getLogger());
+        const logger = new Logger(app.get(ProtocolLogger));
         app.useLogger(logger);
         app.use(traceware(process.env.SERVICE_NAME));
         app.useGlobalFilters(new ProtocolExceptionFilter());
@@ -43,7 +38,7 @@ export class AppService {
     }
 
     public async generateStatsReport(): Promise<ServiceReportDto> {
-        Logger.info('stats report generated');
+        Logger.log('stats report generated');
         const report: ServiceReportDto = new ServiceReportDto();
         report.serviceName = process.env.SERVICE_NAME;
         report.startedAt = AppService.startedAt.toDateString();

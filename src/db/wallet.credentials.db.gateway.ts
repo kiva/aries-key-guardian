@@ -1,11 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WalletCredentials } from './entity/wallet.credentials';
+import { WalletCredentials } from './entity/wallet.credentials.js';
 import { Repository } from 'typeorm';
-import { Logger } from 'protocol-common/logger';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { LOWER_CASE_LETTERS, NUMBERS, randomString } from '../support/random.string.generator';
+import { LOWER_CASE_LETTERS, NUMBERS, ProtocolErrorCode, ProtocolException, randomString } from 'protocol-common';
 
 @Injectable()
 export class WalletCredentialsDbGateway {

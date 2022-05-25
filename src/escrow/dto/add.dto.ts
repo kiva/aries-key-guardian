@@ -1,7 +1,7 @@
 import { IsString, IsNotEmptyObject, IsEnum, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PluginTypeEnum } from '../../plugins/plugin.type.enum';
-import { CreateFiltersDto } from './create.filters.dto';
+import { PluginTypeEnum } from '../../plugins/plugin.type.enum.js';
+import { CreateFiltersDto } from './create.filters.dto.js';
 import { Type } from 'class-transformer';
 
 /**
