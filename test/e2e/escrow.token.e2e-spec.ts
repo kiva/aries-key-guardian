@@ -22,11 +22,11 @@ import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.
 import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface.js';
 import { MockExternalControllerService } from '../../dist/remote/impl/mock.external.controller.service.js';
 import { ProtocolErrorCode, ProtocolExceptionFilter } from 'protocol-common';
-import path from "path"
-import { fileURLToPath } from "url"
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 jest.setTimeout(10000);
 
