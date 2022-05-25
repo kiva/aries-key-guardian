@@ -1,4 +1,4 @@
-import { IBioAuthService } from '../../dist/remote/bio.auth.service.interface.js';
+import { IBioAuthService } from '../bio.auth.service.interface.js';
 
 export class MockBioAuthService implements IBioAuthService {
 

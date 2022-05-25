@@ -1,11 +1,8 @@
-/**
- * Can't enable these rules without changing the behavior of the script.
- */
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class DidToAgentId1624768934102 implements MigrationInterface {
+export class DidToAgentId1624768934102 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
         // SmsOtp
         await queryRunner.query('ALTER TABLE sms_otp RENAME did TO agent_id;');
         await queryRunner.query('ALTER TABLE sms_otp RENAME CONSTRAINT sms_otp_did_key TO sms_otp_agent_id_key;');
@@ -19,7 +16,7 @@ export class DidToAgentId1624768934102 implements MigrationInterface {
         await queryRunner.query('ALTER TABLE wallet_credentials RENAME CONSTRAINT wallet_credentials_did_key TO wallet_credentials_agent_id_key;');
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    public async down(queryRunner: typeorm.QueryRunner): Promise<void> {
         // SmsOtp
         await queryRunner.query('ALTER TABLE sms_otp RENAME agent_id TO did;');
         await queryRunner.query('ALTER TABLE sms_otp RENAME CONSTRAINT sms_otp_agent_id_key TO sms_otp_did_key;');

@@ -1,11 +1,8 @@
-/**
- * Can't enable these rules without changing the behavior of the script.
- */
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class CreateExternalId1610660009057 implements MigrationInterface {
+export class CreateExternalId1610660009057 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
 
         // Creates primary key + index named "external_id_pkey"
         // Creates a unique constraint named "external_id_external_id_external_id_type_key" and btree index on (external_id, external_id_type)
@@ -23,7 +20,7 @@ export class CreateExternalId1610660009057 implements MigrationInterface {
         await queryRunner.query('CREATE INDEX idx_external_id_external_id_type ON external_id(external_id_type);');
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    public async down(queryRunner: typeorm.QueryRunner): Promise<void> {
         await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id_type;');
         await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_external_id;');
         await queryRunner.query('DROP INDEX IF EXISTS idx_external_id_did;');

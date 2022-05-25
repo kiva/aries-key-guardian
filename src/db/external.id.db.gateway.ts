@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExternalId } from './entity/external.id.js';
-import { EntityManager, In, Repository } from 'typeorm';
+import typeorm from 'typeorm';
 import { CreateFiltersDto } from '../escrow/dto/create.filters.dto.js';
-import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { ProtocolErrorCode, ProtocolException, SecurityUtility } from 'protocol-common';
 
 @Injectable()
@@ -11,7 +10,7 @@ export class ExternalIdDbGateway {
 
     constructor(
         @InjectRepository(ExternalId)
-        private readonly externalIdRepository: Repository<ExternalId>
+        private readonly externalIdRepository: typeorm.Repository<ExternalId>
     ) { }
 
     /**
@@ -20,7 +19,7 @@ export class ExternalIdDbGateway {
      */
     public fetchExternalId(externalIdType: string, externalIdValue: string, throwIfEmpty = true): Promise<ExternalId | undefined> {
         const hashedId = SecurityUtility.hash32(externalIdValue + process.env.HASH_PEPPER);
-        const findConditions: FindConditions<ExternalId> = {
+        const findConditions: typeorm.FindConditions<ExternalId> = {
             external_id: hashedId,
             external_id_type: externalIdType
         };
@@ -60,7 +59,7 @@ export class ExternalIdDbGateway {
                     .map(async ([idType, idValues]: [string, string[]]) => {
                         try {
                             return this.externalIdRepository.find({
-                                external_id: In(idValues),
+                                external_id: typeorm.In(idValues),
                                 external_id_type: idType
                             });
                         } catch (e) {
@@ -113,7 +112,7 @@ export class ExternalIdDbGateway {
      * then it will throw a ProtocolException.
      */
     private async getOrCreateExternalId(externalId: ExternalId): Promise<ExternalId> {
-        return this.externalIdRepository.manager.transaction(async (entityManager: EntityManager) => {
+        return this.externalIdRepository.manager.transaction(async (entityManager: typeorm.EntityManager) => {
             const dbExternalId: ExternalId | undefined = await entityManager.findOne(ExternalId, {
                 agent_id: externalId.agent_id,
                 external_id: externalId.external_id,

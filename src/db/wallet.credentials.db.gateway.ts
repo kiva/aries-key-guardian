@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WalletCredentials } from './entity/wallet.credentials.js';
-import { Repository } from 'typeorm';
+import typeorm from 'typeorm';
 import { LOWER_CASE_LETTERS, NUMBERS, ProtocolErrorCode, ProtocolException, randomString } from 'protocol-common';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class WalletCredentialsDbGateway {
 
     constructor(
         @InjectRepository(WalletCredentials)
-        private readonly walletCredentialsRepository: Repository<WalletCredentials>
+        private readonly walletCredentialsRepository: typeorm.Repository<WalletCredentials>
     ) {}
 
     /**

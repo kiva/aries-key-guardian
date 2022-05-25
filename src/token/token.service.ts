@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TokenParamsDto } from './dto/token.params.dto.js';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { IJwksService } from '../remote/jwks.service.interface.js';
-import { JsonWebTokenError } from 'jsonwebtoken';
 import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 @Injectable()
@@ -27,7 +26,7 @@ export class TokenService {
             });
             agentId = token.payload.agentId;
         } catch (e) {
-            if (e instanceof JsonWebTokenError) {
+            if (e instanceof jwt.JsonWebTokenError) {
                 throw new ProtocolException(ProtocolErrorCode.INVALID_TOKEN, e.message);
             } else {
                 throw e;

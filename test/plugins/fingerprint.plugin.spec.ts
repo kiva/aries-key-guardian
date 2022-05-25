@@ -1,6 +1,6 @@
 import { VerifyFiltersDto } from '../../dist/plugins/dto/verify.filters.dto.js';
 import { FingerprintPlugin } from '../../dist/plugins/impl/fingerprint.plugin.js';
-import { MockBioAuthService } from '../mock/mock.bio.auth.service';
+import { MockBioAuthService } from '../../dist/remote/impl/mock.bio.auth.service.js';
 import { VerifyFingerprintImageDto } from '../../dist/plugins/dto/verify.fingerprint.image.dto.js';
 import { VerifyFingerprintTemplateDto } from '../../dist/plugins/dto/verify.fingerprint.template.dto.js';
 import { ProtocolErrorCode, ProtocolException } from 'protocol-common';

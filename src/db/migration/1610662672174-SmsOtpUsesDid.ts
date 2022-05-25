@@ -1,11 +1,8 @@
-/**
- * Can't enable these rules without changing the behavior of the script.
- */
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class SmsOtpUsesDid1610662672174 implements MigrationInterface {
+export class SmsOtpUsesDid1610662672174 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
         await queryRunner.query('ALTER TABLE sms_otp RENAME agent_id TO did;');
         await queryRunner.query('ALTER TABLE sms_otp RENAME CONSTRAINT sms_otp_agent_id_key TO sms_otp_did_key;');
 
@@ -16,7 +13,7 @@ export class SmsOtpUsesDid1610662672174 implements MigrationInterface {
         await queryRunner.query('ALTER TABLE sms_otp DROP COLUMN gov_id_2_hash;');
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    public async down(queryRunner: typeorm.QueryRunner): Promise<void> {
 
         // Add back the column, add back data into the column for each row, then add back the not null constraint
         await queryRunner.query('ALTER TABLE sms_otp ADD COLUMN gov_id_2_hash varchar(32) UNIQUE;');

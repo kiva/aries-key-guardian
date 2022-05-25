@@ -1,6 +1,6 @@
 import { Injectable, INestApplication, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { json } from 'body-parser';
+import bodyParser from 'body-parser';
 import { ServiceReportDto } from './dtos/service.report.dto.js';
 import { Constants, HttpConstants, ProtocolExceptionFilter, ProtocolLogger, traceware } from 'protocol-common';
 
@@ -23,7 +23,7 @@ export class AppService {
         AppService.startedAt = new Date();
 
         // Increase json parse size to handle encoded images
-        app.use(json({ limit: HttpConstants.JSON_LIMIT }));
+        app.use(bodyParser.json({ limit: HttpConstants.JSON_LIMIT }));
 
         if (process.env.NODE_ENV === Constants.LOCAL) {
             // Set up internal documentation at /api

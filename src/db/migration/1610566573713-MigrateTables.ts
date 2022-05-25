@@ -1,8 +1,8 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class MigrateTables1610566573713 implements MigrationInterface {
+export class MigrateTables1610566573713 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
 
         // Create a function to drop a pre-existing index whose name we do not know
         await queryRunner.query(

@@ -10,8 +10,8 @@
     "url": "git+https://github.com/kiva/protocol.git"
   },
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
-    "start": "rm -rf dist/ && tsc && node -r dotenv/config --experimental-vm-modules dist/main.js",
+    "build": "rm -rf dist/ && tsc && cp package.json dist/",
+    "start": "npm run build && node -r dotenv/config --experimental-json-modules dist/main.js",
     "start:debug": "nodemon --legacy-watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -25,7 +25,7 @@
     "@nestjs/core": "^8.2.0",
     "@nestjs/platform-express": "^8.2.0",
     "@nestjs/swagger": "^5.2.1",
-    "@nestjs/typeorm": "^8.0.3",
+    "@nestjs/typeorm": "^8.0.4",
     "@types/node": "^15.0.2",
     "axios": "^0.26.0",
     "cache-manager": "^3.6.1",
@@ -65,7 +65,7 @@
     "rimraf": "^3.0.2",
     "supertest": "^6.1.3",
     "ts-jest": "^27.1.5",
-    "ts-node": "^9.1.1"
+    "ts-node": "^10.8.0"
   },
   "jest": {
     "extensionsToTreatAsEsm": [".ts"],

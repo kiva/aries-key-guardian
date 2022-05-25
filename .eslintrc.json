@@ -150,6 +150,13 @@ Happy linting! 💖
         "id-denylist": "off",
         "id-match": "off",
         "import/order": "off",
+        "import/extensions": [
+            "error",
+            {
+                "js": "ignorePackages",
+                "json": "ignorePackages"
+            }
+        ],
         "indent": "off",
         "jsdoc/check-alignment": "error",
         "jsdoc/check-indentation": "off",
