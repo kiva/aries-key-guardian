@@ -1,11 +1,9 @@
-import { IPlugin } from '../plugin.interface';
-import { TokenParamsDto } from '../../token/dto/token.params.dto';
-import { TokenService } from '../../token/token.service';
-import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { VerifyResultDto } from '../dto/verify.result.dto';
+import { IPlugin } from '../plugin.interface.js';
+import { TokenParamsDto } from '../../token/dto/token.params.dto.js';
+import { TokenService } from '../../token/token.service.js';
+import { VerifyResultDto } from '../dto/verify.result.dto.js';
+import { IsValidInstance, ValidateParams } from 'protocol-common/validation';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 export class TokenPlugin implements IPlugin {
 

@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmptyObject } from 'class-validator';
-import { isStringOrFail } from 'protocol-common/validation/validations/is.string';
-import { throwValidationException } from 'protocol-common/validation/common/utility/error.utility';
-import { isNumberOrFail } from 'protocol-common/validation/validations/is.number';
+import { isNumberOrFail, isStringOrFail, throwValidationException } from 'protocol-common/validation';
 
 export class CreateFiltersDto {
 

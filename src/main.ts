@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
-import { AppService } from './app/app.service';
-import { Logger } from 'protocol-common/logger';
+import { AppModule } from './app/app.module.js';
+import { AppService } from './app/app.service.js';
+import { Logger } from '@nestjs/common';
 
 const bootstrap = async () => {
   const port = process.env.PORT;

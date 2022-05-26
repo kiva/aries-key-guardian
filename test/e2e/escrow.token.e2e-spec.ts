@@ -1,27 +1,34 @@
 import request from 'supertest';
+import { jest } from '@jest/globals';
 import { INestApplication } from '@nestjs/common';
-import { MockJwksService } from '../mock/mock.jwks.service';
-import { EscrowController } from '../../src/escrow/escrow.controller';
+import { MockJwksService } from '../../dist/remote/impl/mock.jwks.service.js';
+import { EscrowController } from '../../dist/escrow/escrow.controller.js';
 import { Test } from '@nestjs/testing';
-import { EscrowService } from '../../src/escrow/escrow.service';
-import { PluginFactory } from '../../src/plugins/plugin.factory';
-import { IJwksService } from '../../src/remote/jwks.service.interface';
-import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
-import { MockRepository } from '../mock/mock.repository';
+import { EscrowService } from '../../dist/escrow/escrow.service.js';
+import { PluginFactory } from '../../dist/plugins/plugin.factory.js';
+import { IJwksService } from '../../dist/remote/jwks.service.interface.js';
+import { WalletCredentials } from '../../dist/db/entity/wallet.credentials.js';
+import { MockRepository } from '../../dist/db/mock.repository.js';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { MockAgencyService } from '../mock/mock.agency.service';
-import { IAgencyService } from '../../src/remote/agency.service.interface';
+import { MockAgencyService } from '../../dist/remote/impl/mock.agency.service.js';
+import { IAgencyService } from '../../dist/remote/agency.service.interface.js';
 import { readFileSync } from 'fs';
-import * as jwt from 'jsonwebtoken';
-import { TokenService } from '../../src/token/token.service';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { PluginTypeEnum } from '../../src/plugins/plugin.type.enum';
-import { ExternalId } from '../../src/db/entity/external.id';
-import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
-import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
-import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
-import { MockExternalControllerService } from '../mock/mock.external.controller.service';
+import jwt from 'jsonwebtoken';
+import { TokenService } from '../../dist/token/token.service.js';
+import { PluginTypeEnum } from '../../dist/plugins/plugin.type.enum.js';
+import { ExternalId } from '../../dist/db/entity/external.id.js';
+import { ExternalIdDbGateway } from '../../dist/db/external.id.db.gateway.js';
+import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway.js';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface.js';
+import { MockExternalControllerService } from '../../dist/remote/impl/mock.external.controller.service.js';
+import { ProtocolErrorCode, ProtocolExceptionFilter } from 'protocol-common';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+jest.setTimeout(10000);
 
 describe('EscrowController (e2e) using token plugin', () => {
     let app: INestApplication;
@@ -44,7 +51,6 @@ describe('EscrowController (e2e) using token plugin', () => {
     };
 
     beforeAll(async () => {
-        jest.setTimeout(10000);
         process.env.JWT_SIGNATURE_ALGORITHM = 'RS256';
 
         agentId = 'agentId123';
@@ -110,9 +116,10 @@ describe('EscrowController (e2e) using token plugin', () => {
 
     it('Can verify an auth token that has been correctly signed', () => {
         const token = jwt.sign({agentId}, privateKey1, {algorithm: 'RS256'});
+        const body = data(token);
         return request(app.getHttpServer())
             .post('/v1/escrow/verify')
-            .send(data(token))
+            .send(body)
             .expect(201)
             .then((res) => {
                 expect(res.body.status).toBe('matched');

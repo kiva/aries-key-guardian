@@ -1,33 +1,42 @@
 import request from 'supertest';
+import { jest } from '@jest/globals';
 import { Test } from '@nestjs/testing';
 import { CACHE_MANAGER, INestApplication } from '@nestjs/common';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { RateLimitModule } from '../../src/ratelimit/ratelimit.module';
-import { EscrowService } from '../../src/escrow/escrow.service';
+import { RateLimitModule } from '../../dist/ratelimit/ratelimit.module.js';
+import { EscrowService } from '../../dist/escrow/escrow.service.js';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
-import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { EscrowController } from '../../src/escrow/escrow.controller';
-import { PluginFactory } from '../../src/plugins/plugin.factory';
-import { MockAgencyService } from '../mock/mock.agency.service';
-import { IAgencyService } from '../../src/remote/agency.service.interface';
-import { SmsService } from '../../src/sms/sms.service';
-import { SmsOtp } from '../../src/db/entity/sms.otp';
+import { WalletCredentials } from '../../dist/db/entity/wallet.credentials.js';
+import { EscrowController } from '../../dist/escrow/escrow.controller.js';
+import { PluginFactory } from '../../dist/plugins/plugin.factory.js';
+import { MockAgencyService } from '../../dist/remote/impl/mock.agency.service.js';
+import { IAgencyService } from '../../dist/remote/agency.service.interface.js';
+import { SmsService } from '../../dist/sms/sms.service.js';
+import { SmsOtp } from '../../dist/db/entity/sms.otp.js';
 import cacheManager from 'cache-manager';
-import { now, pepperHash } from '../support/functions';
-import { MockRepository } from '../mock/mock.repository';
-import { ISmsService } from '../../src/remote/sms.service.interface';
-import { MockSmsHelperService } from '../mock/mock.sms.helper.service';
-import { SmsHelperService } from '../../src/sms/sms.helper.service';
-import { SmsDisabledService } from '../../src/remote/impl/sms.disabled.service';
-import { ExternalId } from '../../src/db/entity/external.id';
+import { MockRepository } from '../../dist/db/mock.repository.js';
+import { ISmsService } from '../../dist/remote/sms.service.interface.js';
+import { MockSmsHelperService } from '../../dist/sms/mock.sms.helper.service.js';
+import { SmsHelperService } from '../../dist/sms/sms.helper.service.js';
+import { SmsDisabledService } from '../../dist/remote/impl/sms.disabled.service.js';
+import { ExternalId } from '../../dist/db/entity/external.id.js';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
-import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
-import { FindOperator } from 'typeorm';
-import { SmsOtpDbGateway } from '../../src/db/sms.otp.db.gateway';
-import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
-import { MockExternalControllerService } from '../mock/mock.external.controller.service';
-import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
+import { ExternalIdDbGateway } from '../../dist/db/external.id.db.gateway.js';
+import typeorm from 'typeorm';
+import { SmsOtpDbGateway } from '../../dist/db/sms.otp.db.gateway.js';
+import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway.js';
+import { MockExternalControllerService } from '../../dist/remote/impl/mock.external.controller.service.js';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface.js';
+import { ProtocolErrorCode, ProtocolExceptionFilter, SecurityUtility } from 'protocol-common';
+
+jest.setTimeout(10000);
+
+const pepperHash = (input: string) => {
+    return SecurityUtility.hash32(`${input}${process.env.HASH_PEPPER}`);
+};
+
+const now = (): Date => {
+    return new Date(Date.now());
+};
 
 /**
  * This mocks out external dependencies (eg Twillio, DB)
@@ -72,7 +81,6 @@ describe('EscrowController (e2e) using SMS plugin', () => {
     };
 
     beforeAll(async () => {
-        jest.setTimeout(10000);
         process.env.OTP_EXPIRE_MS = '10000';
         process.env.FILESYSTEM_CACHE_PATH =  '/tmp/diskcache';
         process.env.GLOBAL_CACHE_TTL = '60';
@@ -100,7 +108,7 @@ describe('EscrowController (e2e) using SMS plugin', () => {
         const mockExternalIdRepository = new class extends MockRepository<ExternalId> {
 
             externalIdFilter(externalId: ExternalId, conditions?: FindConditions<ExternalId>): boolean {
-                const values = conditions.external_id instanceof FindOperator && conditions.external_id.type === 'in' ?
+                const values = conditions.external_id instanceof typeorm.FindOperator && conditions.external_id.type === 'in' ?
                     conditions.external_id.value :
                     [conditions.external_id];
                 return (values as string[]).some((value: string) => value === externalId.external_id) &&

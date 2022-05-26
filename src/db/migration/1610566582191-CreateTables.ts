@@ -1,8 +1,8 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class CreateTables1610566582191 implements MigrationInterface {
+export class CreateTables1610566582191 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
 
         // Creates primary key named "sms_otp_pkey"
         // Creates unique constraint and btree index called "sms_otp_agent_id_key"
@@ -33,7 +33,7 @@ export class CreateTables1610566582191 implements MigrationInterface {
         );
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    public async down(queryRunner: typeorm.QueryRunner): Promise<void> {
         await queryRunner.query('DROP TABLE sms_otp');
         await queryRunner.query('DROP TABLE wallet_credentials');
     }

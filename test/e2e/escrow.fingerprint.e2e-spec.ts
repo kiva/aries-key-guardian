@@ -1,23 +1,26 @@
 import request from 'supertest';
+import { jest } from '@jest/globals';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import assert from 'assert';
-import { ProtocolExceptionFilter } from 'protocol-common/protocol.exception.filter';
-import { EscrowController } from '../../src/escrow/escrow.controller';
-import { EscrowService } from '../../src/escrow/escrow.service';
-import { WalletCredentials } from '../../src/db/entity/wallet.credentials';
-import { PluginFactory } from '../../src/plugins/plugin.factory';
-import { IAgencyService } from '../../src/remote/agency.service.interface';
-import { IBioAuthService } from '../../src/remote/bio.auth.service.interface';
-import { MockAgencyService } from '../mock/mock.agency.service';
-import { MockBioAuthService } from '../mock/mock.bio.auth.service';
-import { MockRepository } from '../mock/mock.repository';
-import { ExternalId } from '../../src/db/entity/external.id';
-import { ExternalIdDbGateway } from '../../src/db/external.id.db.gateway';
-import { WalletCredentialsDbGateway } from '../../src/db/wallet.credentials.db.gateway';
-import { IExternalControllerService } from '../../src/remote/external.controller.service.interface';
-import { MockExternalControllerService } from '../mock/mock.external.controller.service';
+import { EscrowController } from '../../dist/escrow/escrow.controller.js';
+import { EscrowService } from '../../dist/escrow/escrow.service.js';
+import { WalletCredentials } from '../../dist/db/entity/wallet.credentials.js';
+import { PluginFactory } from '../../dist/plugins/plugin.factory.js';
+import { IAgencyService } from '../../dist/remote/agency.service.interface.js';
+import { IBioAuthService } from '../../dist/remote/bio.auth.service.interface.js';
+import { MockAgencyService } from '../../dist/remote/impl/mock.agency.service.js';
+import { MockBioAuthService } from '../../dist/remote/impl/mock.bio.auth.service.js';
+import { MockRepository } from '../../dist/db/mock.repository.js';
+import { ExternalId } from '../../dist/db/entity/external.id.js';
+import { ExternalIdDbGateway } from '../../dist/db/external.id.db.gateway.js';
+import { WalletCredentialsDbGateway } from '../../dist/db/wallet.credentials.db.gateway.js';
+import { IExternalControllerService } from '../../dist/remote/external.controller.service.interface.js';
+import { MockExternalControllerService } from '../../dist/remote/impl/mock.external.controller.service.js';
+import { ProtocolExceptionFilter } from 'protocol-common';
+
+jest.setTimeout(10000);
 
 /**
  * This mocks out external dependencies (e.g. Db)
@@ -30,7 +33,6 @@ describe('EscrowController (e2e) using fingerprint plugin', () => {
     let agentId: string;
 
     beforeAll(async () => {
-        jest.setTimeout(10000);
 
         status = 'matched';
         agentId = 'agentId123'; // Right now Bio Auth Service returns agentId, eventually it will return agentId

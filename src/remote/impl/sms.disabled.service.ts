@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { ISmsService } from '../sms.service.interface';
-import { Logger } from 'protocol-common/logger';
+import { Injectable, Logger } from '@nestjs/common';
+import { ISmsService } from '../sms.service.interface.js';
 
 @Injectable()
 export class SmsDisabledService implements ISmsService {

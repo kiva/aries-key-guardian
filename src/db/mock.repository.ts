@@ -1,6 +1,4 @@
-import { FindConditions } from 'typeorm/find-options/FindConditions';
-import { EntityTarget } from 'typeorm/common/EntityTarget';
-import { EntityManager } from 'typeorm';
+import typeorm from 'typeorm';
 
 /**
  * Provides a mock repository that holds onto a single immutable entity of type T. This mimics how an in-memory update to an entity wouldn't affect
@@ -19,13 +17,13 @@ export class MockRepository<Entity> {
 
     // Disabling this below because the conditions param is required for mocking for some reason. This is a good future issue to investigate.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    findOne(conditions?: FindConditions<Entity>): Promise<Entity | undefined> {
+    findOne(conditions?: typeorm.FindConditions<Entity>): Promise<Entity | undefined> {
         return Promise.resolve(this.entities[0]);
     }
 
     // Disabling this below because the conditions param is required for mocking for some reason. This is a good future issue to investigate.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    find(conditions?: FindConditions<Entity>): Promise<Entity[]> {
+    find(conditions?: typeorm.FindConditions<Entity>): Promise<Entity[]> {
         return Promise.resolve(this.entities);
     }
 
@@ -43,15 +41,15 @@ class MockEntityManager<Entity> {
 
     constructor(private readonly repository: MockRepository<Entity>) {}
 
-    findOne(entityClass: EntityTarget<Entity>, conditions?: FindConditions<Entity>): Promise<Entity | undefined> {
+    findOne(entityClass: typeorm.EntityTarget<Entity>, conditions?: typeorm.FindConditions<Entity>): Promise<Entity | undefined> {
         return this.repository.findOne(conditions);
     }
 
-    save(entityClass: EntityTarget<Entity>, entity: Entity) {
+    save(entityClass: typeorm.EntityTarget<Entity>, entity: Entity) {
         return this.repository.save(entity);
     }
 
-    transaction(fun: (entityManager: EntityManager) => Promise<Entity>) {
-        return fun(this as unknown as EntityManager);
+    transaction(fun: (entityManager: typeorm.EntityManager) => Promise<Entity>) {
+        return fun(this as unknown as typeorm.EntityManager);
     }
 }

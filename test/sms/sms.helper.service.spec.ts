@@ -1,4 +1,4 @@
-import { SmsHelperService } from '../../src/sms/sms.helper.service';
+import { SmsHelperService } from '../../dist/sms/sms.helper.service.js';
 
 describe ('SMS Helper Service', () => {
 

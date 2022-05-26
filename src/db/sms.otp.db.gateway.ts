@@ -1,17 +1,15 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { SmsOtp } from './entity/sms.otp';
-import { EntityManager, Repository } from 'typeorm';
-import { SecurityUtility } from 'protocol-common/security.utility';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
+import { SmsOtp } from './entity/sms.otp.js';
+import typeorm from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { ProtocolErrorCode, ProtocolException, SecurityUtility } from 'protocol-common';
 
 @Injectable()
 export class SmsOtpDbGateway {
 
     constructor(
         @InjectRepository(SmsOtp)
-        private readonly smsOtpRepository: Repository<SmsOtp>
+        private readonly smsOtpRepository: typeorm.Repository<SmsOtp>
     ) {}
 
     /**
@@ -31,7 +29,7 @@ export class SmsOtpDbGateway {
      */
     public async savePhoneNumber(agentId: string, phoneNumber: string): Promise<SmsOtp> {
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
-        return this.smsOtpRepository.manager.transaction(async (entityManager: EntityManager) => {
+        return this.smsOtpRepository.manager.transaction(async (entityManager: typeorm.EntityManager) => {
             let smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {agent_id: agentId});
             if (!smsOtp) {
                 smsOtp = new SmsOtp();
@@ -50,7 +48,7 @@ export class SmsOtpDbGateway {
     public saveOtp(agentId: string, phoneNumber: string, otp: number): Promise<SmsOtp> {
         const phoneNumberHash = SecurityUtility.hash32(phoneNumber + process.env.HASH_PEPPER);
         const otpExpirationTime = new Date(Date.now() + 900000); // 15 min (15 min * 60 sec * 1000 ms)
-        return this.smsOtpRepository.manager.transaction(async (entityManager: EntityManager) => {
+        return this.smsOtpRepository.manager.transaction(async (entityManager: typeorm.EntityManager) => {
             const smsOtp: SmsOtp | undefined = await entityManager.findOne(SmsOtp, {
                 agent_id: agentId,
                 phone_number_hash: phoneNumberHash

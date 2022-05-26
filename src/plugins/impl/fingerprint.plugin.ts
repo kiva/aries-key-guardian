@@ -1,17 +1,14 @@
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { IsValidInstance } from 'protocol-common/validation/decorators/parameter/is.valid.instance.decorator';
-import { ValidateParams } from 'protocol-common/validation/decorators/function/validate.params.decorator';
-import { IsValidInstanceOf } from 'protocol-common/validation/decorators/parameter/is.valid.instance.of.decorator';
-import { Logger } from 'protocol-common/logger';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { IBioAuthService } from '../../remote/bio.auth.service.interface';
-import { IPlugin } from '../plugin.interface';
-import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto';
-import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto';
-import { VerifyFiltersDto } from '../dto/verify.filters.dto';
-import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto';
-import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto';
-import { VerifyResultDto } from '../dto/verify.result.dto';
+import { IBioAuthService } from '../../remote/bio.auth.service.interface.js';
+import { IPlugin } from '../plugin.interface.js';
+import { VerifyFingerprintTemplateDto } from '../dto/verify.fingerprint.template.dto.js';
+import { VerifyFingerprintImageDto } from '../dto/verify.fingerprint.image.dto.js';
+import { VerifyFiltersDto } from '../dto/verify.filters.dto.js';
+import { BioAuthSaveParamsDto } from '../../remote/dto/bio.auth.save.params.dto.js';
+import { BioAuthSaveDto } from '../../remote/dto/bio.auth.save.dto.js';
+import { VerifyResultDto } from '../dto/verify.result.dto.js';
+import { ProtocolErrorCode, ProtocolException } from 'protocol-common';
+import { Logger } from '@nestjs/common';
+import { IsValidInstance, IsValidInstanceOf, ValidateParams } from 'protocol-common/validation';
 
 export class FingerprintPlugin implements IPlugin {
 

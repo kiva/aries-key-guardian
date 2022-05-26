@@ -1,8 +1,8 @@
 /**
  * Defines the interface for all our authentication plugins
  */
-import { VerifyFiltersDto } from './dto/verify.filters.dto';
-import { VerifyResultDto } from './dto/verify.result.dto';
+import { VerifyFiltersDto } from './dto/verify.filters.dto.js';
+import { VerifyResultDto } from './dto/verify.result.dto.js';
 
 export interface IPlugin {
 

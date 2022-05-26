@@ -1,11 +1,8 @@
-/**
- * Can't enable these rules without changing the behavior of the script.
- */
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import typeorm from 'typeorm';
 
-export class PopulateExternalId1610662630571 implements MigrationInterface {
+export class PopulateExternalId1610662630571 implements typeorm.MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(queryRunner: typeorm.QueryRunner): Promise<void> {
         // Data migration that populates the external_id table with data from the sms_otp table
         await queryRunner.query(
             `INSERT INTO external_id (did, external_id, external_id_type)

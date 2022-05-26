@@ -1,9 +1,9 @@
-import { RateLimitService } from '../../src/ratelimit/ratelimit.service';
+import { RateLimitService } from '../../dist/ratelimit/ratelimit.service.js';
 import cacheManager from 'cache-manager';
-import { randomString } from '../../src/support/random.string.generator';
-import { RateLimitBucket } from '../../src/ratelimit/ratelimit.bucket';
+import { RateLimitBucket } from '../../dist/ratelimit/ratelimit.bucket.js';
+import { RateLimitConfigService } from '../../dist/ratelimit/ratelimit.config.service.js';
+import { randomString } from 'protocol-common';
 import data from '../support/ratelimit.config.test.json';
-import { RateLimitConfigService } from '../../src/ratelimit/ratelimit.config.service';
 
 describe('Rate Limit Service', () => {
 

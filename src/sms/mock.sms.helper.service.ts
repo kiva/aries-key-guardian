@@ -1,4 +1,4 @@
-import { SmsHelperService } from '../../src/sms/sms.helper.service';
+import { SmsHelperService } from './sms.helper.service.js';
 
 export class MockSmsHelperService extends SmsHelperService {
     constructor(private readonly otp?: number) {

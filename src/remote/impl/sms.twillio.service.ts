@@ -1,10 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { Logger } from 'protocol-common/logger';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { Constants } from 'protocol-common/constants';
+import { Injectable, Logger } from '@nestjs/common';
 import twilio from 'twilio';
-import { ISmsService } from '../sms.service.interface';
+import { ISmsService } from '../sms.service.interface.js';
+import { Constants, ProtocolErrorCode, ProtocolException } from 'protocol-common';
 
 /**
  * Putting Twillio in its own service in case we want to support other SMS services

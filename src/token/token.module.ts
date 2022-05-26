@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TokenService } from './token.service';
-import { RemoteModule } from '../remote/remote.module';
+import { TokenService } from './token.service.js';
+import { RemoteModule } from '../remote/remote.module.js';
 
 @Module({
     imports: [RemoteModule],

@@ -1,6 +1,6 @@
-import { FingerprintTypeEnum } from '../fingerprint.type.enum';
+import { FingerprintTypeEnum } from '../fingerprint.type.enum.js';
 import { IsEnum, IsInt, IsISO8601, IsNumber, IsOptional, IsString, Length } from 'class-validator';
-import { FingerprintPositionEnum } from '../fingerprint.position.enum';
+import { FingerprintPositionEnum } from '../fingerprint.position.enum.js';
 
 /**
  * DTO for the params of each fingerprint in the body of the request sent to Bio Auth Service's /save endpoint

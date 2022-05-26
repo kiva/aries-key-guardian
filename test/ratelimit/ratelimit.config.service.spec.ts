@@ -1,6 +1,6 @@
-import { RateLimitConfigService } from '../../src/ratelimit/ratelimit.config.service';
-import { RateLimitBucket } from '../../src/ratelimit/ratelimit.bucket';
-import { ProtocolException } from 'protocol-common/protocol.exception';
+import { RateLimitConfigService } from '../../dist/ratelimit/ratelimit.config.service.js';
+import { RateLimitBucket } from '../../dist/ratelimit/ratelimit.bucket.js';
+import { ProtocolException } from 'protocol-common';
 import data from '../support/ratelimit.config.test.json';
 
 describe('Rate Limit Config Service', () => {

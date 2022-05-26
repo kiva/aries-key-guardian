@@ -1,12 +1,9 @@
-import { ProtocolHttpService } from 'protocol-common/protocol.http.service';
 import { AxiosRequestConfig } from 'axios';
 import { Injectable } from '@nestjs/common';
-import { IBioAuthService } from '../bio.auth.service.interface';
-import { BioAuthBulkSaveDto } from '../dto/bio.auth.bulk.save.dto';
-import { FingerprintTypeEnum } from '../fingerprint.type.enum';
-import { ProtocolException } from 'protocol-common/protocol.exception';
-import { ProtocolErrorCode } from 'protocol-common/protocol.errorcode';
-import { HttpService } from '@nestjs/axios';
+import { IBioAuthService } from '../bio.auth.service.interface.js';
+import { BioAuthBulkSaveDto } from '../dto/bio.auth.bulk.save.dto.js';
+import { FingerprintTypeEnum } from '../fingerprint.type.enum.js';
+import { ProtocolErrorCode, ProtocolException, ProtocolHttpService } from 'protocol-common';
 
 /**
  * This service class is a facade for the Bio Auth Service HTTP API.
@@ -15,11 +12,9 @@ import { HttpService } from '@nestjs/axios';
 export class BioAuthService implements IBioAuthService {
 
     private readonly baseUrl: string;
-    private readonly http: ProtocolHttpService;
     private readonly isExternal: boolean;
 
-    constructor(httpService: HttpService) {
-        this.http = new ProtocolHttpService(httpService);
+    constructor(private readonly http: ProtocolHttpService) {
         this.baseUrl = process.env.BIO_AUTH_SERVICE_URL;
         this.isExternal = process.env.EXTERNAL_BIO_AUTH === 'true';
     }

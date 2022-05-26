@@ -1,4 +1,4 @@
-import { BioAuthSaveDto } from './bio.auth.save.dto';
+import { BioAuthSaveDto } from './bio.auth.save.dto.js';
 import { ValidateNested } from 'class-validator';
 
 /**

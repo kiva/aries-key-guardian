@@ -1,4 +1,4 @@
-import { IJwksService } from '../../src/remote/jwks.service.interface';
+import { IJwksService } from '../jwks.service.interface.js';
 import { CertSigningKey, SigningKey } from 'jwks-rsa';
 
 export class MockJwksService implements IJwksService {

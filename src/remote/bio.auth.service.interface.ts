@@ -1,4 +1,4 @@
-import { BioAuthBulkSaveDto } from './dto/bio.auth.bulk.save.dto';
+import { BioAuthBulkSaveDto } from './dto/bio.auth.bulk.save.dto.js';
 
 export abstract class IBioAuthService {
     abstract verifyFingerprint(position: number, image: string, agentIds: string[], externalIds: object): Promise<any>;
