@@ -97,6 +97,6 @@
     "ignore": [
       "src/**/*.spec.ts"
     ],
-    "exec": "tsc && node -r dotenv/config --experimental-vm-modules dist/main.js"
+    "exec": "tsc && node -r dotenv/config --experimental-json-modules dist/main.js"
   }
 }
