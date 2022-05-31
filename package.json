@@ -37,7 +37,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
     "pg": "^8.6.0",
-    "protocol-common": "^1.1.1",
+    "protocol-common": "1.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "swagger-ui-express": "^4.3.0",
@@ -69,7 +69,9 @@
     "ts-node": "^10.8.0"
   },
   "jest": {
-    "extensionsToTreatAsEsm": [".ts"],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "globals": {
       "factories": {},
       "ts-jest": {

@@ -15,8 +15,7 @@ export class AppService {
      * Sets up app in a way that can be used by main.ts and e2e tests
      */
     public static setup(app: INestApplication): void {
-        const logger = new Logger(app.get(ProtocolLogger));
-        app.useLogger(logger);
+        app.useLogger(app.get(ProtocolLogger));
         app.use(traceware(process.env.SERVICE_NAME));
         app.useGlobalFilters(new ProtocolExceptionFilter());
 
